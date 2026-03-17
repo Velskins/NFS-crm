@@ -28,6 +28,9 @@ class Contact
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\ManyToOne(inversedBy: 'contacts')]
+    private ?Client $client = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -92,4 +95,17 @@ class Contact
         $this->createdAt = $createdAt;
         return $this;
     }
+
+    public function getClient(): ?Client
+    {
+        return $this->client;
+    }
+
+    public function setClient(?Client $client): static
+    {
+        $this->client = $client;
+
+        return $this;
+    }
+
 }
