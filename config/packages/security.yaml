@@ -10,6 +10,10 @@ security:
                 class: App\Entity\User
                 property: email
 
+    role_hierarchy:
+        ROLE_CLIENT: ROLE_USER
+        ROLE_ADMIN: [ ROLE_CLIENT, ROLE_ALLOWED_TO_SWITCH ]
+
     # 3. Les Pare-feux (Firewalls)
     firewalls:
         dev:
@@ -20,29 +24,45 @@ security:
             lazy: true
             provider: app_user_provider
 
-            # Configuration du formulaire de connexion
+            # 1. On indique à Symfony quel authentificateur utiliser en priorité
+            entry_point: App\Security\AppAuthentificator
+
+            # Ton authentificateur personnalisé (créé par make:auth)
+            custom_authenticators:
+                - App\Security\AppAuthentificator
+
+            # Ton formulaire classique
             form_login:
                 login_path: app_login
                 check_path: app_login
                 enable_csrf: true
 
-            # Configuration de la déconnexion
             logout:
                 path: app_logout
+            custom_authenticator: App\Security\AppAuthentificatorAuthenticator
+
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
+                # by default, the feature is enabled by checking a checkbox in the
+                # login form, uncomment the following line to always enable it.
+                #always_remember_me: true
 
     # 4. Contrôle d'accès (Qui a le droit de voir quoi)
     access_control:
-        # Pages publiques
+        # Public
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
 
-        # Pages protégées (Nécessitent d'être connecté)
-        - { path: ^/client, roles: ROLE_USER }
-        - { path: ^/project, roles: ROLE_USER }
-        - { path: ^/contact, roles: ROLE_USER }
-
-        # Administration (Si besoin plus tard)
+        # Réservé au Freelance (ADMIN)
         - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/client/new, roles: ROLE_ADMIN }
+        - { path: ^/client/\d+/edit, roles: ROLE_ADMIN } # Seul l'admin modifie
+
+        # Ouvert aux Clients et au Freelance
+        - { path: ^/project, roles: ROLE_CLIENT }
+        - { path: ^/contact, roles: ROLE_CLIENT }
 
 when@test:
     security:
