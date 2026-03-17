@@ -51,10 +51,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Project::class, mappedBy: 'user')]
     private Collection $projects;
 
+    /**
+     * @var Collection<int, Ticket>
+     */
+    #[ORM\OneToMany(targetEntity: Ticket::class, mappedBy: 'user')]
+    private Collection $tickets;
+
+    /**
+     * @var Collection<int, TicketMessage>
+     */
+    #[ORM\OneToMany(targetEntity: TicketMessage::class, mappedBy: 'author')]
+    private Collection $ticketMessages;
+
     public function __construct()
     {
         $this->clients = new ArrayCollection();
         $this->projects = new ArrayCollection();
+        $this->tickets = new ArrayCollection();
+        $this->ticketMessages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -207,6 +221,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($project->getUser() === $this) {
                 $project->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Ticket>
+     */
+    public function getTickets(): Collection
+    {
+        return $this->tickets;
+    }
+
+    public function addTicket(Ticket $ticket): static
+    {
+        if (!$this->tickets->contains($ticket)) {
+            $this->tickets->add($ticket);
+            $ticket->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTicket(Ticket $ticket): static
+    {
+        if ($this->tickets->removeElement($ticket)) {
+            // set the owning side to null (unless already changed)
+            if ($ticket->getUser() === $this) {
+                $ticket->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TicketMessage>
+     */
+    public function getTicketMessages(): Collection
+    {
+        return $this->ticketMessages;
+    }
+
+    public function addTicketMessage(TicketMessage $ticketMessage): static
+    {
+        if (!$this->ticketMessages->contains($ticketMessage)) {
+            $this->ticketMessages->add($ticketMessage);
+            $ticketMessage->setAuthor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTicketMessage(TicketMessage $ticketMessage): static
+    {
+        if ($this->ticketMessages->removeElement($ticketMessage)) {
+            // set the owning side to null (unless already changed)
+            if ($ticketMessage->getAuthor() === $this) {
+                $ticketMessage->setAuthor(null);
             }
         }
 
