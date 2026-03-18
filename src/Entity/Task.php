@@ -14,21 +14,67 @@ class Task
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $task = null;
+    private ?string $title = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $status = null;
+
+    #[ORM\Column]
+    private ?\DateTime $deadline = null;
+
+    #[ORM\ManyToOne(inversedBy: 'tasks')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Project $project = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getTask(): ?string
+    public function getTitle(): ?string
     {
-        return $this->task;
+        return $this->title;
     }
 
-    public function setTask(string $task): static
+    public function setTitle(string $title): static
     {
-        $this->task = $task;
+        $this->title = $title;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getDeadline(): ?\DateTime
+    {
+        return $this->deadline;
+    }
+
+    public function setDeadline(\DateTime $deadline): static
+    {
+        $this->deadline = $deadline;
+
+        return $this;
+    }
+
+    public function getProject(): ?Project
+    {
+        return $this->project;
+    }
+
+    public function setProject(?Project $project): static
+    {
+        $this->project = $project;
 
         return $this;
     }

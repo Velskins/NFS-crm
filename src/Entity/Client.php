@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ClientRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
@@ -19,19 +20,23 @@ class Client
     private ?string $companyName = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $contactName = null;
-
-    #[ORM\Column(length: 255)]
     private ?string $email = null;
 
-    #[ORM\Column(length: 20, nullable: true)]
-    private ?string $phoneNumber = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    #[ORM\Column(length: 255)]
+    private ?string $pwd = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $client = null;
+    private ?string $firstName = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $lastName = null;
+
+    #[ORM\Column(length: 45)]
+    private ?string $phone = null;
+
+    #[ORM\ManyToOne(inversedBy: 'clients')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
     /**
      * @var Collection<int, Project>
@@ -40,27 +45,45 @@ class Client
     private Collection $projects;
 
     /**
-     * @var Collection<int, Contact>
+     * @var Collection<int, Messagrie>
      */
-    #[ORM\OneToMany(targetEntity: Contact::class, mappedBy: 'client')]
-    private Collection $contacts;
-
-    #[ORM\ManyToOne(inversedBy: 'clients')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $user = null;
+    #[ORM\OneToMany(targetEntity: Messagrie::class, mappedBy: 'client')]
+    private Collection $messagries;
 
     /**
-     * @var Collection<int, Ticket>
+     * @var Collection<int, Invoice>
      */
-    #[ORM\OneToMany(targetEntity: Ticket::class, mappedBy: 'client')]
-    private Collection $tickets;
+    #[ORM\OneToMany(targetEntity: Invoice::class, mappedBy: 'client')]
+    private Collection $invoices;
+
+    #[ORM\Column(length: 255)]
+    private ?string $city = null;
+
+    #[ORM\Column(length: 10)]
+    private ?string $postalCode = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $businessSector = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $address = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $notes = null;
+
+    /**
+     * @var Collection<int, Invoice>
+     */
+
+    /**
+     * @var Collection<int, Invoice>
+     */
 
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable();
         $this->projects = new ArrayCollection();
-        $this->contacts = new ArrayCollection();
-        $this->tickets = new ArrayCollection();
+        $this->messagries = new ArrayCollection();
+        $this->invoices = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -76,17 +99,7 @@ class Client
     public function setCompanyName(string $companyName): static
     {
         $this->companyName = $companyName;
-        return $this;
-    }
 
-    public function getContactName(): ?string
-    {
-        return $this->contactName;
-    }
-
-    public function setContactName(string $contactName): static
-    {
-        $this->contactName = $contactName;
         return $this;
     }
 
@@ -98,39 +111,66 @@ class Client
     public function setEmail(string $email): static
     {
         $this->email = $email;
+
         return $this;
     }
 
-    public function getPhoneNumber(): ?string
+    public function getPwd(): ?string
     {
-        return $this->phoneNumber;
+        return $this->pwd;
     }
 
-    public function setPhoneNumber(?string $phoneNumber): static
+    public function setPwd(string $pwd): static
     {
-        $this->phoneNumber = $phoneNumber;
+        $this->pwd = $pwd;
+
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getFirstName(): ?string
     {
-        return $this->createdAt;
+        return $this->firstName;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    public function setFirstName(string $firstName): static
     {
-        $this->createdAt = $createdAt;
+        $this->firstName = $firstName;
+
         return $this;
     }
 
-    public function getClient(): ?string
+    public function getLastName(): ?string
     {
-        return $this->client;
+        return $this->lastName;
     }
 
-    public function setClient(string $client): static
+    public function setLastName(string $lastName): static
     {
-        $this->client = $client;
+        $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(string $phone): static
+    {
+        $this->phone = $phone;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }
@@ -166,74 +206,123 @@ class Client
     }
 
     /**
-     * @return Collection<int, Contact>
+     * @return Collection<int, Messagrie>
      */
-    public function getContacts(): Collection
+    public function getMessagries(): Collection
     {
-        return $this->contacts;
+        return $this->messagries;
     }
 
-    public function addContact(Contact $contact): static
+    public function addMessagry(Messagrie $messagry): static
     {
-        if (!$this->contacts->contains($contact)) {
-            $this->contacts->add($contact);
-            $contact->setClient($this);
+        if (!$this->messagries->contains($messagry)) {
+            $this->messagries->add($messagry);
+            $messagry->setClient($this);
         }
 
         return $this;
     }
 
-    public function removeContact(Contact $contact): static
+    public function removeMessagry(Messagrie $messagry): static
     {
-        if ($this->contacts->removeElement($contact)) {
+        if ($this->messagries->removeElement($messagry)) {
             // set the owning side to null (unless already changed)
-            if ($contact->getClient() === $this) {
-                $contact->setClient(null);
+            if ($messagry->getClient() === $this) {
+                $messagry->setClient(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): static
-    {
-        $this->user = $user;
 
         return $this;
     }
 
     /**
-     * @return Collection<int, Ticket>
+     * @return Collection<int, Invoice>
      */
-    public function getTickets(): Collection
+    public function getInvoices(): Collection
     {
-        return $this->tickets;
+        return $this->invoices;
     }
 
-    public function addTicket(Ticket $ticket): static
+    public function addInvoice(Invoice $invoice): static
     {
-        if (!$this->tickets->contains($ticket)) {
-            $this->tickets->add($ticket);
-            $ticket->setClient($this);
+        if (!$this->invoices->contains($invoice)) {
+            $this->invoices->add($invoice);
+            $invoice->setClient($this);
         }
 
         return $this;
     }
 
-    public function removeTicket(Ticket $ticket): static
+    public function removeInvoice(Invoice $invoice): static
     {
-        if ($this->tickets->removeElement($ticket)) {
+        if ($this->invoices->removeElement($invoice)) {
             // set the owning side to null (unless already changed)
-            if ($ticket->getClient() === $this) {
-                $ticket->setClient(null);
+            if ($invoice->getClient() === $this) {
+                $invoice->setClient(null);
             }
         }
 
         return $this;
     }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function setCity(string $city): static
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    public function getPostalCode(): ?string
+    {
+        return $this->postalCode;
+    }
+
+    public function setPostalCode(string $postalCode): static
+    {
+        $this->postalCode = $postalCode;
+
+        return $this;
+    }
+
+    public function getBusinessSector(): ?string
+    {
+        return $this->businessSector;
+    }
+
+    public function setBusinessSector(string $businessSector): static
+    {
+        $this->businessSector = $businessSector;
+
+        return $this;
+    }
+
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+
+    public function setAddress(string $address): static
+    {
+        $this->address = $address;
+
+        return $this;
+    }
+
+    public function getNotes(): ?string
+    {
+        return $this->notes;
+    }
+
+    public function setNotes(?string $notes): static
+    {
+        $this->notes = $notes;
+
+        return $this;
+    }
+
 }

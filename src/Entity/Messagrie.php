@@ -2,18 +2,17 @@
 
 namespace App\Entity;
 
-use App\Repository\TicketMessageRepository;
+use App\Repository\MessagrieRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: TicketMessageRepository::class)]
-class TicketMessage
+#[ORM\Entity(repositoryClass: MessagrieRepository::class)]
+class Messagrie
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
-
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $content = null;
@@ -21,13 +20,13 @@ class TicketMessage
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\ManyToOne(inversedBy: 'ticketMessages')]
+    #[ORM\ManyToOne(inversedBy: 'messagries')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Ticket $ticket = null;
+    private ?User $user = null;
 
-    #[ORM\ManyToOne(inversedBy: 'ticketMessages')]
+    #[ORM\ManyToOne(inversedBy: 'messagries')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $author = null;
+    private ?Client $client = null;
 
     public function getId(): ?int
     {
@@ -58,26 +57,26 @@ class TicketMessage
         return $this;
     }
 
-    public function getTicket(): ?Ticket
+    public function getUser(): ?User
     {
-        return $this->ticket;
+        return $this->user;
     }
 
-    public function setTicket(?Ticket $ticket): static
+    public function setUser(?User $user): static
     {
-        $this->ticket = $ticket;
+        $this->user = $user;
 
         return $this;
     }
 
-    public function getAuthor(): ?User
+    public function getClient(): ?Client
     {
-        return $this->author;
+        return $this->client;
     }
 
-    public function setAuthor(?User $author): static
+    public function setClient(?Client $client): static
     {
-        $this->author = $author;
+        $this->client = $client;
 
         return $this;
     }

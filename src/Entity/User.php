@@ -34,10 +34,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $firstName = null;
+    private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $lastName = null;
+    private ?string $lastname = null;
 
     /**
      * @var Collection<int, Client>
@@ -52,23 +52,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $projects;
 
     /**
-     * @var Collection<int, Ticket>
+     * @var Collection<int, Messagrie>
      */
-    #[ORM\OneToMany(targetEntity: Ticket::class, mappedBy: 'user')]
-    private Collection $tickets;
+    #[ORM\OneToMany(targetEntity: Messagrie::class, mappedBy: 'user')]
+    private Collection $messagries;
 
     /**
-     * @var Collection<int, TicketMessage>
+     * @var Collection<int, Invoice>
      */
-    #[ORM\OneToMany(targetEntity: TicketMessage::class, mappedBy: 'author')]
-    private Collection $ticketMessages;
+    #[ORM\OneToMany(targetEntity: Invoice::class, mappedBy: 'user')]
+    private Collection $invoices;
+
+    /**
+     * @var Collection<int, Invoice>
+     */
 
     public function __construct()
     {
         $this->clients = new ArrayCollection();
         $this->projects = new ArrayCollection();
-        $this->tickets = new ArrayCollection();
-        $this->ticketMessages = new ArrayCollection();
+        $this->messagries = new ArrayCollection();
+        $this->invoices = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -145,25 +149,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $data;
     }
-    public function getFirstName(): ?string
+
+    public function getFirstname(): ?string
     {
-        return $this->firstName;
+        return $this->firstname;
     }
 
-    public function setFirstName(string $firstName): static
+    public function setFirstname(string $firstname): static
     {
-        $this->firstName = $firstName;
+        $this->firstname = $firstname;
+
         return $this;
     }
 
-    public function getLastName(): ?string
+    public function getLastname(): ?string
     {
-        return $this->lastName;
+        return $this->lastname;
     }
 
-    public function setLastName(string $lastName): static
+    public function setLastname(string $lastname): static
     {
-        $this->lastName = $lastName;
+        $this->lastname = $lastname;
+
         return $this;
     }
 
@@ -228,29 +235,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Ticket>
+     * @return Collection<int, Messagrie>
      */
-    public function getTickets(): Collection
+    public function getMessagries(): Collection
     {
-        return $this->tickets;
+        return $this->messagries;
     }
 
-    public function addTicket(Ticket $ticket): static
+    public function addMessagry(Messagrie $messagry): static
     {
-        if (!$this->tickets->contains($ticket)) {
-            $this->tickets->add($ticket);
-            $ticket->setUser($this);
+        if (!$this->messagries->contains($messagry)) {
+            $this->messagries->add($messagry);
+            $messagry->setUser($this);
         }
 
         return $this;
     }
 
-    public function removeTicket(Ticket $ticket): static
+    public function removeMessagry(Messagrie $messagry): static
     {
-        if ($this->tickets->removeElement($ticket)) {
+        if ($this->messagries->removeElement($messagry)) {
             // set the owning side to null (unless already changed)
-            if ($ticket->getUser() === $this) {
-                $ticket->setUser(null);
+            if ($messagry->getUser() === $this) {
+                $messagry->setUser(null);
             }
         }
 
@@ -258,32 +265,37 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, TicketMessage>
+     * @return Collection<int, Invoice>
      */
-    public function getTicketMessages(): Collection
+
+    /**
+     * @return Collection<int, Invoice>
+     */
+    public function getInvoices(): Collection
     {
-        return $this->ticketMessages;
+        return $this->invoices;
     }
 
-    public function addTicketMessage(TicketMessage $ticketMessage): static
+    public function addInvoice(Invoice $invoice): static
     {
-        if (!$this->ticketMessages->contains($ticketMessage)) {
-            $this->ticketMessages->add($ticketMessage);
-            $ticketMessage->setAuthor($this);
+        if (!$this->invoices->contains($invoice)) {
+            $this->invoices->add($invoice);
+            $invoice->setUser($this);
         }
 
         return $this;
     }
 
-    public function removeTicketMessage(TicketMessage $ticketMessage): static
+    public function removeInvoice(Invoice $invoice): static
     {
-        if ($this->ticketMessages->removeElement($ticketMessage)) {
+        if ($this->invoices->removeElement($invoice)) {
             // set the owning side to null (unless already changed)
-            if ($ticketMessage->getAuthor() === $this) {
-                $ticketMessage->setAuthor(null);
+            if ($invoice->getUser() === $this) {
+                $invoice->setUser(null);
             }
         }
 
         return $this;
     }
+
 }
