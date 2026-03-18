@@ -19,17 +19,11 @@ class Project
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $description = null;
+    #[ORM\Column(length: 255)]
+    private ?string $status = null;
 
-    #[ORM\Column]
-    private ?float $budget = null;
-
-    #[ORM\Column(length: 50)]
-    private ?string $status = 'PROPOSAL';
-
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $deadline = null;
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    private ?string $budget = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -43,65 +37,66 @@ class Project
     private ?User $user = null;
 
     /**
-     * @var Collection<int, Invoice>
+     * @var Collection<int, Task>
      */
-    #[ORM\OneToMany(targetEntity: Invoice::class, mappedBy: 'project')]
-    private Collection $invoices;
+    #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'project')]
+    private Collection $tasks;
 
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable();
-        $this->invoices = new ArrayCollection();
+        $this->tasks = new ArrayCollection();
     }
 
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getId(): ?int { return $this->id; }
-
-    public function getTitle(): ?string { return $this->title; }
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
 
     public function setTitle(string $title): static
     {
         $this->title = $title;
+
         return $this;
     }
 
-    public function getDescription(): ?string { return $this->description; }
-
-    public function setDescription(?string $description): static
+    public function getStatus(): ?string
     {
-        $this->description = $description;
-        return $this;
+        return $this->status;
     }
-
-    public function getBudget(): ?float { return $this->budget; }
-
-    public function setBudget(float $budget): static
-    {
-        $this->budget = $budget;
-        return $this;
-    }
-
-    public function getStatus(): ?string { return $this->status; }
 
     public function setStatus(string $status): static
     {
         $this->status = $status;
+
         return $this;
     }
 
-    public function getDeadline(): ?\DateTimeInterface { return $this->deadline; }
-
-    public function setDeadline(?\DateTimeInterface $deadline): static
+    public function getBudget(): ?string
     {
-        $this->deadline = $deadline;
+        return $this->budget;
+    }
+
+    public function setBudget(string $budget): static
+    {
+        $this->budget = $budget;
+
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
@@ -130,29 +125,29 @@ class Project
     }
 
     /**
-     * @return Collection<int, Invoice>
+     * @return Collection<int, Task>
      */
-    public function getInvoices(): Collection
+    public function getTasks(): Collection
     {
-        return $this->invoices;
+        return $this->tasks;
     }
 
-    public function addInvoice(Invoice $invoice): static
+    public function addTask(Task $task): static
     {
-        if (!$this->invoices->contains($invoice)) {
-            $this->invoices->add($invoice);
-            $invoice->setProject($this);
+        if (!$this->tasks->contains($task)) {
+            $this->tasks->add($task);
+            $task->setProject($this);
         }
 
         return $this;
     }
 
-    public function removeInvoice(Invoice $invoice): static
+    public function removeTask(Task $task): static
     {
-        if ($this->invoices->removeElement($invoice)) {
+        if ($this->tasks->removeElement($task)) {
             // set the owning side to null (unless already changed)
-            if ($invoice->getProject() === $this) {
-                $invoice->setProject(null);
+            if ($task->getProject() === $this) {
+                $task->setProject(null);
             }
         }
 

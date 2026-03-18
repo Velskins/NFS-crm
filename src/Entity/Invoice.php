@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\InvoiceRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: InvoiceRepository::class)]
@@ -15,7 +13,6 @@ class Invoice
     #[ORM\Column]
     private ?int $id = null;
 
-
     #[ORM\Column(length: 255)]
     private ?string $number = null;
 
@@ -25,26 +22,19 @@ class Invoice
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $linkPDF = null;
+
     #[ORM\ManyToOne(inversedBy: 'invoices')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Project $project = null;
+    private ?Client $client = null;
 
-    /**
-     * @var Collection<int, InvoiceLine>
-     */
-    #[ORM\OneToMany(targetEntity: InvoiceLine::class, mappedBy: 'invoice')]
-    private Collection $invoiceLines;
-
-    public function __construct()
-    {
-        $this->invoiceLines = new ArrayCollection();
-    }
+    #[ORM\ManyToOne(inversedBy: 'invoices')]
+    private ?User $user = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
-
 
     public function getNumber(): ?string
     {
@@ -82,44 +72,38 @@ class Invoice
         return $this;
     }
 
-    public function getProject(): ?Project
+    public function getLinkPDF(): ?string
     {
-        return $this->project;
+        return $this->linkPDF;
     }
 
-    public function setProject(?Project $project): static
+    public function setLinkPDF(string $linkPDF): static
     {
-        $this->project = $project;
+        $this->linkPDF = $linkPDF;
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, InvoiceLine>
-     */
-    public function getInvoiceLines(): Collection
+    public function getClient(): ?Client
     {
-        return $this->invoiceLines;
+        return $this->client;
     }
 
-    public function addInvoiceLine(InvoiceLine $invoiceLine): static
+    public function setClient(?Client $client): static
     {
-        if (!$this->invoiceLines->contains($invoiceLine)) {
-            $this->invoiceLines->add($invoiceLine);
-            $invoiceLine->setInvoice($this);
-        }
+        $this->client = $client;
 
         return $this;
     }
 
-    public function removeInvoiceLine(InvoiceLine $invoiceLine): static
+    public function getUser(): ?User
     {
-        if ($this->invoiceLines->removeElement($invoiceLine)) {
-            // set the owning side to null (unless already changed)
-            if ($invoiceLine->getInvoice() === $this) {
-                $invoiceLine->setInvoice(null);
-            }
-        }
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }
