@@ -1,0 +1,167 @@
+/* ============================================================
+   SPHERA — Layout (sidebar navigation + topbar header)
+   Dépend de app.css
+   ============================================================ */
+
+
+/* ── SIDEBAR LOGO ── */
+.sidebar-logo {
+  padding:       0 var(--space-5) var(--space-8);
+  display:       flex;
+  justify-content: center;
+}
+
+.sidebar-logo-link {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             var(--space-2);
+  background:      #fff;
+  border-radius:   var(--radius-full);
+  padding:         var(--space-3) var(--space-6);
+  text-decoration: none;
+  box-shadow:      0 2px 12px rgba(0, 0, 0, 0.1);
+  transition:      transform var(--transition-fast);
+}
+
+.sidebar-logo-link:hover {
+  transform: translateY(-2px);
+}
+
+.sidebar-logo-link img {
+  height: 36px;
+  width:  auto;
+}
+
+
+/* ── SIDEBAR NAVIGATION ── */
+.sidebar-nav {
+  display:        flex;
+  flex-direction: column;
+  gap:            var(--space-1);
+  padding:        0 var(--space-4);
+}
+
+.sidebar-link {
+  display:         flex;
+  align-items:     center;
+  gap:             var(--space-3);
+  padding:         var(--space-4) var(--space-5);
+  border-radius:   var(--radius-md);
+  color:           rgba(255, 255, 255, 0.75);
+  font-size:       var(--font-size-base);
+  font-weight:     var(--font-weight-medium);
+  text-decoration: none;
+  transition:      background var(--transition-fast),
+                   color var(--transition-fast);
+}
+
+.sidebar-link svg {
+  width:      20px;
+  height:     20px;
+  flex-shrink: 0;
+}
+
+.sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color:      #fff;
+}
+
+.sidebar-link.active {
+  background:  rgba(255, 255, 255, 0.18);
+  color:       #fff;
+  font-weight: var(--font-weight-bold);
+}
+
+
+/* ── TOPBAR / HEADER ── */
+.topbar {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  height:          var(--topbar-height);
+  padding:         0 var(--space-2);
+  margin-bottom:   var(--space-6);
+  border-bottom:   1px solid rgba(194, 192, 191, 0.4);
+}
+
+.topbar-greeting {
+  font-size:   var(--font-size-md);
+  font-weight: var(--font-weight-normal);
+  color:       var(--color-text);
+}
+
+.topbar-username {
+  color:       var(--color-primary);
+  font-weight: var(--font-weight-bold);
+}
+
+.topbar-actions {
+  display:     flex;
+  align-items: center;
+  gap:         var(--space-3);
+}
+
+.topbar-icon {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  width:           40px;
+  height:          40px;
+  border-radius:   var(--radius-full);
+  color:           var(--color-text);
+  transition:      background var(--transition-fast),
+                   color var(--transition-fast);
+}
+
+.topbar-icon svg {
+  width:  22px;
+  height: 22px;
+}
+
+.topbar-icon:hover {
+  background: rgba(67, 66, 202, 0.08);
+  color:      var(--color-primary);
+}
+
+.topbar-logout {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  width:           40px;
+  height:          40px;
+  border-radius:   var(--radius-full);
+  background:      var(--color-danger);
+  color:           #fff;
+  transition:      background var(--transition-fast),
+                   transform var(--transition-fast);
+}
+
+.topbar-logout svg {
+  width:  20px;
+  height: 20px;
+}
+
+.topbar-logout:hover {
+  background: #c0392b;
+  color:      #fff;
+  transform:  scale(1.05);
+}
+
+
+/* ── PAGE CONTENT ── */
+.page-content {
+  padding: 0;
+}
+
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .topbar {
+    padding: 0;
+  }
+
+  .topbar-greeting {
+    font-size: var(--font-size-base);
+  }
+}
