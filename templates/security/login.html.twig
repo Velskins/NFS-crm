@@ -4,159 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion — Sphera</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --bg:        #ECEAE6;
-            --card:      #F2F0EC;
-            --primary:   #5047E5;
-            --btn:       #5047E5;
-            --input-bg:  #E5E3DE;
-            --label:     #5047E5;
-            --text:      #1E2340;
-            --muted:     #7A7A8C;
-            --shadow-out: 6px 6px 16px rgba(0,0,0,0.12), -4px -4px 12px rgba(255,255,255,0.85);
-            --shadow-in:  inset 3px 3px 8px rgba(0,0,0,0.10), inset -3px -3px 8px rgba(255,255,255,0.75);
-        }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--bg);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem 1rem;
-        }
-
-        /* Logo */
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 2.5rem;
-            text-decoration: none;
-        }
-        .logo img {
-            height: 60px;
-            width: auto;
-        }
-
-        /* Card */
-        .card {
-            background: var(--card);
-            border-radius: 28px;
-            box-shadow: var(--shadow-out);
-            padding: 2.5rem 2.75rem 2.75rem;
-            width: 100%;
-            max-width: 520px;
-        }
-
-        /* Form group */
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        .form-group label {
-            display: block;
-            font-weight: 700;
-            font-size: 1rem;
-            color: var(--label);
-            margin-bottom: 0.6rem;
-            letter-spacing: 0.01em;
-        }
-        .form-group input {
-            width: 100%;
-            background: var(--input-bg);
-            border: none;
-            border-radius: 50px;
-            padding: 0.85rem 1.4rem;
-            font-family: 'Outfit', sans-serif;
-            font-size: 1rem;
-            color: var(--text);
-            box-shadow: var(--shadow-in);
-            outline: none;
-            transition: box-shadow 0.2s;
-        }
-        .form-group input:focus {
-            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.12), inset -3px -3px 8px rgba(255,255,255,0.75), 0 0 0 2px rgba(80,71,229,0.25);
-        }
-
-        /* Alert erreur */
-        .alert-error {
-            background: #ffe5e5;
-            color: #c0392b;
-            border-radius: 12px;
-            padding: 0.75rem 1.2rem;
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        /* Bouton */
-        .btn-submit {
-            display: block;
-            width: fit-content;
-            margin: 2rem auto 0;
-            background: var(--btn);
-            color: #fff;
-            border: none;
-            border-radius: 50px;
-            padding: 0.85rem 3.5rem;
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            cursor: pointer;
-            box-shadow: 4px 4px 12px rgba(80,71,229,0.35), -2px -2px 8px rgba(255,255,255,0.6);
-            transition: transform 0.15s, box-shadow 0.15s;
-        }
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 6px 6px 18px rgba(80,71,229,0.4), -2px -2px 8px rgba(255,255,255,0.6);
-        }
-        .btn-submit:active {
-            transform: translateY(0);
-        }
-
-        /* Lien mot de passe oublié */
-        .forgot {
-            margin-top: 1.75rem;
-            text-align: center;
-            font-size: 0.92rem;
-            color: var(--text);
-        }
-        .forgot a {
-            font-weight: 700;
-            font-style: italic;
-            color: var(--text);
-            text-decoration: none;
-        }
-        .forgot a:hover {
-            color: var(--primary);
-        }
-
-        @media (max-width: 560px) {
-            .card { padding: 2rem 1.5rem 2.25rem; }
-            .logo img { height: 48px; }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/auth.css') }}">
 </head>
-<body>
+<body class="auth-page">
 
-    <a href="{{ path('app_login') }}" class="logo">
+    <a href="{{ path('app_login') }}" class="auth-logo">
         <img src="{{ asset('images/logo-texte-sans_fond.png') }}" alt="Sphera">
     </a>
 
-    <div class="card">
+    <div class="auth-card">
 
         {% if error %}
-            <div class="alert-error">
+            <div class="alert alert-danger">
                 {{ error.messageKey|trans(error.messageData, 'security') }}
             </div>
         {% endif %}
@@ -166,9 +26,10 @@
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
             <div class="form-group">
-                <label for="inputEmail">Email</label>
+                <label class="form-label" for="inputEmail">Email</label>
                 <input
                     type="email"
+                    class="form-control"
                     id="inputEmail"
                     name="email"
                     value="{{ last_username }}"
@@ -180,9 +41,10 @@
             </div>
 
             <div class="form-group">
-                <label for="inputPassword">Mot de passe</label>
+                <label class="form-label" for="inputPassword">Mot de passe</label>
                 <input
                     type="password"
+                    class="form-control"
                     id="inputPassword"
                     name="password"
                     autocomplete="current-password"
@@ -191,12 +53,14 @@
                 >
             </div>
 
-            <button type="submit" class="btn-submit">Se connecter</button>
+            <button type="submit" class="btn btn-primary auth-submit">
+                Se connecter
+            </button>
 
         </form>
     </div>
 
-    <p class="forgot">
+    <p class="auth-footer">
         Mot de passe oublié ?&nbsp;<a href="{{ path('app_forgot_password') }}">Cliquez ici</a>
     </p>
 
