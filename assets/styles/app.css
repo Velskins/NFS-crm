@@ -1,3 +1,578 @@
+/* ============================================================
+   SPHERA — CSS Global
+   Design System complet : variables, reset, typographie,
+   composants (card, btn, inputs, badges, alerts...)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+
+/* ============================================================
+   1. DESIGN TOKENS — CSS Variables
+   ============================================================ */
+:root {
+
+  /* — Couleurs de base — */
+  --color-bg:           #F2F0EF;   /* fond global */
+  --color-surface:      #F2F0EF;   /* fond des cards (même teinte) */
+  --color-text:         #1E2340;   /* texte principal */
+  --color-text-muted:   #7A7A8C;   /* texte secondaire / placeholders */
+  --color-text-light:   #B0AEBB;   /* labels discrets */
+
+  /* — Palette primaire (violet/indigo) — */
+  --color-primary:      #4342CA;   /* boutons, liens actifs */
+  --color-primary-hover:#3332A8;   /* hover bouton */
+  --color-primary-light:rgba(67,66,202,0.12); /* fonds légers */
+
+  /* — Palette accent (sidebar dégradé) — */
+  --color-sidebar-top:  #6026DA;
+  --color-sidebar-bot:  #5047E5;
+
+  /* — Palette secondaire (boutons secondaires) — */
+  --color-secondary:    #9A55FF;
+
+  /* — Feedback — */
+  --color-success:      #27AE60;
+  --color-success-bg:   #E5F9EE;
+  --color-warning:      #F39C12;
+  --color-warning-bg:   #FEF5E7;
+  --color-danger:       #E74C3C;
+  --color-danger-bg:    #FDEDEC;
+  --color-info:         #2980B9;
+  --color-info-bg:      #EBF5FB;
+
+  /* — Neumorphisme — */
+  /* Effet card (inset = enfoncé) */
+  --shadow-card:
+    inset -10px -10px 20px #FFFFFF,
+    inset  10px  10px 25px #C2C0BF;
+
+  /* Effet raised (surélevé — ex: boutons, éléments flottants) */
+  --shadow-raised:
+    -6px  -6px 14px #FFFFFF,
+     6px   6px 18px #C2C0BF;
+
+  /* Effet raised fort (modales, dropdowns) */
+  --shadow-raised-lg:
+    -10px -10px 20px #FFFFFF,
+     10px  10px 28px #C2C0BF;
+
+  /* Ombre portée bouton primary */
+  --shadow-btn:
+    4px 4px 12px rgba(67,66,202,0.30),
+    -2px -2px 8px #FFFFFF;
+
+  /* — Typographie — */
+  --font-family:        'Outfit', sans-serif;
+  --font-size-xs:       0.75rem;   /* 12px */
+  --font-size-sm:       0.875rem;  /* 14px */
+  --font-size-base:     1rem;      /* 16px */
+  --font-size-md:       1.125rem;  /* 18px */
+  --font-size-lg:       1.25rem;   /* 20px */
+  --font-size-xl:       1.5rem;    /* 24px */
+  --font-size-2xl:      1.875rem;  /* 30px */
+  --font-size-3xl:      2.25rem;   /* 36px */
+
+  --font-weight-light:  300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semi:   600;
+  --font-weight-bold:   700;
+  --font-weight-black:  800;
+
+  --line-height-tight:  1.25;
+  --line-height-base:   1.5;
+  --line-height-loose:  1.75;
+
+  /* — Espacements — */
+  --space-1:   0.25rem;   /* 4px  */
+  --space-2:   0.5rem;    /* 8px  */
+  --space-3:   0.75rem;   /* 12px */
+  --space-4:   1rem;      /* 16px */
+  --space-5:   1.25rem;   /* 20px */
+  --space-6:   1.5rem;    /* 24px */
+  --space-8:   2rem;      /* 32px */
+  --space-10:  2.5rem;    /* 40px */
+  --space-12:  3rem;      /* 48px */
+  --space-16:  4rem;      /* 64px */
+
+  /* — Border radius — */
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   20px;
+  --radius-xl:   28px;
+  --radius-full: 9999px;
+
+  /* — Transitions — */
+  --transition-fast:   0.15s ease;
+  --transition-base:   0.25s ease;
+  --transition-slow:   0.4s ease;
+
+  /* — Layout — */
+  --sidebar-width:     260px;
+  --topbar-height:     64px;
+  --content-max-width: 1200px;
+}
+
+
+/* ============================================================
+   2. RESET & BASE
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
-    background-color: skyblue;
+  font-family:      var(--font-family);
+  font-size:        var(--font-size-base);
+  font-weight:      var(--font-weight-normal);
+  line-height:      var(--line-height-base);
+  color:            var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img, svg, video {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+a:hover { color: var(--color-primary-hover); }
+
+ul, ol { list-style: none; }
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+
+/* ============================================================
+   3. TYPOGRAPHIE
+   ============================================================ */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--font-weight-bold);
+  line-height:  var(--line-height-tight);
+  color:        var(--color-text);
+}
+
+h1 { font-size: var(--font-size-3xl); }
+h2 { font-size: var(--font-size-2xl); }
+h3 { font-size: var(--font-size-xl);  }
+h4 { font-size: var(--font-size-lg);  }
+h5 { font-size: var(--font-size-md);  }
+h6 { font-size: var(--font-size-base); }
+
+p { margin-bottom: var(--space-4); }
+p:last-child { margin-bottom: 0; }
+
+.text-muted   { color: var(--color-text-muted); }
+.text-primary { color: var(--color-primary); }
+.text-success { color: var(--color-success); }
+.text-danger  { color: var(--color-danger); }
+.text-sm      { font-size: var(--font-size-sm); }
+.text-xs      { font-size: var(--font-size-xs); }
+.text-lg      { font-size: var(--font-size-lg); }
+.font-bold    { font-weight: var(--font-weight-bold); }
+.font-semi    { font-weight: var(--font-weight-semi); }
+.text-center  { text-align: center; }
+.text-right   { text-align: right; }
+
+
+/* ============================================================
+   4. CARD
+   ============================================================ */
+.card {
+  background:    var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow:    var(--shadow-card);
+  padding:       var(--space-8);
+}
+
+.card-sm   { padding: var(--space-6); border-radius: var(--radius-lg); }
+.card-lg   { padding: var(--space-10) var(--space-12); }
+
+.card-raised {
+  background:    var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow:    var(--shadow-raised);
+  padding:       var(--space-8);
+}
+
+.card-header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  margin-bottom:   var(--space-6);
+  padding-bottom:  var(--space-4);
+  border-bottom:   1px solid rgba(194,192,191,0.4);
+}
+
+.card-title {
+  font-size:   var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color:       var(--color-text);
+}
+
+
+/* ============================================================
+   5. BOUTONS
+   ============================================================ */
+.btn {
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             var(--space-2);
+  padding:         0.7rem 1.75rem;
+  border:          none;
+  border-radius:   var(--radius-full);
+  font-family:     var(--font-family);
+  font-size:       var(--font-size-sm);
+  font-weight:     var(--font-weight-black);
+  letter-spacing:  0.07em;
+  text-transform:  uppercase;
+  cursor:          pointer;
+  text-decoration: none;
+  transition:      transform var(--transition-fast), box-shadow var(--transition-fast);
+  white-space:     nowrap;
+}
+
+/* Primary */
+.btn-primary {
+  background:  var(--color-primary);
+  color:       #fff;
+  box-shadow:  var(--shadow-btn);
+}
+.btn-primary:hover {
+  background:  var(--color-primary-hover);
+  color:       #fff;
+  transform:   translateY(-2px);
+  box-shadow:  6px 6px 18px rgba(67,66,202,0.35), -2px -2px 8px #FFFFFF;
+}
+.btn-primary:active { transform: translateY(0); }
+
+/* Secondary */
+.btn-secondary {
+  background:  var(--color-surface);
+  color:       var(--color-primary);
+  box-shadow:  var(--shadow-raised);
+}
+.btn-secondary:hover {
+  color:      var(--color-primary-hover);
+  transform:  translateY(-2px);
+  box-shadow: var(--shadow-raised-lg);
+}
+
+/* Danger */
+.btn-danger {
+  background: var(--color-danger);
+  color:      #fff;
+  box-shadow: 4px 4px 12px rgba(231,76,60,0.30), -2px -2px 8px #FFFFFF;
+}
+.btn-danger:hover { background: #c0392b; color: #fff; transform: translateY(-2px); }
+
+/* Ghost */
+.btn-ghost {
+  background:  transparent;
+  color:       var(--color-primary);
+  box-shadow:  none;
+}
+.btn-ghost:hover { background: var(--color-primary-light); }
+
+/* Tailles */
+.btn-sm { padding: 0.5rem 1.25rem; font-size: var(--font-size-xs); }
+.btn-lg { padding: 0.9rem 2.5rem;  font-size: var(--font-size-base); }
+
+/* Désactivé */
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+
+/* ============================================================
+   6. FORMULAIRES
+   ============================================================ */
+.form-group {
+  margin-bottom: var(--space-5);
+}
+
+.form-label {
+  display:       block;
+  font-weight:   var(--font-weight-bold);
+  font-size:     var(--font-size-base);
+  color:         var(--color-primary);
+  margin-bottom: var(--space-2);
+  letter-spacing: 0.01em;
+}
+
+.form-label-dark {
+  color: var(--color-text);
+}
+
+.form-control {
+  width:       100%;
+  background:  var(--color-surface);
+  border:      none;
+  border-radius: var(--radius-full);
+  padding:     0.8rem 1.4rem;
+  font-family: var(--font-family);
+  font-size:   var(--font-size-base);
+  color:       var(--color-text);
+  box-shadow:  var(--shadow-card);
+  outline:     none;
+  transition:  box-shadow var(--transition-fast);
+}
+.form-control::placeholder { color: var(--color-text-light); }
+.form-control:focus {
+  box-shadow:
+    inset -10px -10px 20px #FFFFFF,
+    inset  10px  10px 25px #C2C0BF,
+    0 0 0 2px rgba(67,66,202,0.25);
+}
+
+/* Textarea */
+textarea.form-control {
+  border-radius: var(--radius-lg);
+  resize:        vertical;
+  min-height:    100px;
+}
+
+/* Select */
+select.form-control {
+  appearance:    none;
+  cursor:        pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A7A8C' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1.2rem center;
+  padding-right: 2.5rem;
+}
+
+/* Checkbox & Radio */
+.form-check {
+  display:     flex;
+  align-items: center;
+  gap:         var(--space-2);
+  cursor:      pointer;
+}
+.form-check input[type="checkbox"],
+.form-check input[type="radio"] {
+  width:         18px;
+  height:        18px;
+  accent-color:  var(--color-primary);
+  cursor:        pointer;
+  flex-shrink:   0;
+}
+.form-check-label {
+  font-size:  var(--font-size-sm);
+  color:      var(--color-text);
+  cursor:     pointer;
+}
+
+/* Hint sous un champ */
+.form-hint {
+  font-size:  var(--font-size-xs);
+  color:      var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+
+/* Erreur inline */
+.form-error {
+  font-size:  var(--font-size-xs);
+  color:      var(--color-danger);
+  margin-top: var(--space-1);
+  font-weight: var(--font-weight-medium);
+}
+
+
+/* ============================================================
+   7. BADGES & STATUTS
+   ============================================================ */
+.badge {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           var(--space-1);
+  padding:       0.2rem 0.7rem;
+  border-radius: var(--radius-full);
+  font-size:     var(--font-size-xs);
+  font-weight:   var(--font-weight-semi);
+  letter-spacing: 0.03em;
+}
+
+.badge-primary { background: var(--color-primary-light); color: var(--color-primary); }
+.badge-success { background: var(--color-success-bg);    color: var(--color-success); }
+.badge-warning { background: var(--color-warning-bg);    color: var(--color-warning); }
+.badge-danger  { background: var(--color-danger-bg);     color: var(--color-danger);  }
+.badge-muted   { background: rgba(122,122,140,0.12);     color: var(--color-text-muted); }
+
+
+/* ============================================================
+   8. ALERTES
+   ============================================================ */
+.alert {
+  display:       flex;
+  align-items:   flex-start;
+  gap:           var(--space-3);
+  padding:       var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  font-size:     var(--font-size-sm);
+  font-weight:   var(--font-weight-medium);
+  margin-bottom: var(--space-5);
+}
+
+.alert-success { background: var(--color-success-bg); color: var(--color-success); }
+.alert-warning { background: var(--color-warning-bg); color: var(--color-warning); }
+.alert-danger  { background: var(--color-danger-bg);  color: var(--color-danger);  }
+.alert-info    { background: var(--color-info-bg);    color: var(--color-info);    }
+
+
+/* ============================================================
+   9. TABLES
+   ============================================================ */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+}
+
+.table {
+  width:           100%;
+  border-collapse: collapse;
+  font-size:       var(--font-size-sm);
+}
+
+.table th {
+  text-align:      left;
+  padding:         var(--space-3) var(--space-4);
+  font-weight:     var(--font-weight-semi);
+  font-size:       var(--font-size-xs);
+  text-transform:  uppercase;
+  letter-spacing:  0.06em;
+  color:           var(--color-text-muted);
+  border-bottom:   2px solid rgba(194,192,191,0.4);
+}
+
+.table td {
+  padding:       var(--space-4);
+  color:         var(--color-text);
+  border-bottom: 1px solid rgba(194,192,191,0.25);
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td { border-bottom: none; }
+.table tbody tr:hover { background: rgba(67,66,202,0.04); }
+
+
+/* ============================================================
+   10. LAYOUT PRINCIPAL (App avec sidebar)
+   ============================================================ */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width:      var(--sidebar-width);
+  min-height: 100vh;
+  background: linear-gradient(to bottom, var(--color-sidebar-top), var(--color-sidebar-bot));
+  display:    flex;
+  flex-direction: column;
+  position:   fixed;
+  top:        0;
+  left:       0;
+  z-index:    100;
+  padding:    var(--space-8) 0 var(--space-6);
+}
+
+/* Zone de contenu principal */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex:        1;
+  padding:     var(--space-8) var(--space-10);
+  max-width:   calc(100vw - var(--sidebar-width));
+}
+
+/* Page header */
+.page-header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  margin-bottom:   var(--space-8);
+}
+
+.page-title {
+  font-size:   var(--font-size-2xl);
+  font-weight: var(--font-weight-black);
+  color:       var(--color-text);
+}
+
+
+/* ============================================================
+   11. UTILITAIRES
+   ============================================================ */
+.d-flex       { display: flex; }
+.d-grid       { display: grid; }
+.d-none       { display: none; }
+.align-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center  { justify-content: center; }
+.gap-2  { gap: var(--space-2); }
+.gap-4  { gap: var(--space-4); }
+.gap-6  { gap: var(--space-6); }
+.gap-8  { gap: var(--space-8); }
+.w-full { width: 100%; }
+
+.mt-4  { margin-top:    var(--space-4); }
+.mb-4  { margin-bottom: var(--space-4); }
+.mt-6  { margin-top:    var(--space-6); }
+.mb-6  { margin-bottom: var(--space-6); }
+.mt-8  { margin-top:    var(--space-8); }
+.mb-8  { margin-bottom: var(--space-8); }
+
+.p-4  { padding: var(--space-4); }
+.p-6  { padding: var(--space-6); }
+.p-8  { padding: var(--space-8); }
+
+.rounded-full { border-radius: var(--radius-full); }
+.rounded-lg   { border-radius: var(--radius-lg);   }
+.rounded-xl   { border-radius: var(--radius-xl);   }
+
+.truncate {
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  white-space:   nowrap;
+}
+
+
+/* ============================================================
+   12. RESPONSIVE
+   ============================================================ */
+@media (max-width: 1024px) {
+  :root { --sidebar-width: 220px; }
+  .main-content { padding: var(--space-6) var(--space-6); }
+}
+
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); transition: transform var(--transition-base); }
+  .sidebar.open { transform: translateX(0); }
+  .main-content { margin-left: 0; max-width: 100vw; padding: var(--space-6) var(--space-4); }
+  h1 { font-size: var(--font-size-2xl); }
+  h2 { font-size: var(--font-size-xl);  }
+  .card { padding: var(--space-6); }
 }

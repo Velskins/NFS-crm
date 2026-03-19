@@ -1,34 +1,68 @@
-{% extends 'base.html.twig' %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion — Sphera</title>
+    <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/auth.css') }}">
+</head>
+<body class="auth-page">
 
-{% block title %}Log in!{% endblock %}
+    <a href="{{ path('app_login') }}" class="auth-logo">
+        <img src="{{ asset('images/logo-texte-sans_fond.png') }}" alt="Sphera">
+    </a>
 
-{% block body %}
-<form method="post">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+    <div class="auth-card">
 
-    {% if app.user %}
-        <div class="mb-3">
-            You are logged in as {{ app.user.userIdentifier }}, <a href="{{ logout_path() }}">Logout</a>
-        </div>
-    {% endif %}
+        {% if error %}
+            <div class="alert alert-danger">
+                {{ error.messageKey|trans(error.messageData, 'security') }}
+            </div>
+        {% endif %}
 
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-    <label for="inputEmail">Email</label>
-    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
-    <label for="inputPassword">Password</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
-    <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+        <form method="post" action="{{ path('app_login') }}" novalidate>
 
-    <div class="checkbox mb-3">
-        <label>
-            <input type="checkbox" name="_remember_me"> Remember me
-        </label>
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <div class="form-group">
+                <label class="form-label" for="inputEmail">Email</label>
+                <input
+                    type="email"
+                    class="form-control"
+                    id="inputEmail"
+                    name="email"
+                    value="{{ last_username }}"
+                    autocomplete="email"
+                    autofocus
+                    required
+                    placeholder="votre@email.com"
+                >
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="inputPassword">Mot de passe</label>
+                <input
+                    type="password"
+                    class="form-control"
+                    id="inputPassword"
+                    name="password"
+                    autocomplete="current-password"
+                    required
+                    placeholder="••••••••"
+                >
+            </div>
+
+            <button type="submit" class="btn btn-primary auth-submit">
+                Se connecter
+            </button>
+
+        </form>
     </div>
 
-    <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-    </button>
-</form>
-{% endblock %}
+    <p class="auth-footer">
+        Mot de passe oublié ?&nbsp;<a href="{{ path('app_forgot_password') }}">Cliquez ici</a>
+    </p>
+
+</body>
+</html>

@@ -1,0 +1,104 @@
+/* ============================================================
+   SPHERA — Auth pages (login, mot de passe oublié)
+   Dépend de app.css
+   ============================================================ */
+
+.auth-page {
+  min-height:      100vh;
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  justify-content: center;
+  padding:         var(--space-8) var(--space-4);
+  background:      var(--color-bg);
+}
+
+/* Logo centré */
+.auth-logo {
+  display:         flex;
+  align-items:     center;
+  gap:             var(--space-3);
+  margin-bottom:   var(--space-10);
+  text-decoration: none;
+}
+.auth-logo img {
+  height:    60px;
+  width:     auto;
+}
+
+/* Card auth */
+.auth-card {
+  width:      100%;
+  max-width:  500px;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+  padding:    var(--space-10) var(--space-10) var(--space-10);
+}
+
+/* Labels violet dans l'auth */
+.auth-card .form-label { color: var(--color-primary); }
+
+/* Bouton submit centré */
+.auth-submit {
+  display:    block;
+  margin:     var(--space-8) auto 0;
+  padding:    0.85rem 3.5rem;
+}
+
+/* Lien sous la card */
+.auth-footer {
+  margin-top:  var(--space-6);
+  font-size:   var(--font-size-sm);
+  color:       var(--color-text);
+  text-align:  center;
+}
+.auth-footer a {
+  font-weight:  var(--font-weight-bold);
+  font-style:   italic;
+  color:        var(--color-text);
+}
+.auth-footer a:hover { color: var(--color-primary); }
+
+/* Wrapper avec bouton retour */
+.auth-card-wrapper {
+  position:  relative;
+  width:     100%;
+  max-width: 500px;
+}
+
+.btn-back {
+  position:        absolute;
+  left:            -52px;
+  top:             var(--space-4);
+  width:           38px;
+  height:          38px;
+  background:      var(--color-surface);
+  border:          none;
+  border-radius:   var(--radius-md);
+  box-shadow:      var(--shadow-raised);
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  cursor:          pointer;
+  text-decoration: none;
+  color:           var(--color-text);
+  transition:      transform var(--transition-fast);
+}
+.btn-back:hover { transform: translateX(-2px); color: var(--color-text); }
+.btn-back svg   { width: 18px; height: 18px; }
+
+/* Hint texte sous input */
+.auth-hint {
+  font-size:   var(--font-size-sm);
+  color:       var(--color-text-muted);
+  text-align:  center;
+  margin-top:  var(--space-3);
+  line-height: var(--line-height-loose);
+}
+
+@media (max-width: 560px) {
+  .auth-card  { padding: var(--space-8) var(--space-6); }
+  .auth-logo img { height: 48px; }
+  .btn-back   { display: none; }
+}
