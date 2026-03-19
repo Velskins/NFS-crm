@@ -1,45 +1,62 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Client index{% endblock %}
+{% block title %}Liste des clients{% endblock %}
 
 {% block body %}
-    <h1>Client index</h1>
+    <h1>Mes clients</h1>
+
+    <form method="GET" action="{{ path('app_client_index') }}">
+        <input
+            type="text"
+            name="search"
+            value="{{ search }}"
+            placeholder="Rechercher par nom, entreprise, ville, email..."
+        >
+        <button type="submit">🔍 Rechercher</button>
+        {% if search %}
+            <a href="{{ path('app_client_index') }}">✕ Réinitialiser</a>
+        {% endif %}
+    </form>
 
     <table class="table">
         <thead>
-            <tr>
-                <th>Id</th>
-                <th>CompanyName</th>
-                <th>ContactName</th>
-                <th>Email</th>
-                <th>PhoneNumber</th>
-                <th>CreatedAt</th>
-                <th>Client</th>
-                <th>actions</th>
-            </tr>
+        <tr>
+            <th>Entreprise</th>
+            <th>Contact</th>
+            <th>Email</th>
+            <th>Téléphone</th>
+            <th>Ville</th>
+            <th>Secteur</th>
+            <th>Actions</th>
+        </tr>
         </thead>
         <tbody>
         {% for client in clients %}
             <tr>
-                <td>{{ client.id }}</td>
                 <td>{{ client.companyName }}</td>
-                <td>{{ client.contactName }}</td>
+                <td>{{ client.firstName }} {{ client.lastName }}</td>
                 <td>{{ client.email }}</td>
-                <td>{{ client.phoneNumber }}</td>
-                <td>{{ client.createdAt ? client.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ client.client }}</td>
+                <td>{{ client.phone ?? '-' }}</td>
+                <td>{{ client.city ?? '-' }}</td>
+                <td>{{ client.businessSector ?? '-' }}</td>
                 <td>
-                    <a href="{{ path('app_client_show', {'id': client.id}) }}">show</a>
-                    <a href="{{ path('app_client_edit', {'id': client.id}) }}">edit</a>
+                    <a href="{{ path('app_client_show', {'id': client.id}) }}">Voir</a>
+                    <a href="{{ path('app_client_edit', {'id': client.id}) }}">Modifier</a>
                 </td>
             </tr>
         {% else %}
             <tr>
-                <td colspan="8">no records found</td>
+                <td colspan="7">
+                    {% if search %}
+                        Aucun client trouvé pour "{{ search }}"
+                    {% else %}
+                        Aucun client pour l'instant.
+                    {% endif %}
+                </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 
-    <a href="{{ path('app_client_new') }}">Create new</a>
+    <a href="{{ path('app_client_new') }}">+ Nouveau client</a>
 {% endblock %}

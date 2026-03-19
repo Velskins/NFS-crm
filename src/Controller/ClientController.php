@@ -15,10 +15,17 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ClientController extends AbstractController
 {
     #[Route(name: 'app_client_index', methods: ['GET'])]
-    public function index(ClientRepository $clientRepository): Response
+    public function index(Request $request, ClientRepository $clientRepository): Response
     {
+        $search = $request->query->get('search', '');
+
+        $clients = $search
+            ? $clientRepository->findBySearch($search, $this->getUser())
+            : $clientRepository->findBy(['user' => $this->getUser()]);
+
         return $this->render('client/index.html.twig', [
-            'clients' => $clientRepository->findBy(['user' => $this->getUser()]),
+            'clients' => $clients,
+            'search'  => $search,
         ]);
     }
 
@@ -31,6 +38,7 @@ final class ClientController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $client->setUser($this->getUser());
+            $client->setPwd('changeme'); // mot de passe temporaire, système mail à implémenter plus tard
             $entityManager->persist($client);
             $entityManager->flush();
 
