@@ -18,14 +18,30 @@ final class ClientController extends AbstractController
     public function index(Request $request, ClientRepository $clientRepository): Response
     {
         $search = $request->query->get('search', '');
+        $status = $request->query->get('status', '');
 
         $clients = $search
             ? $clientRepository->findBySearch($search, $this->getUser())
             : $clientRepository->findBy(['user' => $this->getUser()]);
 
+        // Filtrer par statut si demandé
+        if ($status) {
+            $clients = array_filter($clients, function ($client) use ($status) {
+                $hasUnpaid = false;
+                foreach ($client->getInvoices() as $invoice) {
+                    if ($invoice->getStatus() !== 'Payée') {
+                        $hasUnpaid = true;
+                        break;
+                    }
+                }
+                return $status === 'attente' ? $hasUnpaid : !$hasUnpaid;
+            });
+        }
+
         return $this->render('client/index.html.twig', [
             'clients' => $clients,
             'search'  => $search,
+            'status'  => $status,
         ]);
     }
 
@@ -38,9 +54,11 @@ final class ClientController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $client->setUser($this->getUser());
-            $client->setPwd('changeme'); // mot de passe temporaire, système mail à implémenter plus tard
+            $client->setPwd('changeme');
             $entityManager->persist($client);
             $entityManager->flush();
+
+            $this->addFlash('success', 'Client "' . $client->getFirstName() . ' ' . $client->getLastName() . '" créé avec succès.');
 
             return $this->redirectToRoute('app_client_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -68,6 +86,8 @@ final class ClientController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
+            $this->addFlash('success', 'Client "' . $client->getFirstName() . ' ' . $client->getLastName() . '" modifié avec succès.');
+
             return $this->redirectToRoute('app_client_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -83,6 +103,8 @@ final class ClientController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$client->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($client);
             $entityManager->flush();
+
+            $this->addFlash('success', 'Client supprimé avec succès.');
         }
 
         return $this->redirectToRoute('app_client_index', [], Response::HTTP_SEE_OTHER);

@@ -1,0 +1,415 @@
+/* ============================================================
+   SPHERA — Clients
+   Dépend de app.css (design tokens, composants de base)
+   ============================================================ */
+
+
+/* ── HEADER (bouton Nouveau client centré) ── */
+.clients-header {
+  display:         flex;
+  justify-content: center;
+  margin-bottom:   var(--space-8);
+}
+
+
+/* ── TOOLBAR (recherche + filtre sur une ligne) ── */
+.clients-toolbar {
+  display:       flex;
+  align-items:   center;
+  gap:           var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.clients-search-wrapper {
+  position:      relative;
+  display:       flex;
+  align-items:   center;
+  flex:          1;
+}
+
+.clients-search-icon {
+  position:       absolute;
+  left:           16px;
+  width:          18px;
+  height:         18px;
+  color:          var(--color-text-muted);
+  pointer-events: none;
+}
+
+.clients-search-input {
+  width:         100%;
+  padding:       0.7rem 2.8rem 0.7rem 2.8rem;
+  background:    var(--color-bg);
+  border:        none;
+  border-radius: var(--radius-full);
+  box-shadow:    var(--shadow-card);
+  font-family:   var(--font-family);
+  font-size:     var(--font-size-sm);
+  color:         var(--color-text);
+  outline:       none;
+  transition:    box-shadow var(--transition-fast);
+}
+
+.clients-search-input::placeholder {
+  color: var(--color-text-light);
+}
+
+.clients-search-input:focus {
+  box-shadow:
+    inset -10px -10px 20px #FFFFFF,
+    inset  10px  10px 25px #C2C0BF,
+    0 0 0 2px rgba(67, 66, 202, 0.25);
+}
+
+.clients-search-clear {
+  position:        absolute;
+  right:           12px;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  width:           24px;
+  height:          24px;
+  color:           var(--color-text-muted);
+  transition:      color var(--transition-fast);
+}
+
+.clients-search-clear svg {
+  width:  16px;
+  height: 16px;
+}
+
+.clients-search-clear:hover {
+  color: var(--color-danger);
+}
+
+/* ── Filtre statut ── */
+.clients-filter {
+  position:    relative;
+  display:     flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.clients-filter-icon {
+  position:       absolute;
+  left:           14px;
+  width:          16px;
+  height:         16px;
+  color:          var(--color-text-muted);
+  pointer-events: none;
+}
+
+.clients-filter-select {
+  appearance:    none;
+  background:    var(--color-bg);
+  border:        none;
+  border-radius: var(--radius-full);
+  box-shadow:    var(--shadow-card);
+  padding:       0.7rem 2.5rem 0.7rem 2.5rem;
+  font-family:   var(--font-family);
+  font-size:     var(--font-size-sm);
+  color:         var(--color-text);
+  cursor:        pointer;
+  outline:       none;
+  white-space:   nowrap;
+  transition:    box-shadow var(--transition-fast);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A7A8C' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:   no-repeat;
+  background-position: right 14px center;
+}
+
+.clients-filter-select:focus {
+  box-shadow:
+    inset -10px -10px 20px #FFFFFF,
+    inset  10px  10px 25px #C2C0BF,
+    0 0 0 2px rgba(67, 66, 202, 0.25);
+}
+
+
+/* ── TABLE CLIENTS (réutilise les patterns du dashboard) ── */
+.clients-table {
+  width:           100%;
+  border-collapse: collapse;
+  font-size:       var(--font-size-sm);
+}
+
+.clients-table th {
+  text-align:     left;
+  padding:        var(--space-3) var(--space-4);
+  font-weight:    var(--font-weight-bold);
+  font-size:      var(--font-size-sm);
+  color:          var(--color-text);
+  border-bottom:  2px solid rgba(194, 192, 191, 0.35);
+}
+
+.clients-table td {
+  padding:        var(--space-4);
+  color:          var(--color-text);
+  border-bottom:  1px solid rgba(194, 192, 191, 0.18);
+  vertical-align: middle;
+}
+
+.clients-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.clients-table tbody tr:hover {
+  background: rgba(67, 66, 202, 0.03);
+}
+
+
+/* ── COLONNE CONTACT (icône + texte) ── */
+.clients-contact {
+  display:     flex;
+  align-items: center;
+  gap:         var(--space-2);
+  color:       var(--color-text-muted);
+  font-size:   var(--font-size-sm);
+}
+
+.clients-contact svg {
+  width:       14px;
+  height:      14px;
+  flex-shrink: 0;
+  opacity:     0.6;
+}
+
+
+/* ── BADGES STATUT ── */
+.clients-status {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           6px;
+  padding:       4px 12px;
+  border-radius: var(--radius-full);
+  font-size:     var(--font-size-xs);
+  font-weight:   var(--font-weight-semi);
+  white-space:   nowrap;
+}
+
+.clients-status svg {
+  width:  13px;
+  height: 13px;
+}
+
+.clients-status--actif {
+  color:      #fff;
+  background: var(--color-success);
+}
+
+.clients-status--attente {
+  color:        var(--color-text-muted);
+  background:   rgba(122, 122, 140, 0.06);
+  border:       1.5px solid rgba(122, 122, 140, 0.3);
+}
+
+
+/* ── ICÔNES D'ACTION ── */
+.clients-actions {
+  display:     flex;
+  align-items: center;
+  gap:         var(--space-2);
+}
+
+.clients-actions a,
+.clients-actions button {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  width:           28px;
+  height:          28px;
+  border-radius:   var(--radius-sm);
+  color:           var(--color-text-light);
+  background:      none;
+  border:          none;
+  cursor:          pointer;
+  transition:      color var(--transition-fast),
+                   background var(--transition-fast);
+}
+
+.clients-actions a:hover,
+.clients-actions button:hover {
+  color:      var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.clients-actions .clients-action-delete:hover {
+  color:      var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+.clients-actions svg {
+  width:  16px;
+  height: 16px;
+}
+
+
+/* ── MESSAGE VIDE ── */
+.clients-empty {
+  text-align:  center;
+  padding:     var(--space-10) var(--space-4);
+  color:       var(--color-text-muted);
+  font-size:   var(--font-size-base);
+}
+
+
+/* ── FORMULAIRE CLIENT ── */
+.client-form-header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  margin-bottom:   var(--space-6);
+  padding-bottom:  var(--space-4);
+  border-bottom:   1px solid rgba(194, 192, 191, 0.3);
+}
+
+.client-form-title {
+  font-size:   var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color:       var(--color-text);
+}
+
+.client-form {
+  display:        flex;
+  flex-direction: column;
+  gap:            var(--space-5);
+}
+
+.client-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap:     var(--space-5);
+}
+
+.client-form-row--full {
+  grid-template-columns: 1fr;
+}
+
+.client-form-field {
+  display:        flex;
+  flex-direction: column;
+  gap:            0;
+}
+
+.client-form-label {
+  font-size:     var(--font-size-sm);
+  font-weight:   var(--font-weight-medium);
+  color:         var(--color-text);
+  margin-bottom: var(--space-2);
+}
+
+.client-form-input-wrap {
+  position:      relative;
+  display:       flex;
+  align-items:   center;
+}
+
+.client-form-icon {
+  position:       absolute;
+  left:           14px;
+  width:          18px;
+  height:         18px;
+  color:          var(--color-text-muted);
+  pointer-events: none;
+  flex-shrink:    0;
+}
+
+.client-form-input {
+  width:         100%;
+  padding:       0.75rem 1rem 0.75rem 2.6rem;
+  background:    #fff;
+  border:        1.5px solid rgba(194, 192, 191, 0.45);
+  border-radius: var(--radius-md);
+  font-family:   var(--font-family);
+  font-size:     var(--font-size-sm);
+  color:         var(--color-text);
+  outline:       none;
+  transition:    border-color var(--transition-fast),
+                 box-shadow var(--transition-fast);
+}
+
+.client-form-input::placeholder {
+  color: var(--color-text-light);
+}
+
+.client-form-input:focus {
+  border-color: var(--color-primary);
+  box-shadow:   0 0 0 3px rgba(67, 66, 202, 0.1);
+}
+
+.client-form-textarea-wrap {
+  position: relative;
+}
+
+.client-form-textarea {
+  width:         100%;
+  padding:       0.75rem 1rem;
+  background:    #fff;
+  border:        1.5px solid rgba(194, 192, 191, 0.45);
+  border-radius: var(--radius-md);
+  font-family:   var(--font-family);
+  font-size:     var(--font-size-sm);
+  color:         var(--color-text);
+  outline:       none;
+  resize:        vertical;
+  min-height:    100px;
+  transition:    border-color var(--transition-fast),
+                 box-shadow var(--transition-fast);
+}
+
+.client-form-textarea::placeholder {
+  color: var(--color-text-light);
+}
+
+.client-form-textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow:   0 0 0 3px rgba(67, 66, 202, 0.1);
+}
+
+/* Erreurs Symfony */
+.client-form-field ul {
+  margin-top: var(--space-1);
+}
+
+.client-form-field ul li {
+  font-size:  var(--font-size-xs);
+  color:      var(--color-danger);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Bouton submit centré sous la card */
+.client-form-submit {
+  display:         flex;
+  justify-content: center;
+  margin-top:      var(--space-8);
+}
+
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .clients-toolbar {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .clients-filter {
+    width: 100%;
+  }
+
+  .clients-filter-select {
+    width: 100%;
+  }
+
+  .clients-table {
+    font-size: var(--font-size-xs);
+  }
+
+  .clients-table th,
+  .clients-table td {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .client-form-row {
+    grid-template-columns: 1fr;
+  }
+}

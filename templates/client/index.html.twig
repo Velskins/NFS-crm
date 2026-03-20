@@ -1,62 +1,146 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Liste des clients{% endblock %}
+{% block title %}Clients — Sphera{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/clients.css') }}">
+{% endblock %}
 
 {% block body %}
-    <h1>Mes clients</h1>
 
-    <form method="GET" action="{{ path('app_client_index') }}">
-        <input
-            type="text"
-            name="search"
-            value="{{ search }}"
-            placeholder="Rechercher par nom, entreprise, ville, email..."
-        >
-        <button type="submit">🔍 Rechercher</button>
-        {% if search %}
-            <a href="{{ path('app_client_index') }}">✕ Réinitialiser</a>
-        {% endif %}
-    </form>
+    {# ── Bouton Nouveau client (centré) ── #}
+    <div class="clients-header">
+        <a href="{{ path('app_client_new') }}" class="btn btn-primary">Nouveau client</a>
+    </div>
 
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Entreprise</th>
-            <th>Contact</th>
-            <th>Email</th>
-            <th>Téléphone</th>
-            <th>Ville</th>
-            <th>Secteur</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for client in clients %}
-            <tr>
-                <td>{{ client.companyName }}</td>
-                <td>{{ client.firstName }} {{ client.lastName }}</td>
-                <td>{{ client.email }}</td>
-                <td>{{ client.phone ?? '-' }}</td>
-                <td>{{ client.city ?? '-' }}</td>
-                <td>{{ client.businessSector ?? '-' }}</td>
-                <td>
-                    <a href="{{ path('app_client_show', {'id': client.id}) }}">Voir</a>
-                    <a href="{{ path('app_client_edit', {'id': client.id}) }}">Modifier</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="7">
+    {# ── Card principale ── #}
+    <div class="card">
+        <div class="inside-card">
+
+            {# ── Barre de recherche + filtre statut ── #}
+            <form method="GET" action="{{ path('app_client_index') }}" class="clients-toolbar">
+                <div class="clients-search-wrapper">
+                    <svg class="clients-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input
+                        type="text"
+                        name="search"
+                        value="{{ search }}"
+                        placeholder="Rechercher par nom, entreprise, ville, email..."
+                        class="clients-search-input"
+                    >
+                    {% if search or status %}
+                        <a href="{{ path('app_client_index') }}" class="clients-search-clear" title="Réinitialiser">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </a>
+                    {% endif %}
+                </div>
+
+                <div class="clients-filter">
+                    <svg class="clients-filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                    </svg>
+                    <select name="status" class="clients-filter-select" onchange="this.form.submit()">
+                        <option value="">Tous les statuts</option>
+                        <option value="actif" {{ status == 'actif' ? 'selected' : '' }}>Actif</option>
+                        <option value="attente" {{ status == 'attente' ? 'selected' : '' }}>Attente de paiement</option>
+                    </select>
+                </div>
+            </form>
+
+            {# ── Flash messages ── #}
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }}">{{ message }}</div>
+                {% endfor %}
+            {% endfor %}
+
+            {# ── Table clients ── #}
+            {% if clients is not empty %}
+                <div class="table-wrapper">
+                    <table class="clients-table">
+                        <thead>
+                            <tr>
+                                <th>Nom du client</th>
+                                <th>Entreprise</th>
+                                <th>Contact</th>
+                                <th>Argent en attente</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for client in clients %}
+                                <tr>
+                                    <td>{{ client.firstName }} {{ client.lastName }}</td>
+                                    <td>{{ client.companyName }}</td>
+                                    <td>
+                                        <span class="clients-contact">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                            </svg>
+                                            {{ client.phone ?? '—' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {# TODO: calculer la somme des factures impayées #}
+                                        {% set unpaid = 0 %}
+                                        {% for invoice in client.invoices %}
+                                            {% if invoice.status != 'Payée' %}
+                                                {% set unpaid = unpaid + 1 %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {{ unpaid > 0 ? '—' : '0 €' }}
+                                    </td>
+                                    <td>
+                                        {# Statut basé sur les factures impayées #}
+                                        {% if unpaid > 0 %}
+                                            <span class="clients-status clients-status--attente">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                                Attente de paiement
+                                            </span>
+                                        {% else %}
+                                            <span class="clients-status clients-status--actif">
+                                                Actif
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="clients-actions">
+                                            {# Voir #}
+                                            <a href="{{ path('app_client_show', {'id': client.id}) }}" title="Voir">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            </a>
+                                            {# Modifier #}
+                                            <a href="{{ path('app_client_edit', {'id': client.id}) }}" title="Modifier">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                            </a>
+                                            {# Supprimer #}
+                                            <form method="post" action="{{ path('app_client_delete', {'id': client.id}) }}" onsubmit="return confirm('Supprimer ce client ?');" style="display:inline">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ client.id) }}">
+                                                <button type="submit" class="clients-action-delete" title="Supprimer">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="clients-empty">
                     {% if search %}
                         Aucun client trouvé pour "{{ search }}"
                     {% else %}
                         Aucun client pour l'instant.
                     {% endif %}
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+                </div>
+            {% endif %}
 
-    <a href="{{ path('app_client_new') }}">+ Nouveau client</a>
+        </div>{# /inside-card #}
+    </div>
+
 {% endblock %}
