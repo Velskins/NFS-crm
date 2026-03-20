@@ -52,9 +52,8 @@ security:
 
     # 4. Contrôle d'accès (Qui a le droit de voir quoi)
     access_control:
-        # Public
         - { path: ^/login, roles: PUBLIC_ACCESS }
-        - { path: ^/register, roles: PUBLIC_ACCESS }
+        - { path: ^/, roles: ROLE_USER }
 
         # Réservé au Freelance (ADMIN)
         - { path: ^/admin, roles: ROLE_ADMIN }

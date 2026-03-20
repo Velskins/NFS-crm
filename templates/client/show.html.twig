@@ -1,46 +1,62 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Client{% endblock %}
+{% block title %}{{ client.companyName }}{% endblock %}
 
 {% block body %}
-    <h1>Client</h1>
 
+    <h1>{{ client.companyName }}</h1>
+
+    {# Infos entreprise #}
+    <h2>Entreprise</h2>
     <table class="table">
         <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ client.id }}</td>
-            </tr>
-            <tr>
-                <th>CompanyName</th>
-                <td>{{ client.companyName }}</td>
-            </tr>
-            <tr>
-                <th>ContactName</th>
-                <td>{{ client.contactName }}</td>
-            </tr>
-            <tr>
-                <th>Email</th>
-                <td>{{ client.email }}</td>
-            </tr>
-            <tr>
-                <th>PhoneNumber</th>
-                <td>{{ client.phoneNumber }}</td>
-            </tr>
-            <tr>
-                <th>CreatedAt</th>
-                <td>{{ client.createdAt ? client.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Client</th>
-                <td>{{ client.client }}</td>
-            </tr>
+        <tr>
+            <th>Secteur d'activité</th>
+            <td>{{ client.businessSector ?? '-' }}</td>
+        </tr>
+        <tr>
+            <th>Adresse</th>
+            <td>{{ client.address ?? '-' }}</td>
+        </tr>
+        <tr>
+            <th>Ville</th>
+            <td>{{ client.city ?? '-' }}</td>
+        </tr>
+        <tr>
+            <th>Code postal</th>
+            <td>{{ client.postalCode ?? '-' }}</td>
+        </tr>
         </tbody>
     </table>
 
-    <a href="{{ path('app_client_index') }}">back to list</a>
+    {# Infos contact #}
+    <h2>Contact</h2>
+    <table class="table">
+        <tbody>
+        <tr>
+            <th>Nom</th>
+            <td>{{ client.firstName }} {{ client.lastName }}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{ client.email }}</td>
+        </tr>
+        <tr>
+            <th>Téléphone</th>
+            <td>{{ client.phone ?? '-' }}</td>
+        </tr>
+        </tbody>
+    </table>
 
-    <a href="{{ path('app_client_edit', {'id': client.id}) }}">edit</a>
+    {# Notes #}
+    {% if client.notes %}
+        <h2>Notes</h2>
+        <p>{{ client.notes }}</p>
+    {% endif %}
 
+    {# Actions #}
+    <a href="{{ path('app_client_index') }}">← Retour à la liste</a>
+    <a href="{{ path('app_client_edit', {'id': client.id}) }}">Modifier</a>
     {{ include('client/_delete_form.html.twig') }}
+
 {% endblock %}

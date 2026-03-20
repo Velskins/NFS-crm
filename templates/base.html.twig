@@ -90,7 +90,7 @@
             {# Header #}
             <header class="topbar">
                 <div class="topbar-greeting">
-                    Bonjour, <span class="topbar-username">{{ app.user.firstname }}</span>
+                    Bonjour, <span class="topbar-username">{{ app.user ? app.user.firstname : 'Invité' }}</span>
                 </div>
 
                 <div class="topbar-actions">
