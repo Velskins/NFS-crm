@@ -25,8 +25,8 @@
   --color-primary-light:rgba(67,66,202,0.12); /* fonds légers */
 
   /* — Palette accent (sidebar dégradé) — */
-  --color-sidebar-top:  #5047E5;
-  --color-sidebar-bot:  #6026DA;
+  --color-sidebar-top:  #6026DA;
+  --color-sidebar-bot:  #5047E5;
 
   /* — Palette secondaire (boutons secondaires) — */
   --color-secondary:    #9A55FF;
@@ -228,6 +228,14 @@ p:last-child { margin-bottom: 0; }
   color:       var(--color-text);
 }
 
+/* Contenu blanc à l'intérieur d'une card inset */
+.inside-card {
+  background:    #FFFFFF;
+  padding:       25px;
+  border-radius: var(--radius-lg);
+  min-height: 100%;
+}
+
 
 /* ============================================================
    5. BOUTONS
@@ -239,7 +247,7 @@ p:last-child { margin-bottom: 0; }
   gap:             var(--space-2);
   padding:         0.7rem 1.75rem;
   border:          none;
-  border-radius:   var(--radius-full);
+  border-radius:   10px;
   font-family:     var(--font-family);
   font-size:       var(--font-size-sm);
   font-weight:     var(--font-weight-black);
@@ -502,10 +510,13 @@ select.form-control {
 
 /* Zone de contenu principal */
 .main-content {
-  margin-left: var(--sidebar-width);
-  flex:        1;
-  padding:     var(--space-8) var(--space-10);
-  max-width:   calc(100vw - var(--sidebar-width));
+  margin-left:    var(--sidebar-width);
+  flex:           1;
+  padding:        var(--space-8) var(--space-10);
+  max-width:      calc(100vw - var(--sidebar-width));
+  display:        flex;
+  flex-direction: column;
+  min-height:     100vh;
 }
 
 /* Page header */

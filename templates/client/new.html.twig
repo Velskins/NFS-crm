@@ -1,11 +1,32 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Client{% endblock %}
+{% block title %}Nouveau client — Sphera{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/clients.css') }}">
+{% endblock %}
 
 {% block body %}
-    <h1>Create new Client</h1>
 
-    {{ include('client/_form.html.twig') }}
+    {# ── Card principale ── #}
+    <div class="card">
+        <div class="inside-card">
 
-    <a href="{{ path('app_client_index') }}">back to list</a>
+            {# Header fieldset style #}
+            <div class="client-form-header">
+                <h2 class="client-form-title">Détails du client</h2>
+            </div>
+
+            {# ── Flash messages ── #}
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }}">{{ message }}</div>
+                {% endfor %}
+            {% endfor %}
+
+            {{ include('client/_form.html.twig') }}
+
+        </div>{# /inside-card #}
+    </div>
+
 {% endblock %}

@@ -1,13 +1,32 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Client{% endblock %}
+{% block title %}Modifier {{ client.firstName }} {{ client.lastName }} — Sphera{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/clients.css') }}">
+{% endblock %}
 
 {% block body %}
-    <h1>Edit Client</h1>
 
-    {{ include('client/_form.html.twig', {'button_label': 'Update'}) }}
+    {# ── Card principale ── #}
+    <div class="card">
+        <div class="inside-card">
 
-    <a href="{{ path('app_client_index') }}">back to list</a>
+            <div class="client-form-header">
+                <h2 class="client-form-title">Modifier le client</h2>
+                <a href="{{ path('app_client_index') }}" class="dash-card-link">Retour à la liste</a>
+            </div>
 
-    {{ include('client/_delete_form.html.twig') }}
+            {# ── Flash messages ── #}
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }}">{{ message }}</div>
+                {% endfor %}
+            {% endfor %}
+
+{{ include('client/_form.html.twig', {'button_label': 'Enregistrer'}) }}
+
+        </div>{# /inside-card #}
+    </div>
+
 {% endblock %}

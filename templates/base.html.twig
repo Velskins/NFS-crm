@@ -90,7 +90,7 @@
             {# Header #}
             <header class="topbar">
                 <div class="topbar-greeting">
-                    Bonjour, <span class="topbar-username">{{ app.user ? app.user.firstname : 'Invité' }}</span>
+                    Bonjour, <span class="topbar-username">{{ app.user.firstname }}</span>
                 </div>
 
                 <div class="topbar-actions">
@@ -117,6 +117,11 @@
             <div class="page-content">
                 {% block body %}{% endblock %}
             </div>
+
+            {# Footer global #}
+            <footer class="app-footer">
+                &copy; 2026 SPHERA – Need For School Rouen. Tous droits réservés.
+            </footer>
 
         </div>
 

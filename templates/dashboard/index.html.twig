@@ -8,6 +8,9 @@
 
 {% block body %}
 
+    {# ══════════════════════════════════════════════════════
+       KPI CARDS (3 colonnes)
+       ══════════════════════════════════════════════════════ #}
     <div class="dash-kpis">
 
         {# KPI 1 — Revenu annuel #}
@@ -69,6 +72,7 @@
        GESTION DES PROJETS (table)
        ══════════════════════════════════════════════════════ #}
     <div class="dash-card">
+        <div class="inside-card">
         <div class="dash-card-header">
             <h2 class="dash-card-title">Gestion des projets</h2>
             <a href="{{ path('app_project_index') }}" class="dash-card-link">Tout voir</a>
@@ -212,6 +216,7 @@
                 </tbody>
             </table>
         </div>
+        </div>{# /inside-card #}
     </div>
 
 
@@ -222,6 +227,7 @@
 
         {# ── Calendrier ── #}
         <div class="dash-card">
+            <div class="inside-card">
             <div class="dash-card-header">
                 <h2 class="dash-card-title">Calendrier</h2>
                 <select class="dash-cal-select">
@@ -276,46 +282,31 @@
                 <div class="dash-cal-hour">12 h</div>
                 <div class="dash-cal-slot"></div>
             </div>
+            </div>{# /inside-card #}
         </div>
 
-        {# ── Liste Clients ── #}
+
+{# ── Liste Clients ── #}
         <div class="dash-card">
+            <div class="inside-card">
             <div class="dash-card-header">
                 <h2 class="dash-card-title">Clients</h2>
+                <a href="{{ path('app_client_index') }}" class="dash-card-link">Tout voir</a>
             </div>
 
             <div class="dash-clients-list">
-                <div class="dash-client-item">
-                    <div class="dash-client-avatar">LA</div>
-                    <span class="dash-client-name">Leslie A</span>
-                </div>
-                <div class="dash-client-item">
-                    <div class="dash-client-avatar">CW</div>
-                    <span class="dash-client-name">Cameron W</span>
-                </div>
-                <div class="dash-client-item">
-                    <div class="dash-client-avatar">LA</div>
-                    <span class="dash-client-name">Leslie Alexander</span>
-                </div>
-                <div class="dash-client-item">
-                    <div class="dash-client-avatar">LA</div>
-                    <span class="dash-client-name">Leslie Alexander</span>
-                </div>
-                <div class="dash-client-item">
-                    <div class="dash-client-avatar">LA</div>
-                    <span class="dash-client-name">Leslie Alexander</span>
-                </div>
+                {% for client in clients %}
+                    <a href="{{ path('app_client_show', {'id': client.id}) }}" class="dash-client-item">
+                        <div class="dash-client-avatar">{{ client.firstName|first|upper }}{{ client.lastName|first|upper }}</div>
+                        <span class="dash-client-name">{{ client.firstName }} {{ client.lastName }}</span>
+                    </a>
+                {% else %}
+                    <p class="text-muted text-sm">Aucun client pour l'instant.</p>
+                {% endfor %}
             </div>
+            </div>{# /inside-card #}
         </div>
 
     </div>
-
-
-    {# ══════════════════════════════════════════════════════
-       FOOTER
-       ══════════════════════════════════════════════════════ #}
-    <footer class="dash-footer">
-        &copy; 2026 SPHERA – Need For School Rouen. Tous droits réservés.
-    </footer>
 
 {% endblock %}
