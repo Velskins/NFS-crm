@@ -2,5 +2,320 @@
 
 {% block title %}Tableau de bord — Sphera{% endblock %}
 
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/dashboard.css') }}">
+{% endblock %}
+
 {% block body %}
+
+    <div class="dash-kpis">
+
+        {# KPI 1 — Revenu annuel #}
+        <div class="dash-kpi">
+            <div class="dash-kpi-inner">
+                <div class="dash-kpi-ring">
+                    {# Cercle SVG — circumference = 2π × 34 ≈ 213.6, 51% = 108.9 #}
+                    <svg viewBox="0 0 80 80">
+                        <circle class="dash-kpi-ring-bg" cx="40" cy="40" r="34"/>
+                        <circle class="dash-kpi-ring-fill" cx="40" cy="40" r="34"
+                                stroke-dasharray="213.6"
+                                stroke-dashoffset="104.7"/>
+                    </svg>
+                    <span class="dash-kpi-ring-label">51%</span>
+                </div>
+                <div class="dash-kpi-value">
+                    37,500<span>/73,000</span>
+                </div>
+                <div class="dash-kpi-label">Revenu annuel Max</div>
+            </div>
+        </div>
+
+        {# KPI 2 — Clients actifs #}
+        <div class="dash-kpi">
+            <div class="dash-kpi-inner">
+                <div class="dash-kpi-ring">
+                    <svg viewBox="0 0 80 80">
+                        <circle class="dash-kpi-ring-bg" cx="40" cy="40" r="34"/>
+                        <circle class="dash-kpi-ring-fill" cx="40" cy="40" r="34"
+                                stroke-dasharray="213.6"
+                                stroke-dashoffset="0"/>
+                    </svg>
+                    <span class="dash-kpi-ring-label">5</span>
+                </div>
+                <div class="dash-kpi-value">Clients actifs</div>
+            </div>
+        </div>
+
+        {# KPI 3 — Projets en cours #}
+        <div class="dash-kpi">
+            <div class="dash-kpi-inner">
+                <div class="dash-kpi-ring">
+                    <svg viewBox="0 0 80 80">
+                        <circle class="dash-kpi-ring-bg" cx="40" cy="40" r="34"/>
+                        <circle class="dash-kpi-ring-fill" cx="40" cy="40" r="34"
+                                stroke-dasharray="213.6"
+                                stroke-dashoffset="0"/>
+                    </svg>
+                    <span class="dash-kpi-ring-label">8</span>
+                </div>
+                <div class="dash-kpi-value">Projets en cours</div>
+            </div>
+        </div>
+
+    </div>
+
+
+    {# ══════════════════════════════════════════════════════
+       GESTION DES PROJETS (table)
+       ══════════════════════════════════════════════════════ #}
+    <div class="dash-card">
+        <div class="dash-card-header">
+            <h2 class="dash-card-title">Gestion des projets</h2>
+            <a href="{{ path('app_project_index') }}" class="dash-card-link">Tout voir</a>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="dash-table">
+                <thead>
+                    <tr>
+                        <th>Nom du client</th>
+                        <th>Nom du projet</th>
+                        <th>DeadLine</th>
+                        <th>Prix</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Leslie Alexander</td>
+                        <td>CRM Dashboard</td>
+                        <td>
+                            <span class="dash-date">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                08 Mars 2026
+                            </span>
+                        </td>
+                        <td>1,500.00 €</td>
+                        <td>
+                            <span class="dash-status dash-status--attente">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                Attente
+                            </span>
+                        </td>
+                        <td>
+                            <div class="dash-actions">
+                                <a href="#" title="Voir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></a>
+                                <a href="#" title="Modifier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></a>
+                                <a href="#" title="Supprimer" class="dash-action-delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Cameron Williamson</td>
+                        <td>Refonte design</td>
+                        <td>
+                            <span class="dash-date">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                08 Mars 2026
+                            </span>
+                        </td>
+                        <td>500.00 €</td>
+                        <td>
+                            <span class="dash-status dash-status--en-cours">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4m0 12v4m-7.07-15.07l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>
+                                En Cours
+                            </span>
+                        </td>
+                        <td>
+                            <div class="dash-actions">
+                                <a href="#" title="Voir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></a>
+                                <a href="#" title="Modifier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></a>
+                                <a href="#" title="Supprimer" class="dash-action-delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Brooklyn Simmons</td>
+                        <td>SEO basique</td>
+                        <td>
+                            <span class="dash-date">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                01 Mars 2025
+                            </span>
+                        </td>
+                        <td>1,400.00 €</td>
+                        <td>
+                            <span class="dash-status dash-status--attente">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                Attente
+                            </span>
+                        </td>
+                        <td>
+                            <div class="dash-actions">
+                                <a href="#" title="Voir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></a>
+                                <a href="#" title="Modifier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></a>
+                                <a href="#" title="Supprimer" class="dash-action-delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Jenny Wilson</td>
+                        <td>Site Vitrine</td>
+                        <td>
+                            <span class="dash-date">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                28 Fev 2025
+                            </span>
+                        </td>
+                        <td>800.00 €</td>
+                        <td>
+                            <span class="dash-status dash-status--en-cours">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4m0 12v4m-7.07-15.07l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>
+                                En Cours
+                            </span>
+                        </td>
+                        <td>
+                            <div class="dash-actions">
+                                <a href="#" title="Voir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></a>
+                                <a href="#" title="Modifier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></a>
+                                <a href="#" title="Supprimer" class="dash-action-delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Jacob Jones</td>
+                        <td>App Mobile</td>
+                        <td>
+                            <span class="dash-date">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                20 Mars 2025
+                            </span>
+                        </td>
+                        <td>750.00 €</td>
+                        <td>
+                            <span class="dash-status dash-status--en-cours">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4m0 12v4m-7.07-15.07l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>
+                                En Cours
+                            </span>
+                        </td>
+                        <td>
+                            <div class="dash-actions">
+                                <a href="#" title="Voir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></a>
+                                <a href="#" title="Modifier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></a>
+                                <a href="#" title="Supprimer" class="dash-action-delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    {# ══════════════════════════════════════════════════════
+       BOTTOM ROW : Calendrier + Clients
+       ══════════════════════════════════════════════════════ #}
+    <div class="dash-bottom">
+
+        {# ── Calendrier ── #}
+        <div class="dash-card">
+            <div class="dash-card-header">
+                <h2 class="dash-card-title">Calendrier</h2>
+                <select class="dash-cal-select">
+                    <option>Mars</option>
+                    <option>Avril</option>
+                    <option>Mai</option>
+                </select>
+            </div>
+
+            {# Jours de la semaine #}
+            <div class="dash-cal-days">
+                <div class="dash-cal-day"></div>{# Espace pour la colonne heure #}
+                <div class="dash-cal-day">Lun <span class="dash-cal-day-num">21</span></div>
+                <div class="dash-cal-day">Mar <span class="dash-cal-day-num">22</span></div>
+                <div class="dash-cal-day">Mer <span class="dash-cal-day-num">23</span></div>
+                <div class="dash-cal-day">Jeu <span class="dash-cal-day-num">24</span></div>
+                <div class="dash-cal-day today">Ven <span class="dash-cal-day-num">25</span></div>
+                <div class="dash-cal-day">Sam <span class="dash-cal-day-num">26</span></div>
+                <div class="dash-cal-day">Dim <span class="dash-cal-day-num">27</span></div>
+            </div>
+
+            {# Grille horaire #}
+            <div class="dash-cal-grid">
+                <div class="dash-cal-hour">8 h</div>
+                <div class="dash-cal-slot"></div>
+
+                <div class="dash-cal-hour">9 h</div>
+                <div class="dash-cal-slot">
+                    <div class="dash-cal-task">
+                        <div class="dash-cal-task-title">Tâche: Finir Maquette CRM</div>
+                        <div class="dash-cal-task-time">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            09:15 h à 10:45 h
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dash-cal-hour">10 h</div>
+                <div class="dash-cal-slot"></div>
+
+                <div class="dash-cal-hour">11 h</div>
+                <div class="dash-cal-slot">
+                    <div class="dash-cal-task">
+                        <div class="dash-cal-task-title">Tâche: V1 maquette Client</div>
+                        <div class="dash-cal-task-time">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            11:45 h à 12:35 h
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dash-cal-hour">12 h</div>
+                <div class="dash-cal-slot"></div>
+            </div>
+        </div>
+
+        {# ── Liste Clients ── #}
+        <div class="dash-card">
+            <div class="dash-card-header">
+                <h2 class="dash-card-title">Clients</h2>
+            </div>
+
+            <div class="dash-clients-list">
+                <div class="dash-client-item">
+                    <div class="dash-client-avatar">LA</div>
+                    <span class="dash-client-name">Leslie A</span>
+                </div>
+                <div class="dash-client-item">
+                    <div class="dash-client-avatar">CW</div>
+                    <span class="dash-client-name">Cameron W</span>
+                </div>
+                <div class="dash-client-item">
+                    <div class="dash-client-avatar">LA</div>
+                    <span class="dash-client-name">Leslie Alexander</span>
+                </div>
+                <div class="dash-client-item">
+                    <div class="dash-client-avatar">LA</div>
+                    <span class="dash-client-name">Leslie Alexander</span>
+                </div>
+                <div class="dash-client-item">
+                    <div class="dash-client-avatar">LA</div>
+                    <span class="dash-client-name">Leslie Alexander</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    {# ══════════════════════════════════════════════════════
+       FOOTER
+       ══════════════════════════════════════════════════════ #}
+    <footer class="dash-footer">
+        &copy; 2026 SPHERA – Need For School Rouen. Tous droits réservés.
+    </footer>
+
 {% endblock %}

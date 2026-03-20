@@ -25,8 +25,8 @@
   --color-primary-light:rgba(67,66,202,0.12); /* fonds légers */
 
   /* — Palette accent (sidebar dégradé) — */
-  --color-sidebar-top:  #6026DA;
-  --color-sidebar-bot:  #5047E5;
+  --color-sidebar-top:  #5047E5;
+  --color-sidebar-bot:  #6026DA;
 
   /* — Palette secondaire (boutons secondaires) — */
   --color-secondary:    #9A55FF;

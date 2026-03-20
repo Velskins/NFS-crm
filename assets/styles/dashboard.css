@@ -1,0 +1,466 @@
+/* ============================================================
+   SPHERA — Dashboard
+   Dépend de app.css (design tokens, composants de base)
+   ============================================================ */
+
+
+/* ── KPI ROW ── */
+.dash-kpis {
+  display:  grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:      var(--space-6);
+  margin-bottom: var(--space-8);
+}
+
+/* Conteneur raised neumorphique autour de chaque KPI */
+.dash-kpi {
+  background:    var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow:    var(--shadow-raised);
+  padding:       var(--space-5);
+  display:       flex;
+  justify-content: center;
+}
+
+/* La card intérieure avec gradient violet */
+.dash-kpi-inner {
+  width:         100%;
+  background:    linear-gradient(180deg, var(--color-sidebar-top), var(--color-sidebar-bot));
+  border-radius: var(--radius-lg);
+  padding:       var(--space-6) var(--space-6);
+  display:       flex;
+  flex-direction: column;
+  align-items:   center;
+  gap:           var(--space-4);
+  color:         #fff;
+  position:      relative;
+}
+
+/* Cercle de progression SVG */
+.dash-kpi-ring {
+  width:    80px;
+  height:   80px;
+  position: relative;
+}
+
+.dash-kpi-ring svg {
+  width:     100%;
+  height:    100%;
+  transform: rotate(-90deg);
+}
+
+.dash-kpi-ring-bg {
+  fill:         none;
+  stroke:       rgba(255, 255, 255, 0.2);
+  stroke-width: 6;
+}
+
+.dash-kpi-ring-fill {
+  fill:            none;
+  stroke:          #fff;
+  stroke-width:    6;
+  stroke-linecap:  round;
+  transition:      stroke-dashoffset 0.6s ease;
+}
+
+.dash-kpi-ring-label {
+  position:    absolute;
+  inset:       0;
+  display:     flex;
+  align-items: center;
+  justify-content: center;
+  font-size:   var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color:       #fff;
+}
+
+/* Texte sous le ring */
+.dash-kpi-value {
+  font-size:   var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  text-align:  center;
+  line-height: var(--line-height-tight);
+}
+
+.dash-kpi-value span {
+  font-size:   var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  opacity:     0.7;
+}
+
+.dash-kpi-label {
+  font-size:   var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  opacity:     0.85;
+  text-align:  center;
+}
+
+
+/* ── SECTION CARD (projets, calendrier, clients) ── */
+.dash-card {
+  background:    var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow:    var(--shadow-raised);
+  padding:       var(--space-6) var(--space-8);
+}
+
+.dash-card-header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  margin-bottom:   var(--space-5);
+}
+
+.dash-card-title {
+  display:      flex;
+  align-items:  center;
+  gap:          var(--space-3);
+  font-size:    var(--font-size-md);
+  font-weight:  var(--font-weight-bold);
+  color:        var(--color-text);
+}
+
+/* Barre violette à gauche du titre */
+.dash-card-title::before {
+  content:       "";
+  display:       block;
+  width:         4px;
+  height:        22px;
+  background:    var(--color-primary);
+  border-radius: var(--radius-full);
+  flex-shrink:   0;
+}
+
+.dash-card-link {
+  font-size:   var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color:       var(--color-text-muted);
+  text-decoration: none;
+  transition:  color var(--transition-fast);
+}
+
+.dash-card-link:hover {
+  color: var(--color-primary);
+}
+
+
+/* ── TABLE PROJETS ── */
+.dash-table {
+  width:           100%;
+  border-collapse: collapse;
+  font-size:       var(--font-size-sm);
+}
+
+.dash-table th {
+  text-align:     left;
+  padding:        var(--space-3) var(--space-4);
+  font-weight:    var(--font-weight-bold);
+  font-size:      var(--font-size-sm);
+  color:          var(--color-text);
+  border-bottom:  2px solid rgba(194, 192, 191, 0.4);
+}
+
+.dash-table td {
+  padding:        var(--space-4);
+  color:          var(--color-text);
+  border-bottom:  1px solid rgba(194, 192, 191, 0.2);
+  vertical-align: middle;
+}
+
+.dash-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.dash-table tbody tr:hover {
+  background: rgba(67, 66, 202, 0.03);
+}
+
+/* Icône calendrier dans la colonne deadline */
+.dash-date {
+  display:     flex;
+  align-items: center;
+  gap:         var(--space-2);
+  color:       var(--color-text-muted);
+}
+
+.dash-date svg {
+  width:  14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Badge statut dans la table */
+.dash-status {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           var(--space-1);
+  padding:       0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size:     var(--font-size-xs);
+  font-weight:   var(--font-weight-semi);
+  border:        1px solid;
+}
+
+.dash-status--attente {
+  color:            var(--color-text-muted);
+  background:       rgba(122, 122, 140, 0.08);
+  border-color:     rgba(122, 122, 140, 0.25);
+}
+
+.dash-status--en-cours {
+  color:            var(--color-warning);
+  background:       var(--color-warning-bg);
+  border-color:     rgba(243, 156, 18, 0.25);
+}
+
+.dash-status--termine {
+  color:            var(--color-success);
+  background:       var(--color-success-bg);
+  border-color:     rgba(39, 174, 96, 0.25);
+}
+
+/* Icône ronde devant le statut */
+.dash-status svg {
+  width:  12px;
+  height: 12px;
+}
+
+/* Actions (voir, éditer, supprimer) */
+.dash-actions {
+  display:     flex;
+  align-items: center;
+  gap:         var(--space-2);
+}
+
+.dash-actions a {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  width:           30px;
+  height:          30px;
+  border-radius:   var(--radius-sm);
+  color:           var(--color-text-muted);
+  transition:      color var(--transition-fast),
+                   background var(--transition-fast);
+}
+
+.dash-actions a:hover {
+  color:      var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.dash-actions a.dash-action-delete:hover {
+  color:      var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+.dash-actions svg {
+  width:  16px;
+  height: 16px;
+}
+
+
+/* ── BOTTOM ROW (calendrier + clients) ── */
+.dash-bottom {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr;
+  gap:     var(--space-6);
+  margin-top: var(--space-8);
+}
+
+
+/* ── CALENDRIER ── */
+.dash-cal-header {
+  display:     flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.dash-cal-select {
+  appearance:  none;
+  background:  var(--color-surface);
+  border:      1px solid rgba(194, 192, 191, 0.5);
+  border-radius: var(--radius-sm);
+  padding:     var(--space-1) var(--space-8) var(--space-1) var(--space-3);
+  font-family: var(--font-family);
+  font-size:   var(--font-size-sm);
+  color:       var(--color-text);
+  cursor:      pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A7A8C' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:   no-repeat;
+  background-position: right 8px center;
+}
+
+/* Jours de la semaine */
+.dash-cal-days {
+  display:  grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap:      0;
+  margin-bottom: var(--space-3);
+}
+
+.dash-cal-day {
+  text-align:  center;
+  padding:     var(--space-2) 0;
+  font-size:   var(--font-size-xs);
+  color:       var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+}
+
+.dash-cal-day-num {
+  display:       block;
+  font-size:     var(--font-size-base);
+  font-weight:   var(--font-weight-bold);
+  color:         var(--color-text);
+  margin-top:    var(--space-1);
+}
+
+.dash-cal-day.today .dash-cal-day-num {
+  background:    var(--color-primary);
+  color:         #fff;
+  width:         30px;
+  height:        30px;
+  border-radius: var(--radius-sm);
+  display:       inline-flex;
+  align-items:   center;
+  justify-content: center;
+  margin-top:    var(--space-1);
+}
+
+/* Grille horaire */
+.dash-cal-grid {
+  display:  grid;
+  grid-template-columns: 40px 1fr;
+  gap:      0;
+}
+
+.dash-cal-hour {
+  font-size:   var(--font-size-xs);
+  color:       var(--color-text-muted);
+  padding:     var(--space-3) 0;
+  text-align:  right;
+  padding-right: var(--space-3);
+  border-top:  1px solid rgba(194, 192, 191, 0.2);
+}
+
+.dash-cal-slot {
+  padding:    var(--space-3) var(--space-2);
+  border-top: 1px solid rgba(194, 192, 191, 0.2);
+  min-height: 48px;
+}
+
+/* Bloc tâche dans le calendrier */
+.dash-cal-task {
+  background:    rgba(67, 66, 202, 0.08);
+  border-left:   3px solid var(--color-primary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding:       var(--space-2) var(--space-3);
+}
+
+.dash-cal-task-title {
+  font-size:   var(--font-size-sm);
+  font-weight: var(--font-weight-semi);
+  color:       var(--color-text);
+  margin-bottom: var(--space-1);
+}
+
+.dash-cal-task-time {
+  display:     flex;
+  align-items: center;
+  gap:         var(--space-1);
+  font-size:   var(--font-size-xs);
+  color:       var(--color-text-muted);
+}
+
+.dash-cal-task-time svg {
+  width:  12px;
+  height: 12px;
+}
+
+
+/* ── CLIENTS LIST ── */
+.dash-clients-list {
+  display:        flex;
+  flex-direction: column;
+  gap:            var(--space-4);
+}
+
+.dash-client-item {
+  display:     flex;
+  align-items: center;
+  gap:         var(--space-3);
+  padding:     var(--space-2) 0;
+}
+
+.dash-client-avatar {
+  width:         40px;
+  height:        40px;
+  border-radius: var(--radius-full);
+  background:    linear-gradient(135deg, var(--color-sidebar-top), var(--color-sidebar-bot));
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  color:         #fff;
+  font-size:     var(--font-size-sm);
+  font-weight:   var(--font-weight-bold);
+  flex-shrink:   0;
+}
+
+.dash-client-name {
+  font-size:   var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color:       var(--color-text);
+}
+
+
+/* ── FOOTER ── */
+.dash-footer {
+  text-align:  center;
+  padding:     var(--space-8) 0 var(--space-4);
+  font-size:   var(--font-size-sm);
+  color:       var(--color-text-muted);
+}
+
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .dash-kpis {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+  }
+
+  .dash-bottom {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-card {
+    padding: var(--space-5) var(--space-6);
+  }
+}
+
+@media (max-width: 768px) {
+  .dash-kpis {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .dash-table {
+    font-size: var(--font-size-xs);
+  }
+
+  .dash-table th,
+  .dash-table td {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .dash-card {
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .dash-kpi-ring {
+    width:  60px;
+    height: 60px;
+  }
+}
