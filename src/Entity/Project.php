@@ -28,6 +28,9 @@ class Project
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $deadline = null;
+
     #[ORM\ManyToOne(inversedBy: 'projects')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Client $client = null;
@@ -100,6 +103,16 @@ class Project
         return $this;
     }
 
+    public function getDeadline(): ?\DateTimeImmutable
+    {
+        return $this->deadline;
+    }
+
+    public function setDeadline(?\DateTimeImmutable $deadline): static
+    {
+        $this->deadline = $deadline;
+        return $this;
+    }
     public function getClient(): ?Client
     {
         return $this->client;

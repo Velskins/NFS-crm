@@ -1,46 +1,38 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Project{% endblock %}
+{% block title %}{{ project.title }}{% endblock %}
 
 {% block body %}
-    <h1>Project</h1>
+
+    <h1>{{ project.title }}</h1>
 
     <table class="table">
         <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ project.id }}</td>
-            </tr>
-            <tr>
-                <th>Title</th>
-                <td>{{ project.title }}</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ project.description }}</td>
-            </tr>
-            <tr>
-                <th>Budget</th>
-                <td>{{ project.budget }}</td>
-            </tr>
-            <tr>
-                <th>Status</th>
-                <td>{{ project.status }}</td>
-            </tr>
-            <tr>
-                <th>Deadline</th>
-                <td>{{ project.deadline ? project.deadline|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>CreatedAt</th>
-                <td>{{ project.createdAt ? project.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
+        <tr>
+            <th>Client</th>
+            <td>{{ project.client.companyName }}</td>
+        </tr>
+        <tr>
+            <th>Statut</th>
+            <td>{{ project.status }}</td>
+        </tr>
+        <tr>
+            <th>Budget</th>
+            <td>{{ project.budget }} €</td>
+        </tr>
+        <tr>
+            <th>Date limite</th>
+            <td>{{ project.deadline ? project.deadline|date('d/m/Y') : 'Non définie' }}</td>
+        </tr>
+        <tr>
+            <th>Créé le</th>
+            <td>{{ project.createdAt ? project.createdAt|date('d/m/Y') : '-' }}</td>
+        </tr>
         </tbody>
     </table>
 
-    <a href="{{ path('app_project_index') }}">back to list</a>
-
-    <a href="{{ path('app_project_edit', {'id': project.id}) }}">edit</a>
-
+    <a href="{{ path('app_project_index') }}">← Retour à la liste</a>
+    <a href="{{ path('app_project_edit', {'id': project.id}) }}">Modifier</a>
     {{ include('project/_delete_form.html.twig') }}
+
 {% endblock %}

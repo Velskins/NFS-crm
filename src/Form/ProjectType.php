@@ -6,6 +6,7 @@ use App\Entity\Project;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -23,15 +24,20 @@ class ProjectType extends AbstractType
             ->add('status', ChoiceType::class, [
                 'label'   => 'Statut',
                 'choices' => [
-                    'En attente'  => 'en_attente',
-                    'En cours'    => 'en_cours',
-                    'Terminé'     => 'termine',
-                    'Annulé'      => 'annule',
+                    'En cours' => 'en_cours',
+                    'Livré'    => 'livre',
+                    'Payé'     => 'paye',
                 ]
             ])
             ->add('budget', MoneyType::class, [
                 'label'    => 'Budget',
                 'currency' => 'EUR',
+            ])
+            ->add('deadline', DateType::class, [
+                'label'    => 'Date limite',
+                'widget'   => 'single_text',
+                'required' => false,
+                'input'    => 'datetime_immutable',
             ])
             ->add('client', EntityType::class, [
                 'class'        => Client::class,
