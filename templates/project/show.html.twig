@@ -31,6 +31,102 @@
         </tbody>
     </table>
 
+    {# Échéances de paiement #}
+    <h2>Échéances de paiement</h2>
+
+    {% set totalEcheances = 0 %}
+    {% set totalPaye = 0 %}
+
+    {% if project.paymentSchedules is empty %}
+        <p>Aucune échéance définie.</p>
+    {% else %}
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Montant</th>
+                <th>Date d'échéance</th>
+                <th>Statut</th>
+                <th>Payé le</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for payment in project.paymentSchedules %}
+                {% set totalEcheances = totalEcheances + payment.amount %}
+                {% if payment.status == 'paye' %}
+                    {% set totalPaye = totalPaye + payment.amount %}
+                {% endif %}
+                <tr>
+                    <td>{{ payment.amount }} €</td>
+                    <td>{{ payment.dueDate|date('d/m/Y') }}</td>
+                    <td>{{ payment.status == 'paye' ? '✅ Payé' : '⏳ En attente' }}</td>
+                    <td>{{ payment.paidAt ? payment.paidAt|date('d/m/Y') : '-' }}</td>
+                    <td>
+                        <form method="POST" action="{{ path('app_project_payment_delete', {'id': payment.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_payment' ~ payment.id) }}">
+                            <button type="submit">🗑️ Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {# Récap financier #}
+        <table class="table">
+            <tbody>
+            <tr>
+                <th>Budget total du projet</th>
+                <td>{{ project.budget }} €</td>
+            </tr>
+            <tr>
+                <th>Total échéances définies</th>
+                <td>{{ totalEcheances }} €
+                    {% if totalEcheances > project.budget %}
+                        ⚠️ Dépasse le budget !
+                    {% elseif totalEcheances < project.budget %}
+                        ⚠️ {{ project.budget - totalEcheances }} € non couverts
+                    {% else %}
+                        ✅ Budget couvert
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Total payé</th>
+                <td>{{ totalPaye }} €</td>
+            </tr>
+            <tr>
+                <th>Restant à payer</th>
+                <td>{{ totalEcheances - totalPaye }} €</td>
+            </tr>
+            </tbody>
+        </table>
+    {% endif %}
+    {# Générateur d'échéances automatique #}
+    <h3>Générer des échéances automatiquement</h3>
+    <form method="POST" action="{{ path('app_project_payment_generate', {'id': project.id}) }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('generate' ~ project.id) }}">
+
+        <label>Nombre d'échéances</label>
+        <input type="number" name="nombre_echeances" min="1" max="36" value="10" required>
+
+        <label>Montant par échéance (€)</label>
+        <input type="number" name="montant_echeance" step="0.01" value="{{ (project.budget / 10)|round(2) }}" required>
+
+        <label>Date de la 1ère échéance</label>
+        <input type="date" name="date_debut" required>
+
+        <label>Fréquence</label>
+        <select name="frequence">
+            <option value="monthly">Mensuelle</option>
+            <option value="weekly">Hebdomadaire</option>
+        </select>
+
+        <button type="submit">⚡ Générer les échéances</button>
+    </form>
+
+    <a href="{{ path('app_project_payment_new', {'id': project.id}) }}">➕ Ajouter une échéance</a>
+
     <a href="{{ path('app_project_index') }}">← Retour à la liste</a>
     <a href="{{ path('app_project_edit', {'id': project.id}) }}">Modifier</a>
     {{ include('project/_delete_form.html.twig') }}

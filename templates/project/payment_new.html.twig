@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle échéance — {{ project.title }}{% endblock %}
+
+{% block body %}
+    <h1>Nouvelle échéance</h1>
+    <h2>Projet : {{ project.title }}</h2>
+
+    {{ form_start(form) }}
+    {{ form_row(form.amount) }}
+    {{ form_row(form.dueDate) }}
+    {{ form_row(form.paidAt) }}
+    {{ form_row(form.status) }}
+    <button type="submit">➕ Ajouter l'échéance</button>
+    {{ form_end(form) }}
+
+    <a href="{{ path('app_project_show', {'id': project.id}) }}">← Retour au projet</a>
+{% endblock %}

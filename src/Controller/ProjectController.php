@@ -9,6 +9,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Entity\PaymentSchedule;
+use App\Form\PaymentScheduleType;
 
 #[Route('/project')]
 final class ProjectController extends AbstractController
@@ -84,5 +86,72 @@ final class ProjectController extends AbstractController
         }
 
         return $this->redirectToRoute('app_project_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/payment/new', name: 'app_project_payment_new', methods: ['GET', 'POST'])]
+    public function newPayment(Request $request, Project $project, EntityManagerInterface $entityManager): Response
+    {
+        $this->denyAccessUnlessGranted('PROJECT_EDIT', $project);
+
+        $payment = new PaymentSchedule();
+        $payment->setProject($project);
+        $form = $this->createForm(PaymentScheduleType::class, $payment);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($payment);
+            $entityManager->flush();
+            $this->addFlash('success', 'Échéance ajoutée !');
+            return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
+        }
+
+        return $this->render('project/payment_new.html.twig', [
+            'project' => $project,
+            'form'    => $form,
+        ]);
+    }
+
+    #[Route('/payment/{id}/delete', name: 'app_project_payment_delete', methods: ['POST'])]
+    public function deletePayment(Request $request, PaymentSchedule $payment, EntityManagerInterface $entityManager): Response
+    {
+        $this->denyAccessUnlessGranted('PROJECT_EDIT', $payment->getProject());
+
+        if ($this->isCsrfTokenValid('delete_payment'.$payment->getId(), $request->getPayload()->getString('_token'))) {
+            $entityManager->remove($payment);
+            $entityManager->flush();
+            $this->addFlash('success', 'Échéance supprimée !');
+        }
+
+        return $this->redirectToRoute('app_project_show', ['id' => $payment->getProject()->getId()]);
+    }
+    #[Route('/{id}/payment/generate', name: 'app_project_payment_generate', methods: ['POST'])]
+    public function generatePayments(Request $request, Project $project, EntityManagerInterface $entityManager): Response
+    {
+        $this->denyAccessUnlessGranted('PROJECT_EDIT', $project);
+
+        $nombreEcheances = (int) $request->request->get('nombre_echeances');
+        $montantParEcheance = (float) $request->request->get('montant_echeance');
+        $dateDebut = new \DateTimeImmutable($request->request->get('date_debut'));
+        $frequence = $request->request->get('frequence', 'monthly'); // monthly ou weekly
+
+        for ($i = 0; $i < $nombreEcheances; $i++) {
+            $payment = new PaymentSchedule();
+            $payment->setProject($project);
+            $payment->setAmount((string) $montantParEcheance);
+            $payment->setStatus('en_attente');
+            $payment->setPaidAt(null);
+
+            $interval = $frequence === 'weekly'
+                ? new \DateInterval('P' . ($i * 7) . 'D')
+                : new \DateInterval('P' . $i . 'M');
+
+            $payment->setDueDate($dateDebut->add($interval));
+            $entityManager->persist($payment);
+        }
+
+        $entityManager->flush();
+        $this->addFlash('success', $nombreEcheances . ' échéances générées !');
+
+        return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
     }
 }
