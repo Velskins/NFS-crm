@@ -1,0 +1,146 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon espace — Sphera{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/detail.css') }}">
+{% endblock %}
+
+{% block body %}
+
+    {# ── BIENVENUE ── #}
+    <div class="detail-grid detail-grid--full" style="margin-bottom: var(--space-6);">
+        <div class="detail-section">
+            <div class="inside-card">
+                <h2 class="detail-section-title">Bienvenue, {{ app.user.firstname }}</h2>
+                <p style="color: var(--color-text-muted); font-size: var(--font-size-sm);">
+                    Voici un récapitulatif de vos projets chez <strong>{{ client.companyName }}</strong>.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {# ── MES PROJETS ── #}
+    <div class="detail-grid detail-grid--full">
+        <div class="detail-section">
+            <div class="inside-card">
+                <h2 class="detail-section-title">Mes projets</h2>
+
+                {% if projects is not empty %}
+                    <div class="client-dash-projects">
+                        {% for project in projects %}
+                            <a href="{{ path('app_project_show', {'id': project.id}) }}" class="client-dash-project">
+                                <div class="client-dash-project-header">
+                                    <h3 class="client-dash-project-title">{{ project.title }}</h3>
+                                    {% set s = project.status|lower %}
+                                    {% if s == 'en cours' %}
+                                        <span class="detail-status detail-status--en-cours">En cours</span>
+                                    {% elseif s == 'en attente' %}
+                                        <span class="detail-status detail-status--attente">En attente</span>
+                                    {% elseif s == 'fini' or s == 'terminé' %}
+                                        <span class="detail-status detail-status--fini">Fini</span>
+                                    {% elseif s == 'annulé' or s == 'annule' %}
+                                        <span class="detail-status detail-status--annule">Annulé</span>
+                                    {% else %}
+                                        <span class="detail-status detail-status--attente">{{ project.status }}</span>
+                                    {% endif %}
+                                </div>
+
+                                {# Barre de progression #}
+                                {% set progress = project.progress %}
+                                <div class="detail-progress">
+                                    <div class="detail-progress-header">
+                                        <span class="detail-progress-label">{{ progress }}%</span>
+                                        <span class="detail-progress-count">{{ project.tasks|length }} tâches</span>
+                                    </div>
+                                    <div class="detail-progress-bar">
+                                        <div class="detail-progress-fill" style="width: {{ progress }}%"></div>
+                                    </div>
+                                </div>
+
+                                <div class="client-dash-project-footer">
+                                    <span class="client-dash-project-meta">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                        </svg>
+                                        {{ project.deadline ? project.deadline|date('d/m/Y') : 'Pas de deadline' }}
+                                    </span>
+                                    <span class="client-dash-project-budget">{{ project.budget|number_format(2, '.', ',') }} €</span>
+                                </div>
+
+                                {# Documents count #}
+                                {% if project.documents|length > 0 %}
+                                    <span class="client-dash-project-docs">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                                        </svg>
+                                        {{ project.documents|length }} document{{ project.documents|length > 1 ? 's' : '' }}
+                                    </span>
+                                {% endif %}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="detail-table-empty">Aucun projet pour l'instant.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# ── MES FACTURES (toutes factures du client) ── #}
+    <div class="detail-grid detail-grid--full">
+        <div class="detail-section">
+            <div class="inside-card">
+                <h2 class="detail-section-title">Mes factures</h2>
+
+                {% if client.invoices is not empty %}
+                    <table class="detail-table">
+                        <thead>
+                            <tr>
+                                <th>Numéro</th>
+                                <th>Date</th>
+                                <th>Statut</th>
+                                <th>PDF</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for invoice in client.invoices %}
+                                <tr>
+                                    <td>{{ invoice.number }}</td>
+                                    <td>{{ invoice.createdAt ? invoice.createdAt|date('d/m/Y') : '—' }}</td>
+                                    <td>
+                                        {% set is = invoice.status|lower %}
+                                        {% if is == 'payée' %}
+                                            <span class="detail-status detail-status--en-cours">Payée</span>
+                                        {% elseif is == 'envoyée' %}
+                                            <span class="detail-status detail-status--fini">Envoyée</span>
+                                        {% elseif is == 'en retard' %}
+                                            <span class="detail-status detail-status--annule">En retard</span>
+                                        {% else %}
+                                            <span class="detail-status detail-status--attente">{{ invoice.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if invoice.linkPDF %}
+                                            <a href="{{ invoice.linkPDF }}" target="_blank" class="detail-field-inline">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
+                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                                                </svg>
+                                                Télécharger
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted text-sm">—</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="detail-table-empty">Aucune facture pour l'instant.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

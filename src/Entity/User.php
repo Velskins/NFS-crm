@@ -39,6 +39,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $lastname = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $invitationToken = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $invitationTokenExpiresAt = null;
+
+    #[ORM\OneToOne(targetEntity: Client::class, mappedBy: 'userAccount')]
+    private ?Client $clientProfile = null;
+
     /**
      * @var Collection<int, Client>
      */
@@ -295,6 +304,49 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             }
         }
 
+        return $this;
+    }
+
+    public function getInvitationToken(): ?string
+    {
+        return $this->invitationToken;
+    }
+
+    public function setInvitationToken(?string $invitationToken): static
+    {
+        $this->invitationToken = $invitationToken;
+        return $this;
+    }
+
+    public function getInvitationTokenExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->invitationTokenExpiresAt;
+    }
+
+    public function setInvitationTokenExpiresAt(?\DateTimeImmutable $invitationTokenExpiresAt): static
+    {
+        $this->invitationTokenExpiresAt = $invitationTokenExpiresAt;
+        return $this;
+    }
+
+    public function isInvitationTokenValid(): bool
+    {
+        return $this->invitationToken !== null
+            && $this->invitationTokenExpiresAt !== null
+            && $this->invitationTokenExpiresAt > new \DateTimeImmutable();
+    }
+
+    public function getClientProfile(): ?Client
+    {
+        return $this->clientProfile;
+    }
+
+    public function setClientProfile(?Client $clientProfile): static
+    {
+        if ($clientProfile !== null && $clientProfile->getUserAccount() !== $this) {
+            $clientProfile->setUserAccount($this);
+        }
+        $this->clientProfile = $clientProfile;
         return $this;
     }
 

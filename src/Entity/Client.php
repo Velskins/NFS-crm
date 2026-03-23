@@ -71,6 +71,10 @@ class Client
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $notes = null;
 
+    #[ORM\OneToOne(targetEntity: User::class, inversedBy: 'clientProfile')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $userAccount = null;
+
     /**
      * @var Collection<int, Invoice>
      */
@@ -322,6 +326,17 @@ class Client
     {
         $this->notes = $notes;
 
+        return $this;
+    }
+
+    public function getUserAccount(): ?User
+    {
+        return $this->userAccount;
+    }
+
+    public function setUserAccount(?User $userAccount): static
+    {
+        $this->userAccount = $userAccount;
         return $this;
     }
 
