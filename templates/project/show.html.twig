@@ -1,134 +1,273 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ project.title }}{% endblock %}
+{% block title %}{{ project.title }} — Sphera{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/detail.css') }}">
+{% endblock %}
 
 {% block body %}
 
-    <h1>{{ project.title }}</h1>
+    {# ── HEADER ── #}
+    <div class="detail-header">
+        <div class="detail-header-left">
+            <a href="{{ path('app_project_index') }}" class="detail-back" title="Retour">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+            </a>
+            <div>
+                <h1 class="detail-title">{{ project.title }}</h1>
+                <p class="detail-subtitle">
+                    Client : {{ project.client.companyName }} — Créé le {{ project.createdAt ? project.createdAt|date('d/m/Y') : '—' }}
+                </p>
+            </div>
+        </div>
+        {% if is_granted('ROLE_ADMIN') %}
+        <div class="detail-header-actions">
+            <a href="{{ path('app_project_edit', {'id': project.id}) }}" class="btn btn-primary">Modifier</a>
+            <form method="post" action="{{ path('app_project_delete', {'id': project.id}) }}" onsubmit="return confirm('Supprimer ce projet ?');" style="display:inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
+                <button type="submit" class="btn btn-danger">Supprimer</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
 
-    <table class="table">
-        <tbody>
-        <tr>
-            <th>Client</th>
-            <td>{{ project.client.companyName }}</td>
-        </tr>
-        <tr>
-            <th>Statut</th>
-            <td>{{ project.status }}</td>
-        </tr>
-        <tr>
-            <th>Budget</th>
-            <td>{{ project.budget }} €</td>
-        </tr>
-        <tr>
-            <th>Date limite</th>
-            <td>{{ project.deadline ? project.deadline|date('d/m/Y') : 'Non définie' }}</td>
-        </tr>
-        <tr>
-            <th>Créé le</th>
-            <td>{{ project.createdAt ? project.createdAt|date('d/m/Y') : '-' }}</td>
-        </tr>
-        </tbody>
-    </table>
+    {# ── GRILLE : Infos projet + Avancement ── #}
+    <div class="detail-grid">
 
-    {# Échéances de paiement #}
-    <h2>Échéances de paiement</h2>
+        {# Informations projet #}
+        <div class="detail-section">
+            <div class="inside-card">
+                <h2 class="detail-section-title">Informations du projet</h2>
+                <div class="detail-fields">
+                    <div class="detail-field">
+                        <span class="detail-field-label">Titre</span>
+                        <span class="detail-field-value">{{ project.title }}</span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Budget</span>
+                        <span class="detail-field-value">{{ project.budget|number_format(2, '.', ',') }} €</span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Statut</span>
+                        <span class="detail-field-value">
+                            {% set s = project.status|lower %}
+                            {% if s == 'en cours' %}
+                                <span class="detail-status detail-status--en-cours">En cours</span>
+                            {% elseif s == 'en attente' %}
+                                <span class="detail-status detail-status--attente">En attente</span>
+                            {% elseif s == 'fini' or s == 'terminé' %}
+                                <span class="detail-status detail-status--fini">Fini</span>
+                            {% elseif s == 'annulé' or s == 'annule' %}
+                                <span class="detail-status detail-status--annule">Annulé</span>
+                            {% else %}
+                                <span class="detail-status detail-status--attente">{{ project.status }}</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Date limite</span>
+                        <span class="detail-field-value detail-field-inline">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                            {{ project.deadline ? project.deadline|date('d/m/Y') : '—' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    {% set totalEcheances = 0 %}
-    {% set totalPaye = 0 %}
+        {# Avancement #}
+        <div class="detail-section">
+            <div class="inside-card">
+                <h2 class="detail-section-title">Avancement</h2>
 
-    {% if project.paymentSchedules is empty %}
-        <p>Aucune échéance définie.</p>
-    {% else %}
-        <table class="table">
-            <thead>
-            <tr>
-                <th>Montant</th>
-                <th>Date d'échéance</th>
-                <th>Statut</th>
-                <th>Payé le</th>
-                <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for payment in project.paymentSchedules %}
-                {% set totalEcheances = totalEcheances + payment.amount %}
-                {% if payment.status == 'paye' %}
-                    {% set totalPaye = totalPaye + payment.amount %}
-                {% endif %}
-                <tr>
-                    <td>{{ payment.amount }} €</td>
-                    <td>{{ payment.dueDate|date('d/m/Y') }}</td>
-                    <td>{{ payment.status == 'paye' ? '✅ Payé' : '⏳ En attente' }}</td>
-                    <td>{{ payment.paidAt ? payment.paidAt|date('d/m/Y') : '-' }}</td>
-                    <td>
-                        <form method="POST" action="{{ path('app_project_payment_delete', {'id': payment.id}) }}">
-                            <input type="hidden" name="_token" value="{{ csrf_token('delete_payment' ~ payment.id) }}">
-                            <button type="submit">🗑️ Supprimer</button>
-                        </form>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-
-        {# Récap financier #}
-        <table class="table">
-            <tbody>
-            <tr>
-                <th>Budget total du projet</th>
-                <td>{{ project.budget }} €</td>
-            </tr>
-            <tr>
-                <th>Total échéances définies</th>
-                <td>{{ totalEcheances }} €
-                    {% if totalEcheances > project.budget %}
-                        ⚠️ Dépasse le budget !
-                    {% elseif totalEcheances < project.budget %}
-                        ⚠️ {{ project.budget - totalEcheances }} € non couverts
-                    {% else %}
-                        ✅ Budget couvert
+                {% set progress = project.progress %}
+                {% set totalTasks = project.tasks|length %}
+                {% set doneTasks = 0 %}
+                {% for task in project.tasks %}
+                    {% set ts = task.status|lower %}
+                    {% if ts == 'terminé' or ts == 'done' or ts == 'fini' %}
+                        {% set doneTasks = doneTasks + 1 %}
                     {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <th>Total payé</th>
-                <td>{{ totalPaye }} €</td>
-            </tr>
-            <tr>
-                <th>Restant à payer</th>
-                <td>{{ totalEcheances - totalPaye }} €</td>
-            </tr>
-            </tbody>
-        </table>
-    {% endif %}
-    {# Générateur d'échéances automatique #}
-    <h3>Générer des échéances automatiquement</h3>
-    <form method="POST" action="{{ path('app_project_payment_generate', {'id': project.id}) }}">
-        <input type="hidden" name="_token" value="{{ csrf_token('generate' ~ project.id) }}">
+                {% endfor %}
 
-        <label>Nombre d'échéances</label>
-        <input type="number" name="nombre_echeances" min="1" max="36" value="10" required>
+                <div class="detail-progress">
+                    <div class="detail-progress-header">
+                        <span class="detail-progress-label">{{ progress }}% complété</span>
+                        <span class="detail-progress-count">{{ doneTasks }}/{{ totalTasks }} tâches</span>
+                    </div>
+                    <div class="detail-progress-bar">
+                        <div class="detail-progress-fill" style="width: {{ progress }}%"></div>
+                    </div>
+                </div>
 
-        <label>Montant par échéance (€)</label>
-        <input type="number" name="montant_echeance" step="0.01" value="{{ (project.budget / 10)|round(2) }}" required>
+                {# Récap financier #}
+                {% set totalPaye = 0 %}
+                {% set totalEcheances = 0 %}
+                {% for payment in project.paymentSchedules %}
+                    {% set totalEcheances = totalEcheances + payment.amount %}
+                    {% if payment.status == 'paye' %}
+                        {% set totalPaye = totalPaye + payment.amount %}
+                    {% endif %}
+                {% endfor %}
 
-        <label>Date de la 1ère échéance</label>
-        <input type="date" name="date_debut" required>
+                <div class="detail-fields" style="margin-top: var(--space-5);">
+                    <div class="detail-field">
+                        <span class="detail-field-label">Budget total</span>
+                        <span class="detail-field-value">{{ project.budget|number_format(2, '.', ',') }} €</span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Payé</span>
+                        <span class="detail-field-value" style="color: var(--color-success);">{{ totalPaye|number_format(2, '.', ',') }} €</span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Restant</span>
+                        <span class="detail-field-value" style="color: var(--color-danger);">{{ (totalEcheances - totalPaye)|number_format(2, '.', ',') }} €</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <label>Fréquence</label>
-        <select name="frequence">
-            <option value="monthly">Mensuelle</option>
-            <option value="weekly">Hebdomadaire</option>
-        </select>
+    </div>
 
-        <button type="submit">⚡ Générer les échéances</button>
-    </form>
+    {# ── TÂCHES ── #}
+    <div class="detail-grid detail-grid--full">
+        <div class="detail-section">
+            <div class="inside-card">
+                <h2 class="detail-section-title">Tâches</h2>
+                {% if project.tasks is not empty %}
+                    <table class="detail-table">
+                        <thead>
+                            <tr>
+                                <th>Tâche</th>
+                                <th>Statut</th>
+                                <th>Deadline</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in project.tasks %}
+                                <tr>
+                                    <td>{{ task.title }}</td>
+                                    <td>
+                                        {% set ts = task.status|lower %}
+                                        {% if ts == 'terminé' or ts == 'done' or ts == 'fini' %}
+                                            <span class="detail-status detail-status--en-cours">Terminé</span>
+                                        {% elseif ts == 'en cours' %}
+                                            <span class="detail-status detail-status--fini">En cours</span>
+                                        {% else %}
+                                            <span class="detail-status detail-status--attente">{{ task.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ task.deadline ? task.deadline|date('d/m/Y') : '—' }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="detail-table-empty">Aucune tâche pour ce projet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 
-    <a href="{{ path('app_project_payment_new', {'id': project.id}) }}">➕ Ajouter une échéance</a>
+    {# ── ÉCHÉANCES DE PAIEMENT ── #}
+    <div class="detail-grid detail-grid--full">
+        <div class="detail-section">
+            <div class="inside-card">
+                <h2 class="detail-section-title">Échéances de paiement</h2>
+                {% if project.paymentSchedules is not empty %}
+                    <table class="detail-table">
+                        <thead>
+                            <tr>
+                                <th>Montant</th>
+                                <th>Date d'échéance</th>
+                                <th>Statut</th>
+                                <th>Payé le</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in project.paymentSchedules %}
+                                <tr>
+                                    <td>{{ payment.amount|number_format(2, '.', ',') }} €</td>
+                                    <td>{{ payment.dueDate|date('d/m/Y') }}</td>
+                                    <td>
+                                        {% if payment.status == 'paye' %}
+                                            <span class="detail-status detail-status--en-cours">Payé</span>
+                                        {% else %}
+                                            <span class="detail-status detail-status--attente">En attente</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ payment.paidAt ? payment.paidAt|date('d/m/Y') : '—' }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="detail-table-empty">Aucune échéance définie.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 
-    <a href="{{ path('app_project_index') }}">← Retour à la liste</a>
-    <a href="{{ path('app_project_edit', {'id': project.id}) }}">Modifier</a>
-    {{ include('project/_delete_form.html.twig') }}
+    {# ── DOCUMENTS ── #}
+    <div class="detail-grid detail-grid--full">
+        <div class="detail-section">
+            <div class="inside-card">
+                <h2 class="detail-section-title">Documents</h2>
+
+                {# Liste des documents existants #}
+                {% if project.documents is not empty %}
+                    <div class="detail-file-list">
+                        {% for doc in project.documents %}
+                            <div class="detail-file-item">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                                </svg>
+                                <div class="detail-file-info">
+                                    <a href="{{ asset(doc.filePath) }}" target="_blank" class="detail-file-name">{{ doc.originalName }}</a>
+                                    <span class="detail-file-meta">
+                                        <span class="badge badge-primary">{{ doc.type|capitalize }}</span>
+                                        — {{ doc.uploadedAt|date('d/m/Y à H:i') }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="detail-table-empty">Aucun document pour ce projet.</p>
+                {% endif %}
+
+                {# Upload (admin et client) #}
+                <div class="detail-upload" style="margin-top: var(--space-5);">
+                    <form method="post" action="{{ path('app_project_document_upload', {'id': project.id}) }}" enctype="multipart/form-data" class="detail-upload-form">
+
+                        <div class="detail-upload-row">
+                            <select name="document_type" class="detail-upload-select">
+                                <option value="cdc">Cahier des charges</option>
+                                <option value="facture">Facture</option>
+                                <option value="contrat">Contrat</option>
+                                <option value="autre" selected>Autre</option>
+                            </select>
+                        </div>
+
+                        <label class="detail-upload-zone">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            <span class="detail-upload-text">Cliquer pour sélectionner un fichier</span>
+                            <span class="detail-upload-hint">PDF, PNG, JPG ou DOCX (max. 10 Mo)</span>
+                            <input type="file" name="document" accept=".pdf,.png,.jpg,.jpeg,.docx" required style="display:none" onchange="this.closest('form').querySelector('.detail-upload-text').textContent = this.files[0].name">
+                        </label>
+
+                        <button type="submit" class="btn btn-primary" style="margin-top: var(--space-4);">Envoyer le document</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}

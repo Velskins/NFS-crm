@@ -3,13 +3,18 @@
 namespace App\Controller;
 
 use App\Entity\Client;
+use App\Entity\User;
 use App\Form\ClientType;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[Route('/client')]
 final class ClientController extends AbstractController
@@ -46,7 +51,7 @@ final class ClientController extends AbstractController
     }
 
     #[Route('/new', name: 'app_client_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, MailerInterface $mailer): Response
     {
         $client = new Client();
         $form = $this->createForm(ClientType::class, $client);
@@ -54,11 +59,48 @@ final class ClientController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $client->setUser($this->getUser());
-            $client->setPwd('changeme');
+            $client->setPwd('pending'); // sera défini par le client via l'email
+
+            // Créer un compte User (ROLE_CLIENT) lié à ce client
+            $userAccount = new User();
+            $userAccount->setEmail($client->getEmail());
+            $userAccount->setFirstname($client->getFirstName());
+            $userAccount->setLastname($client->getLastName());
+            $userAccount->setRoles(['ROLE_CLIENT']);
+            $userAccount->setPassword(''); // pas de mot de passe encore
+
+            // Générer un token d'invitation (valable 48h)
+            $token = bin2hex(random_bytes(32));
+            $userAccount->setInvitationToken($token);
+            $userAccount->setInvitationTokenExpiresAt(new \DateTimeImmutable('+48 hours'));
+
+            // Lier User ↔ Client
+            $client->setUserAccount($userAccount);
+
+            $entityManager->persist($userAccount);
             $entityManager->persist($client);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Client "' . $client->getFirstName() . ' ' . $client->getLastName() . '" créé avec succès.');
+            // Envoyer l'email d'invitation
+            $setupUrl = $this->generateUrl('app_setup_password', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
+
+            $email = (new TemplatedEmail())
+                ->from(new Address('noreply@sphera.app', 'SPHERA'))
+                ->to($client->getEmail())
+                ->subject('Bienvenue sur SPHERA — Définissez votre mot de passe')
+                ->htmlTemplate('emails/invitation.html.twig')
+                ->context([
+                    'client'   => $client,
+                    'setupUrl' => $setupUrl,
+                    'expiresAt' => $userAccount->getInvitationTokenExpiresAt(),
+                ]);
+
+            try {
+                $mailer->send($email);
+                $this->addFlash('success', 'Client "' . $client->getFirstName() . ' ' . $client->getLastName() . '" créé. Un email d\'invitation a été envoyé à ' . $client->getEmail() . '.');
+            } catch (\Exception $e) {
+                $this->addFlash('warning', 'Client créé mais l\'email n\'a pas pu être envoyé. Lien de configuration : ' . $setupUrl);
+            }
 
             return $this->redirectToRoute('app_client_index', [], Response::HTTP_SEE_OTHER);
         }

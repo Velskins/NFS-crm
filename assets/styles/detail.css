@@ -1,0 +1,507 @@
+/* ============================================================
+   SPHERA — Pages Détail (Client + Projet)
+   Dépend de app.css (design tokens, composants de base)
+   ============================================================ */
+
+
+/* ── HEADER DÉTAIL (titre + actions) ── */
+.detail-header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  margin-bottom:   var(--space-8);
+}
+
+.detail-header-left {
+  display:     flex;
+  align-items: center;
+  gap:         var(--space-4);
+}
+
+.detail-back {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  width:           40px;
+  height:          40px;
+  background:      var(--color-surface);
+  border-radius:   var(--radius-md);
+  box-shadow:      var(--shadow-raised);
+  color:           var(--color-text);
+  transition:      transform var(--transition-fast);
+}
+
+.detail-back:hover {
+  transform: translateX(-3px);
+  color:     var(--color-text);
+}
+
+.detail-back svg {
+  width:  20px;
+  height: 20px;
+}
+
+.detail-title {
+  font-size:   var(--font-size-2xl);
+  font-weight: var(--font-weight-black);
+  color:       var(--color-text);
+}
+
+.detail-subtitle {
+  font-size:   var(--font-size-sm);
+  color:       var(--color-text-muted);
+  margin-top:  var(--space-1);
+}
+
+.detail-header-actions {
+  display:     flex;
+  align-items: center;
+  gap:         var(--space-3);
+}
+
+
+/* ── GRILLE 2 COLONNES ── */
+.detail-grid {
+  display:    grid;
+  grid-template-columns: 1fr 1fr;
+  gap:        var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.detail-grid--full {
+  grid-template-columns: 1fr;
+}
+
+
+/* ── CARD SECTION ── */
+.detail-section {
+  background:    var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow:    var(--shadow-card);
+}
+
+.detail-section .inside-card {
+  background:    #FFFFFF;
+  padding:       30px;
+  border-radius: var(--radius-lg);
+}
+
+.detail-section-title {
+  display:       flex;
+  align-items:   center;
+  gap:           var(--space-3);
+  font-size:     var(--font-size-md);
+  font-weight:   var(--font-weight-bold);
+  color:         var(--color-text);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid rgba(194, 192, 191, 0.3);
+}
+
+.detail-section-title::before {
+  content:       "";
+  display:       block;
+  width:         4px;
+  height:        20px;
+  background:    var(--color-primary);
+  border-radius: var(--radius-full);
+  flex-shrink:   0;
+}
+
+
+/* ── CHAMP INFO (label + valeur) ── */
+.detail-fields {
+  display:        flex;
+  flex-direction: column;
+  gap:            var(--space-4);
+}
+
+.detail-field {
+  display:        flex;
+  flex-direction: column;
+  gap:            var(--space-1);
+}
+
+.detail-field-label {
+  font-size:   var(--font-size-xs);
+  font-weight: var(--font-weight-semi);
+  color:       var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-field-value {
+  font-size:   var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color:       var(--color-text);
+}
+
+.detail-field-value a {
+  color: var(--color-primary);
+}
+
+/* Champ inline (icône + texte) */
+.detail-field-inline {
+  display:     flex;
+  align-items: center;
+  gap:         var(--space-2);
+}
+
+.detail-field-inline svg {
+  width:       16px;
+  height:      16px;
+  color:       var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+
+/* ── NOTES / DESCRIPTION ── */
+.detail-notes {
+  font-size:   var(--font-size-sm);
+  color:       var(--color-text);
+  line-height: var(--line-height-loose);
+  white-space: pre-wrap;
+}
+
+.detail-notes-empty {
+  font-size:   var(--font-size-sm);
+  color:       var(--color-text-light);
+  font-style:  italic;
+}
+
+
+/* ── BADGE STATUT ── */
+.detail-status {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           6px;
+  padding:       5px 14px;
+  border-radius: var(--radius-full);
+  font-size:     var(--font-size-sm);
+  font-weight:   var(--font-weight-semi);
+}
+
+.detail-status--en-cours {
+  color:      #fff;
+  background: var(--color-success);
+}
+
+.detail-status--attente {
+  color:        var(--color-text-muted);
+  background:   rgba(122, 122, 140, 0.06);
+  border:       1.5px solid rgba(122, 122, 140, 0.3);
+}
+
+.detail-status--fini {
+  color:      #fff;
+  background: var(--color-primary);
+}
+
+.detail-status--annule {
+  color:      #fff;
+  background: var(--color-danger);
+}
+
+.detail-status--actif {
+  color:      #fff;
+  background: var(--color-success);
+}
+
+
+/* ── TABLE DANS LES SECTIONS (projets, factures, tâches) ── */
+.detail-table {
+  width:           100%;
+  border-collapse: collapse;
+  font-size:       var(--font-size-sm);
+}
+
+.detail-table th {
+  text-align:     left;
+  padding:        var(--space-3) var(--space-4);
+  font-weight:    var(--font-weight-bold);
+  font-size:      var(--font-size-xs);
+  color:          var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom:  2px solid rgba(194, 192, 191, 0.3);
+}
+
+.detail-table td {
+  padding:        var(--space-3) var(--space-4);
+  color:          var(--color-text);
+  border-bottom:  1px solid rgba(194, 192, 191, 0.15);
+  vertical-align: middle;
+}
+
+.detail-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.detail-table tbody tr:hover {
+  background: rgba(67, 66, 202, 0.03);
+}
+
+.detail-table-empty {
+  text-align:  center;
+  padding:     var(--space-6) var(--space-4);
+  color:       var(--color-text-muted);
+  font-size:   var(--font-size-sm);
+  font-style:  italic;
+}
+
+
+/* ── ZONE UPLOAD / DOCUMENTS ── */
+.detail-upload {
+  margin-top: var(--space-4);
+}
+
+.detail-upload-zone {
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  justify-content: center;
+  gap:             var(--space-2);
+  padding:         var(--space-8) var(--space-4);
+  border:          2px dashed rgba(194, 192, 191, 0.5);
+  border-radius:   var(--radius-lg);
+  cursor:          pointer;
+  transition:      border-color var(--transition-fast),
+                   background var(--transition-fast);
+}
+
+.detail-upload-zone:hover {
+  border-color: var(--color-primary);
+  background:   rgba(67, 66, 202, 0.03);
+}
+
+.detail-upload-zone svg {
+  width:  32px;
+  height: 32px;
+  color:  var(--color-text-muted);
+}
+
+.detail-upload-text {
+  font-size:   var(--font-size-sm);
+  color:       var(--color-text-muted);
+}
+
+.detail-upload-hint {
+  font-size:   var(--font-size-xs);
+  color:       var(--color-text-light);
+}
+
+/* Liste de fichiers déjà uploadés */
+.detail-file-list {
+  display:        flex;
+  flex-direction: column;
+  gap:            var(--space-2);
+  margin-top:     var(--space-4);
+}
+
+.detail-file-item {
+  display:       flex;
+  align-items:   center;
+  gap:           var(--space-3);
+  padding:       var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background:    rgba(67, 66, 202, 0.04);
+  font-size:     var(--font-size-sm);
+  color:         var(--color-text);
+}
+
+.detail-file-item svg {
+  width:       16px;
+  height:      16px;
+  color:       var(--color-primary);
+  flex-shrink: 0;
+}
+
+
+/* ── BARRE DE PROGRESSION ── */
+.detail-progress {
+  margin-top: var(--space-4);
+}
+
+.detail-progress-header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  margin-bottom:   var(--space-2);
+}
+
+.detail-progress-label {
+  font-size:   var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color:       var(--color-text);
+}
+
+.detail-progress-count {
+  font-size:   var(--font-size-xs);
+  color:       var(--color-text-muted);
+}
+
+.detail-progress-bar {
+  width:         100%;
+  height:        10px;
+  background:    rgba(194, 192, 191, 0.3);
+  border-radius: var(--radius-full);
+  overflow:      hidden;
+}
+
+.detail-progress-fill {
+  height:        100%;
+  background:    linear-gradient(90deg, var(--color-sidebar-top), var(--color-sidebar-bot));
+  border-radius: var(--radius-full);
+  transition:    width 0.6s ease;
+}
+
+
+/* ── UPLOAD FORM (select + zone) ── */
+.detail-upload-form {
+  display:        flex;
+  flex-direction: column;
+}
+
+.detail-upload-row {
+  margin-bottom: var(--space-3);
+}
+
+.detail-upload-select {
+  appearance:    none;
+  background:    #fff;
+  border:        1.5px solid rgba(194, 192, 191, 0.45);
+  border-radius: var(--radius-md);
+  padding:       0.6rem 2.5rem 0.6rem 1rem;
+  font-family:   var(--font-family);
+  font-size:     var(--font-size-sm);
+  color:         var(--color-text);
+  cursor:        pointer;
+  outline:       none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A7A8C' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:   no-repeat;
+  background-position: right 10px center;
+}
+
+
+/* ── FICHIER INFO (dans la liste documents) ── */
+.detail-file-info {
+  display:        flex;
+  flex-direction: column;
+  gap:            2px;
+  min-width:      0;
+}
+
+.detail-file-name {
+  font-size:     var(--font-size-sm);
+  font-weight:   var(--font-weight-medium);
+  color:         var(--color-primary);
+  text-decoration: none;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  white-space:   nowrap;
+}
+
+.detail-file-name:hover {
+  text-decoration: underline;
+}
+
+.detail-file-meta {
+  font-size: var(--font-size-xs);
+  color:     var(--color-text-muted);
+  display:   flex;
+  align-items: center;
+  gap:       var(--space-2);
+}
+
+
+/* ── CLIENT DASHBOARD — CARDS PROJETS ── */
+.client-dash-projects {
+  display:        flex;
+  flex-direction: column;
+  gap:            var(--space-4);
+}
+
+.client-dash-project {
+  display:        flex;
+  flex-direction: column;
+  gap:            var(--space-3);
+  padding:        var(--space-5);
+  background:     var(--color-bg);
+  border-radius:  var(--radius-lg);
+  box-shadow:     var(--shadow-card);
+  text-decoration: none;
+  color:          inherit;
+  transition:     transform var(--transition-fast),
+                  box-shadow var(--transition-fast);
+}
+
+.client-dash-project:hover {
+  transform:  translateY(-2px);
+  box-shadow: var(--shadow-raised);
+  color:      inherit;
+}
+
+.client-dash-project-header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+}
+
+.client-dash-project-title {
+  font-size:   var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color:       var(--color-text);
+}
+
+.client-dash-project-footer {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  margin-top:      var(--space-1);
+}
+
+.client-dash-project-meta {
+  display:     flex;
+  align-items: center;
+  gap:         var(--space-1);
+  font-size:   var(--font-size-xs);
+  color:       var(--color-text-muted);
+}
+
+.client-dash-project-budget {
+  font-size:   var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color:       var(--color-primary);
+}
+
+.client-dash-project-docs {
+  display:     flex;
+  align-items: center;
+  gap:         var(--space-1);
+  font-size:   var(--font-size-xs);
+  color:       var(--color-text-muted);
+}
+
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-header {
+    flex-direction: column;
+    align-items:    flex-start;
+    gap:            var(--space-4);
+  }
+
+  .detail-table {
+    font-size: var(--font-size-xs);
+  }
+
+  .client-dash-project-header {
+    flex-direction: column;
+    align-items:    flex-start;
+    gap:            var(--space-2);
+  }
+}

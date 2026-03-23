@@ -2,16 +2,13 @@
 namespace App\Controller;
 
 use App\Entity\Project;
-use App\Entity\Document;
 use App\Form\ProjectType;
 use App\Repository\ProjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\String\Slugger\SluggerInterface;
 use App\Entity\PaymentSchedule;
 use App\Form\PaymentScheduleType;
 
@@ -77,15 +74,7 @@ final class ProjectController extends AbstractController
     #[Route('/{id}', name: 'app_project_show', methods: ['GET'])]
     public function show(Project $project): Response
     {
-        $user = $this->getUser();
-
-        // ROLE_CLIENT : ne peut voir que les projets liés à son profil client
-        if (!$this->isGranted('ROLE_ADMIN')) {
-            $clientProfile = $user->getClientProfile();
-            if (!$clientProfile || $project->getClient()->getId() !== $clientProfile->getId()) {
-                throw $this->createAccessDeniedException('Vous n\'avez pas accès à ce projet.');
-            }
-        }
+        $this->denyAccessUnlessGranted('PROJECT_VIEW', $project);
 
         return $this->render('project/show.html.twig', [
             'project' => $project,
@@ -189,49 +178,6 @@ final class ProjectController extends AbstractController
         $entityManager->flush();
         $this->addFlash('success', $nombreEcheances . ' échéances générées !');
 
-        return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
-    }
-
-    #[Route('/{id}/document/upload', name: 'app_project_document_upload', methods: ['POST'])]
-    public function uploadDocument(
-        Request $request,
-        Project $project,
-        EntityManagerInterface $entityManager,
-        SluggerInterface $slugger
-    ): Response {
-        $file = $request->files->get('document');
-        $type = $request->request->get('document_type', 'autre');
-
-        if (!$file) {
-            $this->addFlash('danger', 'Aucun fichier sélectionné.');
-            return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
-        }
-
-        $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $safeFilename = $slugger->slug($originalFilename);
-        $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
-
-        try {
-            $file->move(
-                $this->getParameter('kernel.project_dir') . '/public/uploads/documents',
-                $newFilename
-            );
-        } catch (FileException $e) {
-            $this->addFlash('danger', 'Erreur lors de l\'upload du fichier.');
-            return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
-        }
-
-        $document = new Document();
-        $document->setOriginalName($file->getClientOriginalName() ?: $originalFilename);
-        $document->setFilePath('uploads/documents/' . $newFilename);
-        $document->setType($type);
-        $document->setProject($project);
-        $document->setUploadedBy($this->getUser());
-
-        $entityManager->persist($document);
-        $entityManager->flush();
-
-        $this->addFlash('success', 'Document "' . $document->getOriginalName() . '" ajouté.');
         return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
     }
 }

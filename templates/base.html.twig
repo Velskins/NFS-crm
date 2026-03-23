@@ -40,6 +40,7 @@
                     Tableau de bord
                 </a>
 
+                {% if is_granted('ROLE_ADMIN') %}
                 <a href="{{ path('app_client_index') }}"
                    class="sidebar-link {{ current_route starts with 'app_client' ? 'active' : '' }}">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -62,13 +63,14 @@
                     </svg>
                     Calendrier
                 </a>
+                {% endif %}
 
                 <a href="{{ path('app_project_index') }}"
                    class="sidebar-link {{ current_route starts with 'app_project' ? 'active' : '' }}">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
                     </svg>
-                    Projets
+                    {% if is_granted('ROLE_ADMIN') %}Projets{% else %}Mes Projets{% endif %}
                 </a>
 
                 {# TODO: créer la route app_settings #}
