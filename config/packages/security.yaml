@@ -40,6 +40,7 @@ security:
 
             logout:
                 path: app_logout
+                target: app_login
             custom_authenticator: App\Security\AppAuthentificatorAuthenticator
 
             remember_me:

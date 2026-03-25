@@ -2,6 +2,255 @@
 
 {% block title %}Paramètres — Sphera{% endblock %}
 
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/settings.css') }}">
+{% endblock %}
+
 {% block body %}
-    <h1>Paramètres</h1>
+
+    {# ── ONGLETS ── #}
+    <div class="settings-tabs">
+        <a href="{{ path('app_settings_profile') }}"
+           class="settings-tab {{ tab == 'profile' ? 'active' : '' }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            Profil
+        </a>
+        {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('app_settings_billing') }}"
+           class="settings-tab {{ tab == 'billing' ? 'active' : '' }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+            </svg>
+            Facturation
+        </a>
+        <a href="{{ path('app_settings_notifications') }}"
+           class="settings-tab {{ tab == 'notifications' ? 'active' : '' }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            Notifications
+        </a>
+        {% endif %}
+    </div>
+
+    {# ── Flash messages ── #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }}" style="margin-bottom: var(--space-4);">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    {# ══════════════════════════════════════════════════════
+       TAB : PROFIL
+       ══════════════════════════════════════════════════════ #}
+    {% if tab == 'profile' %}
+
+        <div class="settings-grid">
+
+            {# ── Informations personnelles ── #}
+            <div class="card">
+                <div class="inside-card">
+                    <h2 class="settings-section-title">Informations personnelles</h2>
+
+                    <form method="post" action="{{ path('app_settings_profile') }}">
+                        <input type="hidden" name="action" value="update_profile">
+
+                        <div class="settings-form-row">
+                            <div class="settings-form-field">
+                                <label class="settings-label">Prénom</label>
+                                <input type="text" name="firstname" value="{{ app.user.firstname }}" class="settings-input" required>
+                            </div>
+                            <div class="settings-form-field">
+                                <label class="settings-label">Nom</label>
+                                <input type="text" name="lastname" value="{{ app.user.lastname }}" class="settings-input" required>
+                            </div>
+                        </div>
+
+                        <div class="settings-form-row">
+                            <div class="settings-form-field">
+                                <label class="settings-label">Email</label>
+                                <input type="email" value="{{ app.user.email }}" class="settings-input" disabled>
+                                <span class="settings-hint">L'email ne peut pas être modifié</span>
+                            </div>
+                            <div class="settings-form-field">
+                                <label class="settings-label">Téléphone</label>
+                                <input type="tel" name="phone" value="{{ app.user.phone }}" class="settings-input" placeholder="06 12 34 56 78">
+                            </div>
+                        </div>
+
+                        <div class="settings-form-actions">
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {# ── Changer le mot de passe ── #}
+            <div class="card">
+                <div class="inside-card">
+                    <h2 class="settings-section-title">Changer le mot de passe</h2>
+
+                    <form method="post" action="{{ path('app_settings_profile') }}">
+                        <input type="hidden" name="action" value="change_password">
+
+                        <div class="settings-form-field">
+                            <label class="settings-label">Mot de passe actuel</label>
+                            <input type="password" name="current_password" class="settings-input" required placeholder="••••••••">
+                        </div>
+
+                        <div class="settings-form-row">
+                            <div class="settings-form-field">
+                                <label class="settings-label">Nouveau mot de passe</label>
+                                <input type="password" name="new_password" class="settings-input" required minlength="6" placeholder="Minimum 6 caractères">
+                            </div>
+                            <div class="settings-form-field">
+                                <label class="settings-label">Confirmer</label>
+                                <input type="password" name="confirm_password" class="settings-input" required placeholder="Retapez le mot de passe">
+                            </div>
+                        </div>
+
+                        <div class="settings-form-actions">
+                            <button type="submit" class="btn btn-primary">Modifier le mot de passe</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+    {% endif %}
+
+    {# ══════════════════════════════════════════════════════
+       TAB : FACTURATION (admin seulement)
+       ══════════════════════════════════════════════════════ #}
+    {% if tab == 'billing' %}
+
+        <div class="settings-grid settings-grid--full">
+            <div class="card">
+                <div class="inside-card">
+                    <h2 class="settings-section-title">Informations de facturation</h2>
+                    <p class="settings-description">Ces informations apparaîtront sur vos factures.</p>
+
+                    <form method="post" action="{{ path('app_settings_billing') }}">
+
+                        <div class="settings-form-row">
+                            <div class="settings-form-field">
+                                <label class="settings-label">Nom de l'entreprise / Auto-entrepreneur</label>
+                                <input type="text" name="company_name" value="{{ app.user.companyName }}" class="settings-input" placeholder="Ex: Jeff Dev">
+                            </div>
+                            <div class="settings-form-field">
+                                <label class="settings-label">N° SIRET</label>
+                                <input type="text" name="siret" value="{{ app.user.siret }}" class="settings-input" placeholder="123 456 789 00012">
+                            </div>
+                        </div>
+
+                        <div class="settings-form-field">
+                            <label class="settings-label">Adresse</label>
+                            <input type="text" name="company_address" value="{{ app.user.companyAddress }}" class="settings-input" placeholder="12 rue de la Paix">
+                        </div>
+
+                        <div class="settings-form-row">
+                            <div class="settings-form-field">
+                                <label class="settings-label">Code postal</label>
+                                <input type="text" name="company_postal_code" value="{{ app.user.companyPostalCode }}" class="settings-input" placeholder="76000">
+                            </div>
+                            <div class="settings-form-field">
+                                <label class="settings-label">Ville</label>
+                                <input type="text" name="company_city" value="{{ app.user.companyCity }}" class="settings-input" placeholder="Rouen">
+                            </div>
+                        </div>
+
+                        <div class="settings-form-field">
+                            <label class="settings-label">N° TVA intracommunautaire</label>
+                            <input type="text" name="tva_number" value="{{ app.user.tvaNumber }}" class="settings-input" placeholder="FR 12 345678901">
+                            <span class="settings-hint">Laissez vide si non assujetti à la TVA</span>
+                        </div>
+
+                        <div class="settings-form-actions">
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    {% endif %}
+
+    {# ══════════════════════════════════════════════════════
+       TAB : NOTIFICATIONS (admin seulement)
+       ══════════════════════════════════════════════════════ #}
+    {% if tab == 'notifications' %}
+
+        <div class="settings-grid settings-grid--full">
+            <div class="card">
+                <div class="inside-card">
+                    <h2 class="settings-section-title">Préférences de notifications</h2>
+                    <p class="settings-description">Choisissez les alertes que vous souhaitez recevoir par email.</p>
+
+                    <form method="post" action="{{ path('app_settings_notifications') }}">
+
+                        <div class="settings-notif-list">
+
+                            <label class="settings-notif-item">
+                                <div class="settings-notif-info">
+                                    <span class="settings-notif-title">Échéances de paiement</span>
+                                    <span class="settings-notif-desc">Recevoir un rappel quand une échéance client approche</span>
+                                </div>
+                                <div class="settings-toggle">
+                                    <input type="hidden" name="notif_echeance" value="0">
+                                    <input type="checkbox" name="notif_echeance" value="1" {{ app.user.notifEcheance ? 'checked' : '' }}>
+                                    <span class="settings-toggle-slider"></span>
+                                </div>
+                            </label>
+
+                            <label class="settings-notif-item">
+                                <div class="settings-notif-info">
+                                    <span class="settings-notif-title">Nouveau projet créé</span>
+                                    <span class="settings-notif-desc">Recevoir un email de confirmation quand vous créez un projet</span>
+                                </div>
+                                <div class="settings-toggle">
+                                    <input type="hidden" name="notif_new_project" value="0">
+                                    <input type="checkbox" name="notif_new_project" value="1" {{ app.user.notifNewProject ? 'checked' : '' }}>
+                                    <span class="settings-toggle-slider"></span>
+                                </div>
+                            </label>
+
+                            <label class="settings-notif-item">
+                                <div class="settings-notif-info">
+                                    <span class="settings-notif-title">Document uploadé</span>
+                                    <span class="settings-notif-desc">Être notifié quand un client ajoute un document à un projet</span>
+                                </div>
+                                <div class="settings-toggle">
+                                    <input type="hidden" name="notif_document_uploaded" value="0">
+                                    <input type="checkbox" name="notif_document_uploaded" value="1" {{ app.user.notifDocumentUploaded ? 'checked' : '' }}>
+                                    <span class="settings-toggle-slider"></span>
+                                </div>
+                            </label>
+
+                            <label class="settings-notif-item">
+                                <div class="settings-notif-info">
+                                    <span class="settings-notif-title">Paiement reçu</span>
+                                    <span class="settings-notif-desc">Être notifié quand un paiement est marqué comme reçu</span>
+                                </div>
+                                <div class="settings-toggle">
+                                    <input type="hidden" name="notif_payment_received" value="0">
+                                    <input type="checkbox" name="notif_payment_received" value="1" {{ app.user.notifPaymentReceived ? 'checked' : '' }}>
+                                    <span class="settings-toggle-slider"></span>
+                                </div>
+                            </label>
+
+                        </div>
+
+                        <div class="settings-form-actions">
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    {% endif %}
+
 {% endblock %}

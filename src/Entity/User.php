@@ -48,6 +48,41 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(targetEntity: Client::class, mappedBy: 'userAccount')]
     private ?Client $clientProfile = null;
 
+    // ── Champs facturation (ROLE_ADMIN) ──
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $companyName = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $companyAddress = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $companyPostalCode = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $companyCity = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $siret = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $tvaNumber = null;
+
+    #[ORM\Column(length: 45, nullable: true)]
+    private ?string $phone = null;
+
+    // ── Préférences de notifications ──
+    #[ORM\Column(type: 'boolean')]
+    private bool $notifEcheance = true;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $notifNewProject = true;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $notifDocumentUploaded = true;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $notifPaymentReceived = true;
+
     /**
      * @var Collection<int, Client>
      */
@@ -347,6 +382,131 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $clientProfile->setUserAccount($this);
         }
         $this->clientProfile = $clientProfile;
+        return $this;
+    }
+
+    // ── Facturation ──
+
+    public function getCompanyName(): ?string
+    {
+        return $this->companyName;
+    }
+
+    public function setCompanyName(?string $companyName): static
+    {
+        $this->companyName = $companyName;
+        return $this;
+    }
+
+    public function getCompanyAddress(): ?string
+    {
+        return $this->companyAddress;
+    }
+
+    public function setCompanyAddress(?string $companyAddress): static
+    {
+        $this->companyAddress = $companyAddress;
+        return $this;
+    }
+
+    public function getCompanyPostalCode(): ?string
+    {
+        return $this->companyPostalCode;
+    }
+
+    public function setCompanyPostalCode(?string $companyPostalCode): static
+    {
+        $this->companyPostalCode = $companyPostalCode;
+        return $this;
+    }
+
+    public function getCompanyCity(): ?string
+    {
+        return $this->companyCity;
+    }
+
+    public function setCompanyCity(?string $companyCity): static
+    {
+        $this->companyCity = $companyCity;
+        return $this;
+    }
+
+    public function getSiret(): ?string
+    {
+        return $this->siret;
+    }
+
+    public function setSiret(?string $siret): static
+    {
+        $this->siret = $siret;
+        return $this;
+    }
+
+    public function getTvaNumber(): ?string
+    {
+        return $this->tvaNumber;
+    }
+
+    public function setTvaNumber(?string $tvaNumber): static
+    {
+        $this->tvaNumber = $tvaNumber;
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): static
+    {
+        $this->phone = $phone;
+        return $this;
+    }
+
+    // ── Notifications ──
+
+    public function isNotifEcheance(): bool
+    {
+        return $this->notifEcheance;
+    }
+
+    public function setNotifEcheance(bool $notifEcheance): static
+    {
+        $this->notifEcheance = $notifEcheance;
+        return $this;
+    }
+
+    public function isNotifNewProject(): bool
+    {
+        return $this->notifNewProject;
+    }
+
+    public function setNotifNewProject(bool $notifNewProject): static
+    {
+        $this->notifNewProject = $notifNewProject;
+        return $this;
+    }
+
+    public function isNotifDocumentUploaded(): bool
+    {
+        return $this->notifDocumentUploaded;
+    }
+
+    public function setNotifDocumentUploaded(bool $notifDocumentUploaded): static
+    {
+        $this->notifDocumentUploaded = $notifDocumentUploaded;
+        return $this;
+    }
+
+    public function isNotifPaymentReceived(): bool
+    {
+        return $this->notifPaymentReceived;
+    }
+
+    public function setNotifPaymentReceived(bool $notifPaymentReceived): static
+    {
+        $this->notifPaymentReceived = $notifPaymentReceived;
         return $this;
     }
 
