@@ -73,8 +73,7 @@
                     {% if is_granted('ROLE_ADMIN') %}Projets{% else %}Mes Projets{% endif %}
                 </a>
 
-                {# TODO: créer la route app_settings #}
-                <a href="#"
+                <a href="{{ path('app_settings') }}"
                    class="sidebar-link {{ current_route starts with 'app_settings' ? 'active' : '' }}">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="3"/>
