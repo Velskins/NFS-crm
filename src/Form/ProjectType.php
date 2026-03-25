@@ -3,6 +3,7 @@ namespace App\Form;
 
 use App\Entity\Client;
 use App\Entity\Project;
+use App\Form\TaskType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -11,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
 class ProjectType extends AbstractType
 {
@@ -43,6 +45,13 @@ class ProjectType extends AbstractType
                 'class'        => Client::class,
                 'choice_label' => 'companyName',
                 'label'        => 'Client',
+            ])
+            ->add('tasks', CollectionType::class, [
+                'entry_type' => TaskType::class,
+                'entry_options' => ['label' => false],
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
             ])
         ;
     }

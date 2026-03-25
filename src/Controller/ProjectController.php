@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use App\Entity\PaymentSchedule;
 use App\Form\PaymentScheduleType;
+use App\Entity\Task;
 
 #[Route('/project')]
 final class ProjectController extends AbstractController
@@ -233,5 +234,20 @@ final class ProjectController extends AbstractController
 
         $this->addFlash('success', 'Document "' . $document->getOriginalName() . '" ajouté.');
         return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
+    }
+    #[Route('/task/{id}/toggle', name: 'app_task_toggle', methods: ['POST'])]
+    public function toggleTask(Task $task, EntityManagerInterface $entityManager): Response
+    {
+        // On bascule entre 'a_faire' et 'terminé'
+        $newStatus = ($task->getStatus() === 'terminé') ? 'a_faire' : 'terminé';
+        $task->setStatus($newStatus);
+
+        $entityManager->flush();
+
+        // On renvoie du JSON pour que le JavaScript puisse mettre à jour l'interface
+        return $this->json([
+            'newStatus' => $newStatus,
+            'progress' => $task->getProject()->getProgress()
+        ]);
     }
 }

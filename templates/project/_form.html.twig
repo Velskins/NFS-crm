@@ -1,4 +1,56 @@
 {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+
+    {{ form_row(form.title) }}
+    {{ form_row(form.status) }}
+    {{ form_row(form.budget) }}
+    {{ form_row(form.deadline) }}
+    {{ form_row(form.client) }}
+
+<hr>
+
+<h3>Tâches</h3>
+<ul id="task-list"
+    data-prototype="{{ form_widget(form.tasks.vars.prototype)|e('html_attr') }}"
+    data-index="{{ form.tasks|length }}">
+
+    {% for task in form.tasks %}
+        <li>
+            {{ form_row(task.title) }}
+            {{ form_row(task.status) }}
+            {{ form_row(task.deadline) }} {# <-- On l'affiche ici #}
+        </li>
+    {% endfor %}
+</ul>
+
+<button type="button" id="add-task">Ajouter une tâche</button>
+
+<hr>
+
+<button>{{ button_label|default('Enregistrer') }}</button>
 {{ form_end(form) }}
+
+<script>
+    document.getElementById('add-task').addEventListener('click', function() {
+        const list = document.getElementById('task-list');
+        const prototype = list.dataset.prototype;
+        const index = list.dataset.index;
+
+
+        const newForm = prototype.replace(/__name__/g, index);
+
+
+        const li = document.createElement('li');
+        li.innerHTML = newForm;
+
+
+        const removeBtn = document.createElement('button');
+        removeBtn.innerText = 'Supprimer';
+        removeBtn.type = 'button';
+        removeBtn.onclick = () => li.remove();
+        li.appendChild(removeBtn);
+
+        list.appendChild(li);
+
+        list.dataset.index = parseInt(index) + 1;
+    });
+</script>
