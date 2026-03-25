@@ -340,4 +340,23 @@ class Client
         return $this;
     }
 
+    public function getArgentEnAttente(): float
+    {
+        $totalRestant = 0;
+
+        foreach ($this->getProjects() as $project) {
+            $dejaPaye = 0;
+
+
+            foreach ($project->getPaymentSchedules() as $payment) {
+                if ($payment->getStatus() === 'paye') {
+                    $dejaPaye += (float) $payment->getAmount();
+                }
+            }
+
+            $totalRestant += ($project->getBudget() - $dejaPaye);
+        }
+
+        return $totalRestant;
+    }
 }
