@@ -17,7 +17,7 @@ class DashboardController extends AbstractController
     {
         $user = $this->getUser();
 
-        // ROLE_CLIENT : dashboard simplifié avec ses projets
+        // ROLE_CLIENT : dashboard simplifié 
         if (!$this->isGranted('ROLE_ADMIN') && $user->getClientProfile()) {
             $clientProfile = $user->getClientProfile();
             $projects = $projectRepository->findBy(['client' => $clientProfile]);
@@ -29,14 +29,33 @@ class DashboardController extends AbstractController
         }
 
         // ROLE_ADMIN : dashboard complet
-        $clients = $clientRepository->findBy(
+
+        $latestClients = $clientRepository->findBy(
             ['user' => $user],
             ['id' => 'DESC'],
             5
         );
 
-        return $this->render('dashboard/index.html.twig', [
-            'clients' => $clients,
+        $totalClients = $clientRepository->count([
+            'user' => $user
         ]);
-    }
-}
+
+        $latestProjects = $projectRepository->findBy(
+            [], 
+            ['id' => 'DESC'],
+            5
+        );
+
+        $totalProjects = $projectRepository->count([
+            'user' => $user,
+            'status' => 'en_cours'
+        ]);
+
+        return $this->render('dashboard/index.html.twig', [
+            'clients'        => $latestClients,
+            'total_clients'  => $totalClients,
+            'projects'       => $latestProjects,
+            'total_projects' => $totalProjects, 
+        ]);
+            }
+        }
