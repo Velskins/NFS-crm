@@ -3,6 +3,7 @@
 {% block title %}{{ project.title }} — Sphera{% endblock %}
 
 {% block stylesheets %}
+    {{ parent() }}
     <link rel="stylesheet" href="{{ asset('styles/detail.css') }}">
 {% endblock %}
 
@@ -24,13 +25,13 @@
             </div>
         </div>
         {% if is_granted('ROLE_ADMIN') %}
-        <div class="detail-header-actions">
-            <a href="{{ path('app_project_edit', {'id': project.id}) }}" class="btn btn-primary">Modifier</a>
-            <form method="post" action="{{ path('app_project_delete', {'id': project.id}) }}" onsubmit="return confirm('Supprimer ce projet ?');" style="display:inline">
-                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
-                <button type="submit" class="btn btn-danger">Supprimer</button>
-            </form>
-        </div>
+            <div class="detail-header-actions">
+                <a href="{{ path('app_project_edit', {'id': project.id}) }}" class="btn btn-primary">Modifier</a>
+                <form method="post" action="{{ path('app_project_delete', {'id': project.id}) }}" onsubmit="return confirm('Supprimer ce projet ?');" style="display:inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
         {% endif %}
     </div>
 
@@ -54,11 +55,11 @@
                         <span class="detail-field-label">Statut</span>
                         <span class="detail-field-value">
                             {% set s = project.status|lower %}
-                            {% if s == 'en cours' %}
+                            {% if s == 'en cours' or s == 'en_cours' %}
                                 <span class="detail-status detail-status--en-cours">En cours</span>
-                            {% elseif s == 'en attente' %}
+                            {% elseif s == 'en attente' or s == 'en_attente' %}
                                 <span class="detail-status detail-status--attente">En attente</span>
-                            {% elseif s == 'fini' or s == 'terminé' %}
+                            {% elseif s == 'fini' or s == 'terminé' or s == 'termine' %}
                                 <span class="detail-status detail-status--fini">Fini</span>
                             {% elseif s == 'annulé' or s == 'annule' %}
                                 <span class="detail-status detail-status--annule">Annulé</span>
@@ -90,7 +91,7 @@
                 {% set doneTasks = 0 %}
                 {% for task in project.tasks %}
                     {% set ts = task.status|lower %}
-                    {% if ts == 'terminé' or ts == 'done' or ts == 'fini' %}
+                    {% if ts == 'terminé' or ts == 'done' or ts == 'fini' or ts == 'termine' %}
                         {% set doneTasks = doneTasks + 1 %}
                     {% endif %}
                 {% endfor %}
@@ -115,18 +116,18 @@
                     {% endif %}
                 {% endfor %}
 
-                <div class="detail-fields" style="margin-top: var(--space-5);">
+                <div class="detail-fields" style="margin-top: 32px;">
                     <div class="detail-field">
                         <span class="detail-field-label">Budget total</span>
                         <span class="detail-field-value">{{ project.budget|number_format(2, '.', ',') }} €</span>
                     </div>
                     <div class="detail-field">
                         <span class="detail-field-label">Payé</span>
-                        <span class="detail-field-value" style="color: var(--color-success);">{{ totalPaye|number_format(2, '.', ',') }} €</span>
+                        <span class="detail-field-value" style="color: #10b981;">{{ totalPaye|number_format(2, '.', ',') }} €</span>
                     </div>
                     <div class="detail-field">
                         <span class="detail-field-label">Restant</span>
-                        <span class="detail-field-value" style="color: var(--color-danger);">{{ (totalEcheances - totalPaye)|number_format(2, '.', ',') }} €</span>
+                        <span class="detail-field-value" style="color: #ef4444;">{{ (project.budget - totalPaye)|number_format(2, '.', ',') }} €</span>
                     </div>
                 </div>
             </div>
@@ -142,29 +143,33 @@
                 {% if project.tasks is not empty %}
                     <table class="detail-table">
                         <thead>
-                            <tr>
-                                <th>Tâche</th>
-                                <th>Statut</th>
-                                <th>Deadline</th>
-                            </tr>
+                        <tr>
+                            <th style="width: 50px;">Valider</th>
+                            <th>Tâche</th>
+                            <th>Statut</th>
+                            <th>Deadline</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            {% for task in project.tasks %}
-                                <tr>
-                                    <td>{{ task.title }}</td>
-                                    <td>
-                                        {% set ts = task.status|lower %}
-                                        {% if ts == 'terminé' or ts == 'done' or ts == 'fini' %}
-                                            <span class="detail-status detail-status--en-cours">Terminé</span>
-                                        {% elseif ts == 'en cours' %}
-                                            <span class="detail-status detail-status--fini">En cours</span>
-                                        {% else %}
-                                            <span class="detail-status detail-status--attente">{{ task.status }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ task.deadline ? task.deadline|date('d/m/Y') : '—' }}</td>
-                                </tr>
-                            {% endfor %}
+                        {% for task in project.tasks %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox"
+                                           class="task-checkbox"
+                                           style="width: 18px; height: 18px; cursor: pointer;"
+                                           data-url="{{ path('app_task_toggle', {'id': task.id}) }}"
+                                           {% if task.status|lower == 'terminé' or task.status|lower == 'termine' %}checked{% endif %}>
+                                </td>
+                                <td>{{ task.title }}</td>
+                                <td>
+                                    {% set ts = task.status|lower %}
+                                    <span class="detail-status {% if ts == 'terminé' or ts == 'done' or ts == 'fini' or ts == 'termine' %}detail-status--en-cours{% else %}detail-status--attente{% endif %}" id="status-badge-{{ task.id }}">
+                                            {{ task.status|capitalize }}
+                                        </span>
+                                </td>
+                                <td>{{ task.deadline ? task.deadline|date('d/m/Y') : '—' }}</td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 {% else %}
@@ -182,28 +187,28 @@
                 {% if project.paymentSchedules is not empty %}
                     <table class="detail-table">
                         <thead>
-                            <tr>
-                                <th>Montant</th>
-                                <th>Date d'échéance</th>
-                                <th>Statut</th>
-                                <th>Payé le</th>
-                            </tr>
+                        <tr>
+                            <th>Montant</th>
+                            <th>Date d'échéance</th>
+                            <th>Statut</th>
+                            <th>Payé le</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            {% for payment in project.paymentSchedules %}
-                                <tr>
-                                    <td>{{ payment.amount|number_format(2, '.', ',') }} €</td>
-                                    <td>{{ payment.dueDate|date('d/m/Y') }}</td>
-                                    <td>
-                                        {% if payment.status == 'paye' %}
-                                            <span class="detail-status detail-status--en-cours">Payé</span>
-                                        {% else %}
-                                            <span class="detail-status detail-status--attente">En attente</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ payment.paidAt ? payment.paidAt|date('d/m/Y') : '—' }}</td>
-                                </tr>
-                            {% endfor %}
+                        {% for payment in project.paymentSchedules %}
+                            <tr>
+                                <td>{{ payment.amount|number_format(2, '.', ',') }} €</td>
+                                <td>{{ payment.dueDate|date('d/m/Y') }}</td>
+                                <td>
+                                    {% if payment.status == 'paye' %}
+                                        <span class="detail-status detail-status--en-cours">Payé</span>
+                                    {% else %}
+                                        <span class="detail-status detail-status--attente">En attente</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ payment.paidAt ? payment.paidAt|date('d/m/Y') : '—' }}</td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 {% else %}
@@ -219,7 +224,6 @@
             <div class="inside-card">
                 <h2 class="detail-section-title">Documents</h2>
 
-                {# Liste des documents existants #}
                 {% if project.documents is not empty %}
                     <div class="detail-file-list">
                         {% for doc in project.documents %}
@@ -241,10 +245,8 @@
                     <p class="detail-table-empty">Aucun document pour ce projet.</p>
                 {% endif %}
 
-                {# Upload (admin et client) #}
-                <div class="detail-upload" style="margin-top: var(--space-5);">
+                <div class="detail-upload" style="margin-top: 32px;">
                     <form method="post" action="{{ path('app_project_document_upload', {'id': project.id}) }}" enctype="multipart/form-data" class="detail-upload-form">
-
                         <div class="detail-upload-row">
                             <select name="document_type" class="detail-upload-select">
                                 <option value="cdc">Cahier des charges</option>
@@ -254,20 +256,52 @@
                             </select>
                         </div>
 
-                        <label class="detail-upload-zone">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <label class="detail-upload-zone" style="display: block; cursor: pointer; border: 2px dashed #ccc; padding: 20px; text-align: center;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 40px; margin: 0 auto;">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
                             </svg>
                             <span class="detail-upload-text">Cliquer pour sélectionner un fichier</span>
-                            <span class="detail-upload-hint">PDF, PNG, JPG ou DOCX (max. 10 Mo)</span>
                             <input type="file" name="document" accept=".pdf,.png,.jpg,.jpeg,.docx" required style="display:none" onchange="this.closest('form').querySelector('.detail-upload-text').textContent = this.files[0].name">
                         </label>
 
-                        <button type="submit" class="btn btn-primary" style="margin-top: var(--space-4);">Envoyer le document</button>
+                        <button type="submit" class="btn btn-primary" style="margin-top: 16px;">Envoyer le document</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // On attend que TOUTE la page soit chargée
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Sphera JS : Prêt et à l'écoute !");
+
+            const checkboxes = document.querySelectorAll('.task-checkbox');
+            console.log("Nombre de tâches trouvées : " + checkboxes.length);
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const url = this.getAttribute('data-url');
+
+                    // TEST DE VIE : Si tu vois cette alerte, le JS fonctionne !
+                    alert("Clic détecté sur l'URL : " + url);
+
+                    fetch(url, {
+                        method: 'POST',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("Réponse reçue :", data);
+                            window.location.reload();
+                        })
+                        .catch(err => console.error("Erreur Fetch :", err));
+                });
+            });
+        });
+    </script>
 {% endblock %}
