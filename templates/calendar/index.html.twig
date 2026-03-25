@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Calendrier des tâches{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Le style du conteneur */
+        #calendar-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-top: 20px;
+            min-height: 600px; /* On force une hauteur minimale au cas où */
+        }
+        /* Couleurs du thème Sphera */
+        .fc .fc-button-primary {
+            background-color: #5B21B6; 
+            border-color: #5B21B6;
+        }
+        .fc .fc-button-primary:hover {
+            background-color: #4C1D95;
+            border-color: #4C1D95;
+        }
+        /* Pour que les liens du calendrier (jours, etc.) ne soient pas bleus moches */
+        .fc a { color: inherit; text-decoration: none; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="dash-header">
+        <h1>Calendrier</h1>
+        <p>Aperçu de toutes les tâches liées à vos projets.</p>
+    </div>
+
+    <div id="calendar-container">
+        <div id='calendar'></div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+
+            // Petite sécurité : on vérifie que la div existe bien avant de lancer le script
+            if (calendarEl) {
+                var calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    locale: 'fr',
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    },
+                    buttonText: {
+                        today: "Aujourd'hui",
+                        month: 'Mois',
+                        week: 'Semaine',
+                        day: 'Jour'
+                    },
+                    events: [
+                        {
+                            title: 'Tâche de test : Maquette CRM',
+                            start: '2026-03-21T09:15:00',
+                            end: '2026-03-21T10:45:00',
+                            color: '#5B21B6'
+                        },
+                        {
+                            title: 'Livraison projet Pop Tuit',
+                            start: '2026-04-30',
+                            color: '#10B981'
+                        }
+                    ]
+                });
+
+                calendar.render();
+            }
+        });
+    </script>
+{% endblock %}
