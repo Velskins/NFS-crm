@@ -108,9 +108,7 @@
 
                 {# Récap financier #}
                 {% set totalPaye = 0 %}
-                {% set totalEcheances = 0 %}
                 {% for payment in project.paymentSchedules %}
-                    {% set totalEcheances = totalEcheances + payment.amount %}
                     {% if payment.status == 'paye' %}
                         {% set totalPaye = totalPaye + payment.amount %}
                     {% endif %}
@@ -123,11 +121,11 @@
                     </div>
                     <div class="detail-field">
                         <span class="detail-field-label">Payé</span>
-                        <span class="detail-field-value" style="color: #10b981;">{{ totalPaye|number_format(2, '.', ',') }} €</span>
+                        <span class="detail-field-value" id="finance-paye" style="color: #10b981;">{{ totalPaye|number_format(2, '.', ',') }} €</span>
                     </div>
                     <div class="detail-field">
                         <span class="detail-field-label">Restant</span>
-                        <span class="detail-field-value" style="color: #ef4444;">{{ (project.budget - totalPaye)|number_format(2, '.', ',') }} €</span>
+                        <span class="detail-field-value" id="finance-restant" style="color: #ef4444;">{{ (project.budget - totalPaye)|number_format(2, '.', ',') }} €</span>
                     </div>
                 </div>
             </div>
@@ -192,6 +190,7 @@
                             <th>Date d'échéance</th>
                             <th>Statut</th>
                             <th>Payé le</th>
+                            {% if is_granted('ROLE_ADMIN') %}<th>Action</th>{% endif %}
                         </tr>
                         </thead>
                         <tbody>
@@ -199,14 +198,25 @@
                             <tr>
                                 <td>{{ payment.amount|number_format(2, '.', ',') }} €</td>
                                 <td>{{ payment.dueDate|date('d/m/Y') }}</td>
-                                <td>
+                                <td class="payment-status-cell">
                                     {% if payment.status == 'paye' %}
                                         <span class="detail-status detail-status--en-cours">Payé</span>
                                     {% else %}
                                         <span class="detail-status detail-status--attente">En attente</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ payment.paidAt ? payment.paidAt|date('d/m/Y') : '—' }}</td>
+                                <td class="payment-date-cell">{{ payment.paidAt ? payment.paidAt|date('d/m/Y') : '—' }}</td>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <td>
+                                        {% if payment.status != 'paye' %}
+                                            <button class="btn btn-primary btn-sm pay-button"
+                                                    data-url="{{ path('app_payment_pay', {'id': payment.id}) }}"
+                                                    style="padding: 4px 12px; font-size: 12px;">
+                                                Payer
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -276,15 +286,20 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkboxes = document.querySelectorAll('.task-checkbox');
+        function initProjectDetails() {
+            console.log("Sphera : Initialisation des scripts...");
 
+            // --- GESTION DES TACHES ---
+            const checkboxes = document.querySelectorAll('.task-checkbox');
             checkboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
+                // On clone pour éviter de doubler les écouteurs si la page est rechargée bizarrement
+                const newCheckbox = checkbox.cloneNode(true);
+                checkbox.parentNode.replaceChild(newCheckbox, checkbox);
+
+                newCheckbox.addEventListener('change', function() {
                     const url = this.getAttribute('data-url');
                     const isChecked = this.checked;
 
-                    // 1. Changement visuel immédiat du badge de la tâche
                     const row = this.closest('tr');
                     const taskBadge = row.querySelector('.detail-status');
                     if (taskBadge) {
@@ -296,7 +311,6 @@
                         }
                     }
 
-                    // 2. Mise à jour du compteur depuis le DOM
                     const totalTasks = document.querySelectorAll('.task-checkbox').length;
                     const doneTasks = document.querySelectorAll('.task-checkbox:checked').length;
                     const progress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
@@ -309,24 +323,37 @@
                     if (bar) bar.style.width = progress + '%';
                     if (count) count.textContent = doneTasks + '/' + totalTasks + ' tâches';
 
-                    // 3. Mise à jour du badge PROJET
-                    const projectBadge = document.querySelector('.detail-fields .detail-status');
-                    if (projectBadge) {
-                        const isFini = (progress === 100);
-                        projectBadge.textContent = isFini ? 'Fini' : 'En cours';
-                        projectBadge.className = isFini ? 'detail-status detail-status--fini' : 'detail-status detail-status--en-cours';
-                    }
-
-                    // 4. Synchronisation avec le serveur en arrière-plan
-                    fetch(url, {
-                        method: 'POST',
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                    })
-                        .then(response => response.json())
-                        .then(data => console.log("Sphera Sync :", data))
-                        .catch(err => console.error("Erreur :", err));
+                    fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
                 });
             });
-        });
+
+            // --- GESTION DES PAIEMENTS ---
+            const payButtons = document.querySelectorAll('.pay-button');
+            payButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const url = this.getAttribute('data-url');
+                    const row = this.closest('tr');
+
+                    fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const statusCell = row.querySelector('.payment-status-cell');
+                                statusCell.innerHTML = '<span class="detail-status detail-status--en-cours">Payé</span>';
+                                const dateCell = row.querySelector('.payment-date-cell');
+                                dateCell.textContent = data.paidAt;
+
+                                document.getElementById('finance-paye').textContent = data.newTotalPaye;
+                                document.getElementById('finance-restant').textContent = data.newRestant;
+                                this.remove();
+                            }
+                        });
+                });
+            });
+        }
+
+        // Support pour Symfony classique et Symfony avec Turbo
+        document.addEventListener('DOMContentLoaded', initProjectDetails);
+        document.addEventListener('turbo:load', initProjectDetails);
     </script>
 {% endblock %}

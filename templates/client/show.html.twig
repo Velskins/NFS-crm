@@ -53,10 +53,103 @@
         <h2>Notes</h2>
         <p>{{ client.notes }}</p>
     {% endif %}
+    {# ── Argent en attente ── #}
+    {% set argentEnAttente = client.argentEnAttente %}
+    <div style="margin: 24px 0; padding: 16px 20px; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06);">
+        <strong>Argent en attente :</strong>
+        <span id="montant-en-attente" style="font-weight: 800; font-size: 1.3rem; color: {{ argentEnAttente > 0 ? '#ef4444' : '#10b981' }};">
+        {{ argentEnAttente|number_format(2, '.', ',') }} €
+    </span>
+    </div>
+
+    {# ── Échéances par projet ── #}
+    {% for project in client.projects %}
+        {% if project.paymentSchedules is not empty %}
+            <h3>Projet : {{ project.title }}</h3>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Montant</th>
+                    <th>Échéance</th>
+                    <th>Statut</th>
+                    <th>Payé le</th>
+                    {% if is_granted('ROLE_ADMIN') %}<th>Action</th>{% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for payment in project.paymentSchedules %}
+                    <tr id="row-{{ payment.id }}">
+                        <td>{{ payment.amount|number_format(2, '.', ',') }} €</td>
+                        <td>{{ payment.dueDate|date('d/m/Y') }}</td>
+                        <td class="status-cell-{{ payment.id }}">
+                            {% if payment.status == 'paye' %}
+                                <span style="color:#10b981; font-weight:700;">✔ Payé</span>
+                            {% else %}
+                                <span style="color:#f59e0b; font-weight:700;">⏳ En attente</span>
+                            {% endif %}
+                        </td>
+                        <td class="date-cell-{{ payment.id }}">
+                            {{ payment.paidAt ? payment.paidAt|date('d/m/Y') : '—' }}
+                        </td>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <td>
+                                {% if payment.status != 'paye' %}
+                                    <button class="btn btn-primary btn-sm pay-button"
+                                            data-url="{{ path('app_payment_pay', {'id': payment.id}) }}"
+                                            data-id="{{ payment.id }}">
+                                        ✔ Valider le virement
+                                    </button>
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% endfor %}
 
     {# Actions #}
     <a href="{{ path('app_client_index') }}">← Retour à la liste</a>
     <a href="{{ path('app_client_edit', {'id': client.id}) }}">Modifier</a>
     {{ include('client/_delete_form.html.twig') }}
+
+    {% block javascripts %}
+        {{ parent() }}
+        <script>
+            document.querySelectorAll('.pay-button').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    if (!confirm('Confirmer la réception de ce virement ?')) return;
+
+                    const url  = this.getAttribute('data-url');
+                    const id   = this.getAttribute('data-id');
+
+                    fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (!data.success) return;
+
+                            // Badge statut
+                            document.querySelector('.status-cell-' + id).innerHTML =
+                                '<span style="color:#10b981;font-weight:700;">✔ Payé</span>';
+
+                            // Date de paiement
+                            document.querySelector('.date-cell-' + id).textContent = data.paidAt;
+
+                            // Bouton disparu
+                            this.remove();
+
+                            // Montant en attente mis à jour
+                            const montantEl = document.getElementById('montant-en-attente');
+                            if (montantEl && data.newArgentEnAttente) {
+                                montantEl.textContent = data.newArgentEnAttente;
+                                montantEl.style.color = data.newArgentEnAttenteRaw > 0 ? '#ef4444' : '#10b981';
+                            }
+                        })
+                        .catch(err => console.error('Erreur paiement :', err));
+                });
+            });
+        </script>
+    {% endblock %}
 
 {% endblock %}
