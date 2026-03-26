@@ -4,6 +4,7 @@
 
 {% block stylesheets %}
     <link rel="stylesheet" href="{{ asset('styles/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/project.css') }}">
 {% endblock %}
 
 {% block body %}
@@ -80,81 +81,57 @@
     </div>
 
     <div class="table-wrapper">
-        <table class="dash-table">
+        <table class="clients-table">
             <thead>
                 <tr>
-                    <th>Nom du client</th>
-                    <th>Nom du projet</th>
-                    <th>DeadLine</th>
+                    <th>Titre</th>
+                    <th>Client</th>
                     <th>Budget</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th>Avancement</th>
+                    <th>Statut</th>
+                    <th>Deadline</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for project in projects %}
                     <tr>
-                        {# Le client #}
-                        <td>{{ project.client.firstName }} {{ project.client.lastName }}</td>
-                        
-                        {# CORRECTION : On utilise title au lieu de name #}
-                        <td>{{ project.title }}</td>
-                        
-                        {# La deadline #}
-                        <td>
-                            <span class="dash-date">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                                </svg>
-                                {{ project.deadline ? project.deadline|date('d M Y') : 'Non définie' }}
-                            </span>
-                        </td>
-                        
-                        
+                        <td><strong>{{ project.title }}</strong></td>
+                        <td>{{ project.client.companyName }}</td>
                         <td>{{ project.budget|number_format(2, '.', ',') }} €</td>
-                        
                         <td>
-                            {% if project.status == 'en_attente' %}
-                                <span class="dash-status dash-status--attente">
-                                    En attente
-                                </span>
-                            {% elseif project.status == 'en_cours' %}
-                                <span class="dash-status dash-status--en-cours">
-                                    En cours
-                                </span>
-                            {% elseif project.status == 'termine' %}
-                                <span class="dash-status dash-status--termine">
-                                    Terminé
-                                </span>
-                            {% elseif project.status == 'annule' %}
-                                <span class="dash-status dash-status--annule">
-                                    Annulé
-                                </span>
+                            <div class="project-progress-bar">
+                                <div class="project-progress-fill" style="width: {{ project.progress }}%"></div>
+                            </div>
+                            <span class="project-progress-label">{{ project.progress }} %</span>
+                        </td>
+                        <td>
+                            {% set s = project.status %}
+                            {% if s == 'en_cours' %}
+                                <span class="clients-status project-status--encours">En cours</span>
+                            {% elseif s == 'livre' %}
+                                <span class="clients-status project-status--livre">Livré</span>
+                            {% elseif s == 'paye' %}
+                                <span class="clients-status clients-status--actif">Payé</span>
                             {% else %}
-                                <span class="dash-status">
-                                    {{ project.status|capitalize }}
-                                </span>
+                                <span class="clients-status clients-status--attente">{{ project.status }}</span>
                             {% endif %}
                         </td>
-                        
-                        {# Les actions #}
+                        <td>{{ project.deadline ? project.deadline|date('d/m/Y') : '—' }}</td>
                         <td>
-                            <div class="dash-actions">
-                                <a href="{{ path('app_project_show', {'id': project.id}) }}" title="Voir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></a>
-                                <a href="{{ path('app_project_edit', {'id': project.id}) }}" title="Modifier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></a>
-                                
-                                <form method="post" action="{{ path('app_project_delete', {'id': project.id}) }}" onsubmit="return confirm('Êtes-vous sûr ?');" style="display:inline-block;">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
-                                    <button type="submit" title="Supprimer" class="dash-action-delete" style="background:none; border:none; padding:0; cursor:pointer;">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                    </button>
-                                </form>
+                            <div class="clients-actions">
+                                <a href="{{ path('app_project_show', {'id': project.id}) }}" title="Voir">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </a>
+                                <a href="{{ path('app_project_edit', {'id': project.id}) }}" title="Modifier">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                </a>
                             </div>
                         </td>
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 20px;">Aucun projet en cours.</td>
+                        <td colspan="7" class="clients-empty">Aucun projet en cours.</td>
                     </tr>
                 {% endfor %}
             </tbody>

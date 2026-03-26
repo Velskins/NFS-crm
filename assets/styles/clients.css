@@ -11,6 +11,11 @@
   margin-bottom:   var(--space-8);
 }
 
+/* ── BOUTON RECHERCHE ── */
+.client-search-btn {
+  flex-shrink: 0;
+}
+
 
 /* ── TOOLBAR (recherche + filtre sur une ligne) ── */
 .clients-toolbar {
@@ -411,5 +416,9 @@
 
   .client-form-row {
     grid-template-columns: 1fr;
+  }
+
+  .client-search-btn {
+    width: 100%;
   }
 }

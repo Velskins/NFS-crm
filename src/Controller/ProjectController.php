@@ -22,7 +22,9 @@ final class ProjectController extends AbstractController
     #[Route(name: 'app_project_index', methods: ['GET'])]
     public function index(Request $request, ProjectRepository $projectRepository): Response
     {
-        $user = $this->getUser();
+        $user   = $this->getUser();
+        $search = $request->query->get('search', '');
+        $status = $request->query->get('status', '');
 
         // ROLE_CLIENT : ne voit que les projets liés à son profil client
         if (!$this->isGranted('ROLE_ADMIN') && $user->getClientProfile()) {
@@ -31,25 +33,26 @@ final class ProjectController extends AbstractController
             $projects = $projectRepository->findBy(['user' => $user]);
         }
 
-        // Filtrer par statut si demandé
-        $filter = $request->query->get('filter', 'tout');
-        if ($filter !== 'tout') {
-            $statusMap = [
-                'en_cours'   => ['en cours'],
-                'en_attente' => ['en attente'],
-                'fini'       => ['fini', 'terminé'],
-                'annule'     => ['annulé', 'annule'],
-            ];
-            $allowedStatuses = $statusMap[$filter] ?? [];
-            if ($allowedStatuses) {
-                $projects = array_filter($projects, function ($project) use ($allowedStatuses) {
-                    return in_array(strtolower($project->getStatus()), $allowedStatuses);
-                });
-            }
+        // Filtrer par recherche (titre ou nom de société du client)
+        if ($search) {
+            $searchLower = strtolower($search);
+            $projects = array_filter($projects, function ($project) use ($searchLower) {
+                return str_contains(strtolower($project->getTitle()), $searchLower)
+                    || str_contains(strtolower($project->getClient()->getCompanyName()), $searchLower);
+            });
+        }
+
+        // Filtrer par statut (valeurs : en_cours, livre, paye)
+        if ($status) {
+            $projects = array_filter($projects, function ($project) use ($status) {
+                return $project->getStatus() === $status;
+            });
         }
 
         return $this->render('project/index.html.twig', [
             'projects' => $projects,
+            'search'   => $search,
+            'status'   => $status,
         ]);
     }
 
@@ -57,7 +60,7 @@ final class ProjectController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $project = new Project();
-        $form = $this->createForm(ProjectType::class, $project);
+        $form    = $this->createForm(ProjectType::class, $project);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -66,12 +69,14 @@ final class ProjectController extends AbstractController
             $entityManager->persist($project);
             $entityManager->flush();
 
+            $this->addFlash('success', 'Projet "' . $project->getTitle() . '" créé avec succès.');
+
             return $this->redirectToRoute('app_project_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('project/new.html.twig', [
             'project' => $project,
-            'form' => $form,
+            'form'    => $form,
         ]);
     }
 
@@ -104,12 +109,14 @@ final class ProjectController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
+            $this->addFlash('success', 'Projet "' . $project->getTitle() . '" modifié avec succès.');
+
             return $this->redirectToRoute('app_project_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('project/edit.html.twig', [
             'project' => $project,
-            'form' => $form,
+            'form'    => $form,
         ]);
     }
 
@@ -121,6 +128,8 @@ final class ProjectController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$project->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($project);
             $entityManager->flush();
+
+            $this->addFlash('success', 'Projet supprimé avec succès.');
         }
 
         return $this->redirectToRoute('app_project_index', [], Response::HTTP_SEE_OTHER);
@@ -162,15 +171,16 @@ final class ProjectController extends AbstractController
 
         return $this->redirectToRoute('app_project_show', ['id' => $payment->getProject()->getId()]);
     }
+
     #[Route('/{id}/payment/generate', name: 'app_project_payment_generate', methods: ['POST'])]
     public function generatePayments(Request $request, Project $project, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('PROJECT_EDIT', $project);
 
-        $nombreEcheances = (int) $request->request->get('nombre_echeances');
+        $nombreEcheances    = (int)   $request->request->get('nombre_echeances');
         $montantParEcheance = (float) $request->request->get('montant_echeance');
-        $dateDebut = new \DateTimeImmutable($request->request->get('date_debut'));
-        $frequence = $request->request->get('frequence', 'monthly'); // monthly ou weekly
+        $dateDebut          = new \DateTimeImmutable($request->request->get('date_debut'));
+        $frequence          = $request->request->get('frequence', 'monthly');
 
         for ($i = 0; $i < $nombreEcheances; $i++) {
             $payment = new PaymentSchedule();
@@ -209,8 +219,8 @@ final class ProjectController extends AbstractController
         }
 
         $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $safeFilename = $slugger->slug($originalFilename);
-        $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
+        $safeFilename     = $slugger->slug($originalFilename);
+        $newFilename      = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
 
         try {
             $file->move(
@@ -235,35 +245,32 @@ final class ProjectController extends AbstractController
         $this->addFlash('success', 'Document "' . $document->getOriginalName() . '" ajouté.');
         return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
     }
+
     #[Route('/task/{id}/toggle', name: 'app_task_toggle', methods: ['POST'])]
     public function toggleTask(Task $task, EntityManagerInterface $entityManager): Response
     {
-        // 1. On change le statut de la tâche (bascule entre 'a_faire' et 'terminé')
+        // Bascule entre 'a_faire' et 'terminé'
         $newTaskStatus = ($task->getStatus() === 'terminé') ? 'à faire' : 'terminé';
         $task->setStatus($newTaskStatus);
 
-        // On récupère le projet lié
         $project = $task->getProject();
 
-        // On enregistre d'abord le changement de la tâche pour que getProgress() soit à jour
+        // On enregistre d'abord pour que getProgress() soit à jour
         $entityManager->flush();
 
-        // 2. LOGIQUE D'AUTOMATISATION DU PROJET
-        // Si l'avancement atteint 100% et que le projet est encore "en cours"
-        if ($project->getProgress() === 100 && strtolower($project->getStatus()) === 'en cours') {
-            $project->setStatus('terminé');
+        // Automatisation du statut projet selon l'avancement
+        if ($project->getProgress() === 100 && strtolower($project->getStatus()) === 'en_cours') {
+            $project->setStatus('livre');
             $entityManager->flush();
-        }
-        // Optionnel : si on décoche une tâche et que le projet était "terminé", il repasse "en cours"
-        elseif ($project->getProgress() < 100 && strtolower($project->getStatus()) === 'terminé') {
-            $project->setStatus('en cours');
+        } elseif ($project->getProgress() < 100 && $project->getStatus() === 'livre') {
+            $project->setStatus('en_cours');
             $entityManager->flush();
         }
 
         return $this->json([
-            'newStatus' => $newTaskStatus,
+            'newStatus'     => $newTaskStatus,
             'projectStatus' => $project->getStatus(),
-            'progress' => $project->getProgress()
+            'progress'      => $project->getProgress(),
         ]);
     }
 }
