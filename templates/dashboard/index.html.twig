@@ -1,0 +1,233 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord — Sphera{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/project.css') }}">
+{% endblock %}
+
+{% block body %}
+
+    {# ══════════════════════════════════════════════════════
+       KPI CARDS (3 colonnes)
+       ══════════════════════════════════════════════════════ #}
+    <div class="dash-kpis">
+
+        {# KPI 1 — Revenu annuel #}
+        <div class="dash-kpi">
+            <div class="dash-kpi-inner">
+                <div class="dash-kpi-ring">
+                    {# Cercle SVG — circumference = 2π × 34 ≈ 213.6, 51% = 108.9 #}
+                    <svg viewBox="0 0 80 80">
+                        <circle class="dash-kpi-ring-bg" cx="40" cy="40" r="34"/>
+                        <circle class="dash-kpi-ring-fill" cx="40" cy="40" r="34"
+                                stroke-dasharray="213.6"
+                                stroke-dashoffset="104.7"/>
+                    </svg>
+                    <span class="dash-kpi-ring-label">51%</span>
+                </div>
+                <div class="dash-kpi-value">
+                    37,500<span>/73,000</span>
+                </div>
+                <div class="dash-kpi-label">Revenu annuel Max</br>(STATIQUE A CHANGER)</div>
+            </div>
+        </div>
+
+        {# KPI 2 — Clients actifs #}
+        <div class="dash-kpi">
+            <div class="dash-kpi-inner">
+                <div class="dash-kpi-ring">
+                    <svg viewBox="0 0 80 80">
+                        <circle class="dash-kpi-ring-bg" cx="40" cy="40" r="34"/>
+                        <circle class="dash-kpi-ring-fill" cx="40" cy="40" r="34"
+                                stroke-dasharray="213.6"
+                                stroke-dashoffset="0"/>
+                    </svg>
+                    {# Affichage de la nouvelle variable envoyée par le contrôleur #}
+                    <span class="dash-kpi-ring-label">{{ total_clients }}</span>
+                </div>
+                <div class="dash-kpi-value">Clients actifs</div>
+            </div>
+        </div>
+
+{# KPI 3 — Projets en cours #}
+<div class="dash-kpi">
+    <div class="dash-kpi-inner">
+        <div class="dash-kpi-ring">
+            <svg viewBox="0 0 80 80">
+                <circle class="dash-kpi-ring-bg" cx="40" cy="40" r="34"/>
+                <circle class="dash-kpi-ring-fill" cx="40" cy="40" r="34"
+                        stroke-dasharray="213.6"
+                        stroke-dashoffset="0"/>
+            </svg>
+            <span class="dash-kpi-ring-label">{{ total_projects }}</span>
+        </div>
+        <div class="dash-kpi-value">Projets en cours</div>
+    </div>
+</div>
+
+    </div>
+
+
+    {# ══════════════════════════════════════════════════════
+       GESTION DES PROJETS (table)
+       ══════════════════════════════════════════════════════ #}
+    <div class="dash-card">
+<div class="inside-card">
+    <div class="dash-card-header">
+        <h2 class="dash-card-title">Gestion des projets</h2>
+        <a href="{{ path('app_project_index') }}" class="dash-card-link">Tout voir</a>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="clients-table">
+            <thead>
+                <tr>
+                    <th>Titre</th>
+                    <th>Client</th>
+                    <th>Budget</th>
+                    <th>Avancement</th>
+                    <th>Statut</th>
+                    <th>Deadline</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                    <tr>
+                        <td><strong>{{ project.title }}</strong></td>
+                        <td>{{ project.client.companyName }}</td>
+                        <td>{{ project.budget|number_format(2, '.', ',') }} €</td>
+                        <td>
+                            <div class="project-progress-bar">
+                                <div class="project-progress-fill" style="width: {{ project.progress }}%"></div>
+                            </div>
+                            <span class="project-progress-label">{{ project.progress }} %</span>
+                        </td>
+                        <td>
+                            {% set s = project.status %}
+                            {% if s == 'en_cours' %}
+                                <span class="clients-status project-status--encours">En cours</span>
+                            {% elseif s == 'livre' %}
+                                <span class="clients-status project-status--livre">Livré</span>
+                            {% elseif s == 'paye' %}
+                                <span class="clients-status clients-status--actif">Payé</span>
+                            {% else %}
+                                <span class="clients-status clients-status--attente">{{ project.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ project.deadline ? project.deadline|date('d/m/Y') : '—' }}</td>
+                        <td>
+                            <div class="clients-actions">
+                                <a href="{{ path('app_project_show', {'id': project.id}) }}" title="Voir">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </a>
+                                <a href="{{ path('app_project_edit', {'id': project.id}) }}" title="Modifier">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="clients-empty">Aucun projet en cours.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+    </div>
+
+
+    {# ══════════════════════════════════════════════════════
+       BOTTOM ROW : Calendrier + Clients
+       ══════════════════════════════════════════════════════ #}
+    <div class="dash-bottom">
+
+        {# ── Calendrier ── #}
+        <div class="dash-card">
+            <div class="inside-card">
+            <div class="dash-card-header">
+                <h2 class="dash-card-title">Calendrier (STATIQUE A CHANGER)</h2>
+                <select class="dash-cal-select">
+                    <option>Mars</option>
+                    <option>Avril</option>
+                    <option>Mai</option>
+                </select>
+            </div>
+
+            {# Jours de la semaine #}
+            <div class="dash-cal-days">
+                <div class="dash-cal-day"></div>{# Espace pour la colonne heure #}
+                <div class="dash-cal-day">Lun <span class="dash-cal-day-num">21</span></div>
+                <div class="dash-cal-day">Mar <span class="dash-cal-day-num">22</span></div>
+                <div class="dash-cal-day">Mer <span class="dash-cal-day-num">23</span></div>
+                <div class="dash-cal-day">Jeu <span class="dash-cal-day-num">24</span></div>
+                <div class="dash-cal-day today">Ven <span class="dash-cal-day-num">25</span></div>
+                <div class="dash-cal-day">Sam <span class="dash-cal-day-num">26</span></div>
+                <div class="dash-cal-day">Dim <span class="dash-cal-day-num">27</span></div>
+            </div>
+
+            {# Grille horaire #}
+            <div class="dash-cal-grid">
+                <div class="dash-cal-hour">8 h</div>
+                <div class="dash-cal-slot"></div>
+
+                <div class="dash-cal-hour">9 h</div>
+                <div class="dash-cal-slot">
+                    <div class="dash-cal-task">
+                        <div class="dash-cal-task-title">Tâche: Finir Maquette CRM</div>
+                        <div class="dash-cal-task-time">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            09:15 h à 10:45 h
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dash-cal-hour">10 h</div>
+                <div class="dash-cal-slot"></div>
+
+                <div class="dash-cal-hour">11 h</div>
+                <div class="dash-cal-slot">
+                    <div class="dash-cal-task">
+                        <div class="dash-cal-task-title">Tâche: V1 maquette Client</div>
+                        <div class="dash-cal-task-time">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            11:45 h à 12:35 h
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dash-cal-hour">12 h</div>
+                <div class="dash-cal-slot"></div>
+            </div>
+            </div>{# /inside-card #}
+        </div>
+
+
+{# ── Liste Clients ── #}
+        <div class="dash-card">
+            <div class="inside-card">
+            <div class="dash-card-header">
+                <h2 class="dash-card-title">Clients</h2>
+                <a href="{{ path('app_client_index') }}" class="dash-card-link">Tout voir</a>
+            </div>
+
+            <div class="dash-clients-list">
+                {% for client in clients %}
+                    <a href="{{ path('app_client_show', {'id': client.id}) }}" class="dash-client-item">
+                        <div class="dash-client-avatar">{{ client.firstName|first|upper }}{{ client.lastName|first|upper }}</div>
+                        <span class="dash-client-name">{{ client.firstName }} {{ client.lastName }}</span>
+                    </a>
+                {% else %}
+                    <p class="text-muted text-sm">Aucun client pour l'instant.</p>
+                {% endfor %}
+            </div>
+            </div>{# /inside-card #}
+        </div>
+
+    </div>
+
+{% endblock %}

@@ -34,10 +34,54 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $firstName = null;
+    private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $lastName = null;
+    private ?string $lastname = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $invitationToken = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $invitationTokenExpiresAt = null;
+
+    #[ORM\OneToOne(targetEntity: Client::class, mappedBy: 'userAccount')]
+    private ?Client $clientProfile = null;
+
+    // ── Champs facturation (ROLE_ADMIN) ──
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $companyName = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $companyAddress = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $companyPostalCode = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $companyCity = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $siret = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $tvaNumber = null;
+
+    #[ORM\Column(length: 45, nullable: true)]
+    private ?string $phone = null;
+
+    // ── Préférences de notifications ──
+    #[ORM\Column(type: 'boolean')]
+    private bool $notifEcheance = true;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $notifNewProject = true;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $notifDocumentUploaded = true;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $notifPaymentReceived = true;
 
     /**
      * @var Collection<int, Client>
@@ -51,10 +95,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Project::class, mappedBy: 'user')]
     private Collection $projects;
 
+    /**
+     * @var Collection<int, Messagrie>
+     */
+    #[ORM\OneToMany(targetEntity: Messagrie::class, mappedBy: 'user')]
+    private Collection $messagries;
+
+    /**
+     * @var Collection<int, Invoice>
+     */
+    #[ORM\OneToMany(targetEntity: Invoice::class, mappedBy: 'user')]
+    private Collection $invoices;
+
+    /**
+     * @var Collection<int, Invoice>
+     */
+
     public function __construct()
     {
         $this->clients = new ArrayCollection();
         $this->projects = new ArrayCollection();
+        $this->messagries = new ArrayCollection();
+        $this->invoices = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -131,25 +193,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $data;
     }
-    public function getFirstName(): ?string
+
+    public function getFirstname(): ?string
     {
-        return $this->firstName;
+        return $this->firstname;
     }
 
-    public function setFirstName(string $firstName): static
+    public function setFirstname(string $firstname): static
     {
-        $this->firstName = $firstName;
+        $this->firstname = $firstname;
+
         return $this;
     }
 
-    public function getLastName(): ?string
+    public function getLastname(): ?string
     {
-        return $this->lastName;
+        return $this->lastname;
     }
 
-    public function setLastName(string $lastName): static
+    public function setLastname(string $lastname): static
     {
-        $this->lastName = $lastName;
+        $this->lastname = $lastname;
+
         return $this;
     }
 
@@ -212,4 +277,237 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, Messagrie>
+     */
+    public function getMessagries(): Collection
+    {
+        return $this->messagries;
+    }
+
+    public function addMessagry(Messagrie $messagry): static
+    {
+        if (!$this->messagries->contains($messagry)) {
+            $this->messagries->add($messagry);
+            $messagry->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessagry(Messagrie $messagry): static
+    {
+        if ($this->messagries->removeElement($messagry)) {
+            // set the owning side to null (unless already changed)
+            if ($messagry->getUser() === $this) {
+                $messagry->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Invoice>
+     */
+
+    /**
+     * @return Collection<int, Invoice>
+     */
+    public function getInvoices(): Collection
+    {
+        return $this->invoices;
+    }
+
+    public function addInvoice(Invoice $invoice): static
+    {
+        if (!$this->invoices->contains($invoice)) {
+            $this->invoices->add($invoice);
+            $invoice->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInvoice(Invoice $invoice): static
+    {
+        if ($this->invoices->removeElement($invoice)) {
+            // set the owning side to null (unless already changed)
+            if ($invoice->getUser() === $this) {
+                $invoice->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getInvitationToken(): ?string
+    {
+        return $this->invitationToken;
+    }
+
+    public function setInvitationToken(?string $invitationToken): static
+    {
+        $this->invitationToken = $invitationToken;
+        return $this;
+    }
+
+    public function getInvitationTokenExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->invitationTokenExpiresAt;
+    }
+
+    public function setInvitationTokenExpiresAt(?\DateTimeImmutable $invitationTokenExpiresAt): static
+    {
+        $this->invitationTokenExpiresAt = $invitationTokenExpiresAt;
+        return $this;
+    }
+
+    public function isInvitationTokenValid(): bool
+    {
+        return $this->invitationToken !== null
+            && $this->invitationTokenExpiresAt !== null
+            && $this->invitationTokenExpiresAt > new \DateTimeImmutable();
+    }
+
+    public function getClientProfile(): ?Client
+    {
+        return $this->clientProfile;
+    }
+
+    public function setClientProfile(?Client $clientProfile): static
+    {
+        if ($clientProfile !== null && $clientProfile->getUserAccount() !== $this) {
+            $clientProfile->setUserAccount($this);
+        }
+        $this->clientProfile = $clientProfile;
+        return $this;
+    }
+
+    // ── Facturation ──
+
+    public function getCompanyName(): ?string
+    {
+        return $this->companyName;
+    }
+
+    public function setCompanyName(?string $companyName): static
+    {
+        $this->companyName = $companyName;
+        return $this;
+    }
+
+    public function getCompanyAddress(): ?string
+    {
+        return $this->companyAddress;
+    }
+
+    public function setCompanyAddress(?string $companyAddress): static
+    {
+        $this->companyAddress = $companyAddress;
+        return $this;
+    }
+
+    public function getCompanyPostalCode(): ?string
+    {
+        return $this->companyPostalCode;
+    }
+
+    public function setCompanyPostalCode(?string $companyPostalCode): static
+    {
+        $this->companyPostalCode = $companyPostalCode;
+        return $this;
+    }
+
+    public function getCompanyCity(): ?string
+    {
+        return $this->companyCity;
+    }
+
+    public function setCompanyCity(?string $companyCity): static
+    {
+        $this->companyCity = $companyCity;
+        return $this;
+    }
+
+    public function getSiret(): ?string
+    {
+        return $this->siret;
+    }
+
+    public function setSiret(?string $siret): static
+    {
+        $this->siret = $siret;
+        return $this;
+    }
+
+    public function getTvaNumber(): ?string
+    {
+        return $this->tvaNumber;
+    }
+
+    public function setTvaNumber(?string $tvaNumber): static
+    {
+        $this->tvaNumber = $tvaNumber;
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): static
+    {
+        $this->phone = $phone;
+        return $this;
+    }
+
+    // ── Notifications ──
+
+    public function isNotifEcheance(): bool
+    {
+        return $this->notifEcheance;
+    }
+
+    public function setNotifEcheance(bool $notifEcheance): static
+    {
+        $this->notifEcheance = $notifEcheance;
+        return $this;
+    }
+
+    public function isNotifNewProject(): bool
+    {
+        return $this->notifNewProject;
+    }
+
+    public function setNotifNewProject(bool $notifNewProject): static
+    {
+        $this->notifNewProject = $notifNewProject;
+        return $this;
+    }
+
+    public function isNotifDocumentUploaded(): bool
+    {
+        return $this->notifDocumentUploaded;
+    }
+
+    public function setNotifDocumentUploaded(bool $notifDocumentUploaded): static
+    {
+        $this->notifDocumentUploaded = $notifDocumentUploaded;
+        return $this;
+    }
+
+    public function isNotifPaymentReceived(): bool
+    {
+        return $this->notifPaymentReceived;
+    }
+
+    public function setNotifPaymentReceived(bool $notifPaymentReceived): static
+    {
+        $this->notifPaymentReceived = $notifPaymentReceived;
+        return $this;
+    }
+
 }

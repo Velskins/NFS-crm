@@ -1,0 +1,103 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Clients — Sphera{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/clients.css') }}">
+{% endblock %}
+
+{% block body %}
+
+    {# ── Bouton Nouveau client ── #}
+    <div class="clients-header">
+        <a href="{{ path('app_client_new') }}" class="btn btn-primary">Nouveau client</a>
+    </div>
+
+    <div class="card">
+        <div class="inside-card">
+
+            {# ── Barre de recherche ── #}
+            <form method="GET" action="{{ path('app_client_index') }}" class="clients-toolbar">
+                <div class="clients-search-wrapper">
+                    <svg class="clients-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" name="search" value="{{ search ?? '' }}" placeholder="Rechercher par nom, entreprise..." class="clients-search-input">
+                </div>
+
+                <div class="clients-filter">
+                    <select name="status" class="clients-filter-select" onchange="this.form.submit()">
+                        <option value="">Tous les statuts</option>
+                        <option value="actif" {{ (status ?? '') == 'actif' ? 'selected' : '' }}>Actif</option>
+                        <option value="attente" {{ (status ?? '') == 'attente' ? 'selected' : '' }}>Attente de paiement</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary client-search-btn">Rechercher</button>
+            </form>
+
+            {# ── Table clients ── #}
+            {% if clients is not empty %}
+                <div class="table-wrapper">
+                    <table class="clients-table">
+                        <thead>
+                        <tr>
+                            <th>Nom du client</th>
+                            <th>Entreprise</th>
+                            <th>Contact</th>
+                            <th>Argent en attente</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for client in clients %}
+                            {# On récupère le montant calculé par ton entité PHP #}
+                            {% set montantDu = client.argentEnAttente %}
+
+                            <tr>
+                                <td>{{ client.firstName }} {{ client.lastName }}</td>
+                                <td>{{ client.companyName }}</td>
+                                <td>
+                                        <span class="clients-contact">
+                                            {{ client.phone ?? '—' }}
+                                        </span>
+                                </td>
+                                <td>
+                                    {# Affichage dynamique du tracker #}
+                                    <span style="font-weight: 700; color: {{ montantDu > 0 ? '#ef4444' : '#10b981' }};">
+                                            {{ montantDu|number_format(2, '.', ',') }} €
+                                        </span>
+                                </td>
+                                <td>
+                                    {# Le badge change de couleur si le client doit de l'argent #}
+                                    {% if montantDu > 0 %}
+                                        <span class="clients-status clients-status--attente">
+                                                Attente de paiement
+                                            </span>
+                                    {% else %}
+                                        <span class="clients-status clients-status--actif">
+                                                Actif (À jour)
+                                            </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="clients-actions">
+                                        <a href="{{ path('app_client_show', {'id': client.id}) }}" title="Voir">Voir</a>
+                                        <a href="{{ path('app_client_edit', {'id': client.id}) }}" title="Modifier">Modif</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="clients-empty">Aucun client trouvé.</div>
+            {% endif %}
+
+        </div>
+    </div>
+
+{% endblock %}

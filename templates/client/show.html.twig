@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ client.companyName }}{% endblock %}
+
+{% block body %}
+
+    <h1>{{ client.companyName }}</h1>
+
+    {# Infos entreprise #}
+    <h2>Entreprise</h2>
+    <table class="table">
+        <tbody>
+        <tr>
+            <th>Secteur d'activité</th>
+            <td>{{ client.businessSector ?? '-' }}</td>
+        </tr>
+        <tr>
+            <th>Adresse</th>
+            <td>{{ client.address ?? '-' }}</td>
+        </tr>
+        <tr>
+            <th>Ville</th>
+            <td>{{ client.city ?? '-' }}</td>
+        </tr>
+        <tr>
+            <th>Code postal</th>
+            <td>{{ client.postalCode ?? '-' }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    {# Infos contact #}
+    <h2>Contact</h2>
+    <table class="table">
+        <tbody>
+        <tr>
+            <th>Nom</th>
+            <td>{{ client.firstName }} {{ client.lastName }}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{ client.email }}</td>
+        </tr>
+        <tr>
+            <th>Téléphone</th>
+            <td>{{ client.phone ?? '-' }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    {# Notes #}
+    {% if client.notes %}
+        <h2>Notes</h2>
+        <p>{{ client.notes }}</p>
+    {% endif %}
+
+    {# Actions #}
+    <a href="{{ path('app_client_index') }}">← Retour à la liste</a>
+    <a href="{{ path('app_client_edit', {'id': client.id}) }}">Modifier</a>
+    {{ include('client/_delete_form.html.twig') }}
+
+{% endblock %}
