@@ -4,6 +4,7 @@ namespace App\Form;
 use App\Entity\Client;
 use App\Entity\Project;
 use App\Form\TaskType;
+use App\Form\PaymentScheduleType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -52,6 +53,14 @@ class ProjectType extends AbstractType
                 'allow_add' => true,
                 'allow_delete' => true,
                 'by_reference' => false,
+            ])
+            ->add('paymentSchedules', CollectionType::class, [
+                'entry_type' => PaymentScheduleType::class,
+                'entry_options' => ['label' => false],
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+                'label' => false,
             ])
         ;
     }

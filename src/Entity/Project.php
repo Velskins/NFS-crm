@@ -48,7 +48,7 @@ class Project
     /**
      * @var Collection<int, PaymentSchedule>
      */
-    #[ORM\OneToMany(targetEntity: PaymentSchedule::class, mappedBy: 'project')]
+    #[ORM\OneToMany(targetEntity: PaymentSchedule::class, mappedBy: 'project', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $paymentSchedules;
 
     /**

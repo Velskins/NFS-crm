@@ -183,61 +183,85 @@
         </div>
     </div>
 
-    {# ── FACTURES DU CLIENT ── #}
-    <div class="detail-grid detail-grid--full">
-        <div class="detail-section">
-            <div class="inside-card">
-                <h2 class="detail-section-title">Factures</h2>
-                {% if client.invoices is not empty %}
-                    <table class="detail-table">
-                        <thead>
-                            <tr>
-                                <th>Numéro</th>
-                                <th>Date</th>
-                                <th>Statut</th>
-                                <th>PDF</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for invoice in client.invoices %}
-                                <tr>
-                                    <td>{{ invoice.number }}</td>
-                                    <td>{{ invoice.createdAt ? invoice.createdAt|date('d/m/Y') : '—' }}</td>
-                                    <td>
-                                        {% set is = invoice.status|lower %}
-                                        {% if is == 'payée' or is == 'paye' %}
-                                            <span class="detail-status detail-status--en-cours">Payée</span>
-                                        {% elseif is == 'envoyée' or is == 'envoyee' %}
-                                            <span class="detail-status detail-status--fini">Envoyée</span>
-                                        {% elseif is == 'en retard' %}
-                                            <span class="detail-status detail-status--annule">En retard</span>
-                                        {% else %}
-                                            <span class="detail-status detail-status--attente">{{ invoice.status }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if invoice.linkPDF %}
-                                            <a href="{{ invoice.linkPDF }}" target="_blank" class="detail-field-inline">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
-                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-                                                </svg>
-                                                Télécharger
-                                            </a>
-                                        {% else %}
-                                            <span class="text-muted text-sm">—</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <p class="detail-table-empty">Aucune facture pour ce client.</p>
-                {% endif %}
-            </div>
-        </div>
+    {# Infos contact #}
+    <h2>Contact</h2>
+    <table class="table">
+        <tbody>
+        <tr>
+            <th>Nom</th>
+            <td>{{ client.firstName }} {{ client.lastName }}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{ client.email }}</td>
+        </tr>
+        <tr>
+            <th>Téléphone</th>
+            <td>{{ client.phone ?? '-' }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    {# Notes #}
+    {% if client.notes %}
+        <h2>Notes</h2>
+        <p>{{ client.notes }}</p>
+    {% endif %}
+    {# ── Argent en attente ── #}
+    {% set argentEnAttente = client.argentEnAttente %}
+    <div style="margin: 24px 0; padding: 16px 20px; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06);">
+        <strong>Argent en attente :</strong>
+        <span id="montant-en-attente" style="font-weight: 800; font-size: 1.3rem; color: {{ argentEnAttente > 0 ? '#ef4444' : '#10b981' }};">
+        {{ argentEnAttente|number_format(2, '.', ',') }} €
+    </span>
     </div>
 
+    {# ── Échéances par projet ── #}
+    {% for project in client.projects %}
+        {% if project.paymentSchedules is not empty %}
+            <h3>Projet : {{ project.title }}</h3>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Montant</th>
+                    <th>Échéance</th>
+                    <th>Statut</th>
+                    <th>Payé le</th>
+                    {% if is_granted('ROLE_ADMIN') %}<th>Action</th>{% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for payment in project.paymentSchedules %}
+                    <tr id="row-{{ payment.id }}">
+                        <td>{{ payment.amount|number_format(2, '.', ',') }} €</td>
+                        <td>{{ payment.dueDate|date('d/m/Y') }}</td>
+                        <td class="status-cell-{{ payment.id }}">
+                            {% if payment.status == 'paye' %}
+                                <span style="color:#10b981; font-weight:700;">✔ Payé</span>
+                            {% else %}
+                                <span style="color:#f59e0b; font-weight:700;">⏳ En attente</span>
+                            {% endif %}
+                        </td>
+                        <td class="date-cell-{{ payment.id }}">
+                            {{ payment.paidAt ? payment.paidAt|date('d/m/Y') : '—' }}
+                        </td>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <td>
+                                {% if payment.status != 'paye' %}
+                                    <button class="btn btn-primary btn-sm pay-button"
+                                            data-url="{{ path('app_payment_pay', {'id': payment.id}) }}"
+                                            data-id="{{ payment.id }}">
+                                        ✔ Valider le virement
+                                    </button>
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% endfor %}
     {# ── RÉCAP FINANCIER ── #}
     <div class="detail-grid">
 
@@ -303,5 +327,43 @@
         </div>
 
     </div>
+
+    {% block javascripts %}
+        {{ parent() }}
+        <script>
+            document.querySelectorAll('.pay-button').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    if (!confirm('Confirmer la réception de ce virement ?')) return;
+
+                    const url  = this.getAttribute('data-url');
+                    const id   = this.getAttribute('data-id');
+
+                    fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (!data.success) return;
+
+                            // Badge statut
+                            document.querySelector('.status-cell-' + id).innerHTML =
+                                '<span style="color:#10b981;font-weight:700;">✔ Payé</span>';
+
+                            // Date de paiement
+                            document.querySelector('.date-cell-' + id).textContent = data.paidAt;
+
+                            // Bouton disparu
+                            this.remove();
+
+                            // Montant en attente mis à jour
+                            const montantEl = document.getElementById('montant-en-attente');
+                            if (montantEl && data.newArgentEnAttente) {
+                                montantEl.textContent = data.newArgentEnAttente;
+                                montantEl.style.color = data.newArgentEnAttenteRaw > 0 ? '#ef4444' : '#10b981';
+                            }
+                        })
+                        .catch(err => console.error('Erreur paiement :', err));
+                });
+            });
+        </script>
+    {% endblock %}
 
 {% endblock %}
