@@ -238,16 +238,32 @@ final class ProjectController extends AbstractController
     #[Route('/task/{id}/toggle', name: 'app_task_toggle', methods: ['POST'])]
     public function toggleTask(Task $task, EntityManagerInterface $entityManager): Response
     {
-        // On bascule entre 'a_faire' et 'terminé'
-        $newStatus = ($task->getStatus() === 'terminé') ? 'a_faire' : 'terminé';
-        $task->setStatus($newStatus);
+        // 1. On change le statut de la tâche (bascule entre 'a_faire' et 'terminé')
+        $newTaskStatus = ($task->getStatus() === 'terminé') ? 'à faire' : 'terminé';
+        $task->setStatus($newTaskStatus);
 
+        // On récupère le projet lié
+        $project = $task->getProject();
+
+        // On enregistre d'abord le changement de la tâche pour que getProgress() soit à jour
         $entityManager->flush();
 
-        // On renvoie du JSON pour que le JavaScript puisse mettre à jour l'interface
+        // 2. LOGIQUE D'AUTOMATISATION DU PROJET
+        // Si l'avancement atteint 100% et que le projet est encore "en cours"
+        if ($project->getProgress() === 100 && strtolower($project->getStatus()) === 'en cours') {
+            $project->setStatus('terminé');
+            $entityManager->flush();
+        }
+        // Optionnel : si on décoche une tâche et que le projet était "terminé", il repasse "en cours"
+        elseif ($project->getProgress() < 100 && strtolower($project->getStatus()) === 'terminé') {
+            $project->setStatus('en cours');
+            $entityManager->flush();
+        }
+
         return $this->json([
-            'newStatus' => $newStatus,
-            'progress' => $task->getProject()->getProgress()
+            'newStatus' => $newTaskStatus,
+            'projectStatus' => $project->getStatus(),
+            'progress' => $project->getProgress()
         ]);
     }
 }

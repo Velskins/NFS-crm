@@ -276,30 +276,55 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        // On attend que TOUTE la page soit chargée
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("Sphera JS : Prêt et à l'écoute !");
-
             const checkboxes = document.querySelectorAll('.task-checkbox');
-            console.log("Nombre de tâches trouvées : " + checkboxes.length);
 
             checkboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
                     const url = this.getAttribute('data-url');
+                    const isChecked = this.checked;
 
-                    // TEST DE VIE : Si tu vois cette alerte, le JS fonctionne !
-                    alert("Clic détecté sur l'URL : " + url);
+                    // 1. Changement visuel immédiat du badge de la tâche
+                    const row = this.closest('tr');
+                    const taskBadge = row.querySelector('.detail-status');
+                    if (taskBadge) {
+                        taskBadge.textContent = isChecked ? 'Terminé' : 'En cours';
+                        if (isChecked) {
+                            taskBadge.classList.replace('detail-status--attente', 'detail-status--en-cours');
+                        } else {
+                            taskBadge.classList.replace('detail-status--en-cours', 'detail-status--attente');
+                        }
+                    }
 
+                    // 2. Mise à jour du compteur depuis le DOM
+                    const totalTasks = document.querySelectorAll('.task-checkbox').length;
+                    const doneTasks = document.querySelectorAll('.task-checkbox:checked').length;
+                    const progress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+
+                    const label = document.querySelector('.detail-progress-label');
+                    const bar = document.querySelector('.detail-progress-fill');
+                    const count = document.querySelector('.detail-progress-count');
+
+                    if (label) label.textContent = progress + '% complété';
+                    if (bar) bar.style.width = progress + '%';
+                    if (count) count.textContent = doneTasks + '/' + totalTasks + ' tâches';
+
+                    // 3. Mise à jour du badge PROJET
+                    const projectBadge = document.querySelector('.detail-fields .detail-status');
+                    if (projectBadge) {
+                        const isFini = (progress === 100);
+                        projectBadge.textContent = isFini ? 'Fini' : 'En cours';
+                        projectBadge.className = isFini ? 'detail-status detail-status--fini' : 'detail-status detail-status--en-cours';
+                    }
+
+                    // 4. Synchronisation avec le serveur en arrière-plan
                     fetch(url, {
                         method: 'POST',
                         headers: { 'X-Requested-With': 'XMLHttpRequest' }
                     })
                         .then(response => response.json())
-                        .then(data => {
-                            console.log("Réponse reçue :", data);
-                            window.location.reload();
-                        })
-                        .catch(err => console.error("Erreur Fetch :", err));
+                        .then(data => console.log("Sphera Sync :", data))
+                        .catch(err => console.error("Erreur :", err));
                 });
             });
         });
