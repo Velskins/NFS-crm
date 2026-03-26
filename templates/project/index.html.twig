@@ -1,41 +1,102 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Mes Projets{% endblock %}
+{% block title %}Projets — Sphera{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/project.css') }}">
+{% endblock %}
 
 {% block body %}
-    <h1>Mes Projets</h1>
 
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Titre</th>
-            <th>Client</th>
-            <th>Budget</th>
-            <th>Statut</th>
-            <th>Créé le</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for project in projects %}
-            <tr>
-                <td>{{ project.title }}</td>
-                <td>{{ project.client.companyName }}</td>
-                <td>{{ project.budget }} €</td>
-                <td>{{ project.status }}</td>
-                <td>{{ project.createdAt ? project.createdAt|date('d/m/Y') : '-' }}</td>
-                <td>
-                    <a href="{{ path('app_project_show', {'id': project.id}) }}">Voir</a>
-                    <a href="{{ path('app_project_edit', {'id': project.id}) }}">Modifier</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="6">Aucun projet pour l'instant.</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <div class="clients-header">
+        <a href="{{ path('app_project_new') }}" class="btn btn-primary">Nouveau projet</a>
+    </div>
 
-    <a href="{{ path('app_project_new') }}">+ Nouveau projet</a>
+    <div class="card">
+        <div class="inside-card">
+
+            {# ── Barre de recherche + filtre ── #}
+            <form method="GET" action="{{ path('app_project_index') }}" class="clients-toolbar">
+                <div class="clients-search-wrapper">
+                    <svg class="clients-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" name="search" value="{{ search ?? '' }}" placeholder="Rechercher par titre, client..." class="clients-search-input">
+                </div>
+
+                <div class="clients-filter">
+                    <select name="status" class="clients-filter-select" onchange="this.form.submit()">
+                        <option value="">Tous les statuts</option>
+                        <option value="en_cours" {{ (status ?? '') == 'en_cours' ? 'selected' : '' }}>En cours</option>
+                        <option value="livre"    {{ (status ?? '') == 'livre'    ? 'selected' : '' }}>Livré</option>
+                        <option value="paye"     {{ (status ?? '') == 'paye'     ? 'selected' : '' }}>Payé</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary project-search-btn">Rechercher</button>
+            </form>
+
+            {# ── Table projets ── #}
+            {% if projects is not empty %}
+                <div class="table-wrapper">
+                    <table class="clients-table">
+                        <thead>
+                        <tr>
+                            <th>Titre</th>
+                            <th>Client</th>
+                            <th>Budget</th>
+                            <th>Avancement</th>
+                            <th>Statut</th>
+                            <th>Deadline</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for project in projects %}
+                            <tr>
+                                <td><strong>{{ project.title }}</strong></td>
+                                <td>{{ project.client.companyName }}</td>
+                                <td>{{ project.budget|number_format(2, '.', ',') }} €</td>
+                                <td>
+                                    <div class="project-progress-bar">
+                                        <div class="project-progress-fill" style="width: {{ project.progress }}%"></div>
+                                    </div>
+                                    <span class="project-progress-label">{{ project.progress }} %</span>
+                                </td>
+                                <td>
+                                    {% set s = project.status %}
+                                    {% if s == 'en_cours' %}
+                                        <span class="clients-status project-status--encours">En cours</span>
+                                    {% elseif s == 'livre' %}
+                                        <span class="clients-status project-status--livre">Livré</span>
+                                    {% elseif s == 'paye' %}
+                                        <span class="clients-status clients-status--actif">Payé</span>
+                                    {% else %}
+                                        <span class="clients-status clients-status--attente">{{ project.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ project.deadline ? project.deadline|date('d/m/Y') : '—' }}</td>
+                                <td>
+                                    <div class="clients-actions">
+                                        <a href="{{ path('app_project_show', {'id': project.id}) }}" title="Voir">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        </a>
+                                        <a href="{{ path('app_project_edit', {'id': project.id}) }}" title="Modifier">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="clients-empty">Aucun projet trouvé.</div>
+            {% endif %}
+
+        </div>
+    </div>
+
 {% endblock %}

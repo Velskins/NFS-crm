@@ -1,0 +1,158 @@
+/* ============================================================
+   SPHERA — Projets
+   Importe clients.css pour réutiliser toutes ses classes
+   (clients-toolbar, clients-table, clients-actions, etc.)
+   ============================================================ */
+
+@import url('clients.css');
+
+/* ── BOUTON RECHERCHE ── */
+.project-search-btn {
+  flex-shrink: 0;
+}
+
+/* ── BARRE DE PROGRESSION ── */
+.project-progress-bar {
+  width:         100%;
+  height:        6px;
+  background:    rgba(194, 192, 191, 0.3);
+  border-radius: var(--radius-full);
+  overflow:      hidden;
+  margin-bottom: 4px;
+}
+
+.project-progress-fill {
+  height:        100%;
+  background:    var(--color-primary);
+  border-radius: var(--radius-full);
+  transition:    width 0.4s ease;
+}
+
+.project-progress-label {
+  font-size:   var(--font-size-xs);
+  color:       var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ── BADGES STATUT PROJET ── */
+.project-status--encours {
+  color:      #fff;
+  background: var(--color-primary);
+}
+
+.project-status--livre {
+  color:      #fff;
+  background: #8b5cf6; /* violet */
+}
+
+/* paye → réutilise clients-status--actif (vert) */
+
+/* ── SELECT dans les formulaires ── */
+.client-form-select {
+  appearance:          none;
+  background-image:    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A7A8C' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:   no-repeat;
+  background-position: right 14px center;
+  padding-right:       2.5rem !important;
+  cursor:              pointer;
+}
+
+/* MoneyType : masquer le widget "currency" généré par Symfony */
+.client-form-money {
+  border-radius: var(--radius-md) !important;
+}
+
+/* ── SECTION TÂCHES ── */
+.project-tasks-section {
+  background:    rgba(67, 66, 202, 0.02);
+  border:        1.5px solid rgba(194, 192, 191, 0.3);
+  border-radius: var(--radius-md);
+  padding:       var(--space-5);
+}
+
+.project-tasks-header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  margin-bottom:   var(--space-4);
+}
+
+.project-tasks-title {
+  font-size:   var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color:       var(--color-text);
+  margin:      0;
+}
+
+.project-tasks-add {
+  font-size: var(--font-size-sm);
+  padding:   0.5rem 1rem;
+}
+
+/* ── LISTE DE TÂCHES ── */
+.project-task-list {
+  list-style:     none;
+  margin:         0;
+  padding:        0;
+  display:        flex;
+  flex-direction: column;
+  gap:            var(--space-4);
+}
+
+.project-task-item {
+  background:    #fff;
+  border:        1px solid rgba(194, 192, 191, 0.3);
+  border-radius: var(--radius-md);
+  padding:       var(--space-4);
+}
+
+.project-task-remove {
+  display:     inline-flex;
+  align-items: center;
+  gap:         var(--space-1);
+  margin-top:  var(--space-3);
+  background:  none;
+  border:      none;
+  color:       var(--color-danger, #ef4444);
+  font-size:   var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor:      pointer;
+  padding:     0;
+  transition:  opacity var(--transition-fast);
+}
+
+.project-task-remove:hover {
+  opacity: 0.7;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .clients-toolbar {
+    flex-direction: column;
+    gap:            var(--space-3);
+  }
+
+  .clients-filter,
+  .project-search-btn {
+    width: 100%;
+  }
+
+  .clients-filter-select {
+    width: 100%;
+  }
+
+  .client-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .project-tasks-header {
+    flex-direction: column;
+    align-items:    flex-start;
+    gap:            var(--space-3);
+  }
+
+  .project-tasks-add {
+    width:      100%;
+    text-align: center;
+  }
+}
