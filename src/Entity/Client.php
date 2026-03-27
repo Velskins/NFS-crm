@@ -56,6 +56,12 @@ class Client
     #[ORM\OneToMany(targetEntity: Invoice::class, mappedBy: 'client')]
     private Collection $invoices;
 
+    /**
+     * @var Collection<int, Quote>
+     */
+    #[ORM\OneToMany(targetEntity: Quote::class, mappedBy: 'client')]
+    private Collection $quotes;
+
     #[ORM\Column(length: 255)]
     private ?string $city = null;
 
@@ -76,12 +82,6 @@ class Client
     private ?User $userAccount = null;
 
     /**
-     * @var Collection<int, Appointment>
-     */
-    #[ORM\OneToMany(targetEntity: Appointment::class, mappedBy: 'client')]
-    private Collection $appointments;
-
-    /**
      * @var Collection<int, Invoice>
      */
 
@@ -94,7 +94,7 @@ class Client
         $this->projects = new ArrayCollection();
         $this->messagries = new ArrayCollection();
         $this->invoices = new ArrayCollection();
-        $this->appointments = new ArrayCollection();
+        $this->quotes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -368,28 +368,27 @@ class Client
     }
 
     /**
-     * @return Collection<int, Appointment>
+     * @return Collection<int, Quote>
      */
-
-    public function getAppointments(): Collection
+    public function getQuotes(): Collection
     {
-        return $this->appointments;
+        return $this->quotes;
     }
 
-    public function addAppointment(Appointment $appointment): static
+    public function addQuote(Quote $quote): static
     {
-        if (!$this->appointments->contains($appointment)) {
-            $this->appointments->add($appointment);
-            $appointment->setClient($this);
+        if (!$this->quotes->contains($quote)) {
+            $this->quotes->add($quote);
+            $quote->setClient($this);
         }
         return $this;
     }
 
-    public function removeAppointment(Appointment $appointment): static
+    public function removeQuote(Quote $quote): static
     {
-        if ($this->appointments->removeElement($appointment)) {
-            if ($appointment->getClient() === $this) {
-                $appointment->setClient(null);
+        if ($this->quotes->removeElement($quote)) {
+            if ($quote->getClient() === $this) {
+                $quote->setClient(null);
             }
         }
         return $this;

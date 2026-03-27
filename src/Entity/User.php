@@ -108,14 +108,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $invoices;
 
     /**
-     * @var Collection<int, Appointment>
+     * @var Collection<int, Quote>
      */
-    #[ORM\OneToMany(targetEntity: Appointment::class, mappedBy: 'user')]
-    private Collection $appointments;
-
-    /**
-     * @var Collection<int, Invoice>
-     */
+    #[ORM\OneToMany(targetEntity: Quote::class, mappedBy: 'user')]
+    private Collection $quotes;
 
     public function __construct()
     {
@@ -123,7 +119,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->projects = new ArrayCollection();
         $this->messagries = new ArrayCollection();
         $this->invoices = new ArrayCollection();
-        $this->appointments = new ArrayCollection();
+        $this->quotes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -518,32 +514,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Appointment>
+     * @return Collection<int, Quote>
      */
-    public function getAppointments(): Collection
+    public function getQuotes(): Collection
     {
-        return $this->appointments;
+        return $this->quotes;
     }
 
-    public function addAppointment(Appointment $appointment): static
+    public function addQuote(Quote $quote): static
     {
-        if (!$this->appointments->contains($appointment)) {
-            $this->appointments->add($appointment);
-            $appointment->setUser($this);
+        if (!$this->quotes->contains($quote)) {
+            $this->quotes->add($quote);
+            $quote->setUser($this);
         }
-
         return $this;
     }
 
-    public function removeAppointment(Appointment $appointment): static
+    public function removeQuote(Quote $quote): static
     {
-        if ($this->appointments->removeElement($appointment)) {
-            // set the owning side to null (unless already changed)
-            if ($appointment->getUser() === $this) {
-                $appointment->setUser(null);
+        if ($this->quotes->removeElement($quote)) {
+            if ($quote->getUser() === $this) {
+                $quote->setUser(null);
             }
         }
-
         return $this;
     }
 

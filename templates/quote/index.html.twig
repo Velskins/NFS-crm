@@ -1,0 +1,130 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Devis — Sphera{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/project.css') }}">
+{% endblock %}
+
+{% block body %}
+
+    <div class="clients-header">
+        <a href="{{ path('app_quote_new') }}" class="btn btn-primary">Nouveau devis</a>
+        <a href="{{ path('app_project_new') }}" class="btn btn-primary">Nouveau projet</a>
+    </div>
+
+    <div class="card">
+        <div class="inside-card">
+
+            {# ── Statistiques rapides ── #}
+            <div class="quote-stats" style="display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;">
+                <div class="quote-stat-card" style="background: #f8fafc; padding: 12px 20px; border-radius: 8px; flex: 1; min-width: 120px;">
+                    <span style="font-size: 24px; font-weight: 700; color: #6b7280;">{{ statusCounts.brouillon }}</span>
+                    <span style="display: block; font-size: 12px; color: #9ca3af;">Brouillons</span>
+                </div>
+                <div class="quote-stat-card" style="background: #eff6ff; padding: 12px 20px; border-radius: 8px; flex: 1; min-width: 120px;">
+                    <span style="font-size: 24px; font-weight: 700; color: #3b82f6;">{{ statusCounts.envoye }}</span>
+                    <span style="display: block; font-size: 12px; color: #60a5fa;">Envoyés</span>
+                </div>
+                <div class="quote-stat-card" style="background: #ecfdf5; padding: 12px 20px; border-radius: 8px; flex: 1; min-width: 120px;">
+                    <span style="font-size: 24px; font-weight: 700; color: #10b981;">{{ statusCounts.accepte }}</span>
+                    <span style="display: block; font-size: 12px; color: #34d399;">Acceptés</span>
+                </div>
+                <div class="quote-stat-card" style="background: #fef2f2; padding: 12px 20px; border-radius: 8px; flex: 1; min-width: 120px;">
+                    <span style="font-size: 24px; font-weight: 700; color: #ef4444;">{{ statusCounts.refuse }}</span>
+                    <span style="display: block; font-size: 12px; color: #f87171;">Refusés</span>
+                </div>
+            </div>
+
+            {# ── Barre de recherche + filtre ── #}
+            <form method="GET" action="{{ path('app_quote_index') }}" class="clients-toolbar">
+                <div class="clients-search-wrapper">
+                    <svg class="clients-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" name="search" value="{{ search ?? '' }}" placeholder="Rechercher par n° devis, client, objet..." class="clients-search-input">
+                </div>
+
+                <div class="clients-filter">
+                    <select name="status" class="clients-filter-select" onchange="this.form.submit()">
+                        <option value="">Tous les statuts</option>
+                        <option value="brouillon" {{ (status ?? '') == 'brouillon' ? 'selected' : '' }}>Brouillon</option>
+                        <option value="envoye" {{ (status ?? '') == 'envoye' ? 'selected' : '' }}>Envoyé</option>
+                        <option value="accepte" {{ (status ?? '') == 'accepte' ? 'selected' : '' }}>Accepté</option>
+                        <option value="refuse" {{ (status ?? '') == 'refuse' ? 'selected' : '' }}>Refusé</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary project-search-btn">Rechercher</button>
+            </form>
+
+            {# ── Table devis ── #}
+            {% if quotes is not empty %}
+                <div class="table-wrapper">
+                    <table class="clients-table">
+                        <thead>
+                        <tr>
+                            <th>N° Devis</th>
+                            <th>Objet</th>
+                            <th>Client</th>
+                            <th>Montant</th>
+                            <th>Statut</th>
+                            <th>Validité</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for quote in quotes %}
+                            <tr>
+                                <td><strong>{{ quote.quoteNumber }}</strong></td>
+                                <td>{{ quote.subject ?? '—' }}</td>
+                                <td>{{ quote.client.companyName }}</td>
+                                <td>{{ quote.totalAmount|number_format(2, '.', ',') }} €</td>
+                                <td>
+                                    {% set s = quote.status %}
+                                    {% if s == 'brouillon' %}
+                                        <span class="clients-status clients-status--attente">Brouillon</span>
+                                    {% elseif s == 'envoye' %}
+                                        <span class="clients-status project-status--encours">Envoyé</span>
+                                    {% elseif s == 'accepte' %}
+                                        <span class="clients-status clients-status--actif">Accepté</span>
+                                    {% elseif s == 'refuse' %}
+                                        <span class="clients-status" style="background: #fef2f2; color: #ef4444;">Refusé</span>
+                                    {% else %}
+                                        <span class="clients-status clients-status--attente">{{ quote.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if quote.isExpired %}
+                                        <span style="color: #ef4444;">Expiré</span>
+                                    {% else %}
+                                        {{ quote.validUntil|date('d/m/Y') }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="clients-actions">
+                                        <a href="{{ path('app_quote_show', {'id': quote.id}) }}" title="Voir">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        </a>
+                                        <a href="{{ path('app_quote_edit', {'id': quote.id}) }}" title="Modifier">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        </a>
+                                        <a href="{{ path('app_quote_pdf', {'id': quote.id}) }}" title="PDF" target="_blank">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="clients-empty">Aucun devis trouvé.</div>
+            {% endif %}
+
+        </div>
+    </div>
+
+{% endblock %}

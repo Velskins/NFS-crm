@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau devis — Sphera{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/project.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/quote.css') }}">
+{% endblock %}
+
+{% block body %}
+
+    <div class="card">
+        <div class="inside-card">
+
+            <div class="client-form-header">
+                <h2 class="client-form-title">Nouveau devis</h2>
+                <a href="{{ path('app_quote_index') }}" class="dash-card-link">Retour à la liste</a>
+            </div>
+
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }}">{{ message }}</div>
+                {% endfor %}
+            {% endfor %}
+
+            {{ include('quote/_form.html.twig', {'button_label': 'Créer le devis'}) }}
+
+        </div>
+    </div>
+
+{% endblock %}

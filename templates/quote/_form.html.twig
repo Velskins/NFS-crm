@@ -1,0 +1,268 @@
+{{ form_start(form, {'attr': {'class': 'client-form', 'id': 'quote-form', 'novalidate': 'novalidate'}}) }}
+
+{# ── Ligne 1 : Client / Statut ── #}
+<div class="client-form-row">
+    <div class="client-form-field">
+        <label class="client-form-label">Client</label>
+        <div class="client-form-input-wrap">
+            <svg class="client-form-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+            </svg>
+            {{ form_widget(form.client, {'attr': {'class': 'client-form-input client-form-select'}}) }}
+        </div>
+        {{ form_errors(form.client) }}
+    </div>
+    <div class="client-form-field">
+        <label class="client-form-label">Statut</label>
+        <div class="client-form-input-wrap">
+            <svg class="client-form-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            {{ form_widget(form.status, {'attr': {'class': 'client-form-input client-form-select'}}) }}
+        </div>
+        {{ form_errors(form.status) }}
+    </div>
+</div>
+
+{# ── Ligne 2 : Objet / Date validité ── #}
+<div class="client-form-row">
+    <div class="client-form-field">
+        <label class="client-form-label">Objet du devis</label>
+        <div class="client-form-input-wrap">
+            <svg class="client-form-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            </svg>
+            {{ form_widget(form.subject, {'attr': {'class': 'client-form-input', 'placeholder': 'Ex : Création site vitrine'}}) }}
+        </div>
+        {{ form_errors(form.subject) }}
+    </div>
+    <div class="client-form-field">
+        <label class="client-form-label">Valide jusqu'au</label>
+        <div class="client-form-input-wrap">
+            <svg class="client-form-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            {{ form_widget(form.validUntil, {'attr': {'class': 'client-form-input'}}) }}
+        </div>
+        {{ form_errors(form.validUntil) }}
+    </div>
+</div>
+
+{# ── Section Lignes de devis ── #}
+<div class="client-form-row client-form-row--full" style="margin-top: 40px;">
+    <div class="project-tasks-section">
+        <div class="project-tasks-header">
+            <h3 class="project-tasks-title">Lignes du devis</h3>
+            <button type="button" id="add-line" class="btn btn-primary project-tasks-add">+ Ajouter une ligne</button>
+        </div>
+
+        <table class="quote-lines-table" style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+            <thead>
+                <tr style="border-bottom: 2px solid #e5e7eb;">
+                    <th style="text-align: left; padding: 12px 8px; font-weight: 600; color: #374151; font-size: 13px; width: 40%;">Description</th>
+                    <th style="text-align: center; padding: 12px 8px; font-weight: 600; color: #374151; font-size: 13px; width: 15%;">Quantité</th>
+                    <th style="text-align: center; padding: 12px 8px; font-weight: 600; color: #374151; font-size: 13px; width: 18%;">Prix unitaire (€)</th>
+                    <th style="text-align: right; padding: 12px 8px; font-weight: 600; color: #374151; font-size: 13px; width: 15%;">Total</th>
+                    <th style="width: 60px; padding: 12px 8px;"></th>
+                </tr>
+            </thead>
+            <tbody id="line-list"
+                   data-prototype="{{ form_widget(form.lines.vars.prototype)|e('html_attr') }}"
+                   data-index="{{ form.lines|length }}">
+
+                {% for line in form.lines %}
+                    <tr class="quote-line-item" style="border-bottom: 1px solid #f3f4f6;">
+                        <td style="padding: 12px 8px;">
+                            {{ form_widget(line.description, {'attr': {'class': 'client-form-input quote-input-full', 'placeholder': 'Description de la prestation'}}) }}
+                        </td>
+                        <td style="padding: 12px 8px;">
+                            {{ form_widget(line.quantity, {'attr': {'class': 'client-form-input quote-input-full quote-qty', 'style': 'text-align: center;'}}) }}
+                        </td>
+                        <td style="padding: 12px 8px;">
+                            {{ form_widget(line.unitPrice, {'attr': {'class': 'client-form-input quote-input-full quote-price', 'style': 'text-align: right;'}}) }}
+                        </td>
+                        <td style="padding: 12px 8px; text-align: right;">
+                            <span class="quote-line-total" style="font-weight: 600; color: #10b981;">0,00 €</span>
+                        </td>
+                        <td style="padding: 12px 8px; text-align: center;">
+                            <button type="button" class="quote-line-remove" style="background: #fef2f2; color: #ef4444; border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+                                    <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {# Total général #}
+        <div class="quote-total-section" style="display: flex; justify-content: flex-end; padding: 20px 0; border-top: 2px solid #e5e7eb; margin-top: 12px;">
+            <div style="text-align: right;">
+                <span style="font-size: 14px; color: #6b7280;">Total HT</span>
+                <div id="quote-grand-total" style="font-size: 24px; font-weight: 700; color: #1f2937;">0,00 €</div>
+                <span style="font-size: 12px; color: #9ca3af;">TVA non applicable, art. 293 B du CGI</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── Notes / Conditions ── #}
+<div class="client-form-row client-form-row--full" style="margin-top: 24px;">
+    <div class="client-form-field">
+        <label class="client-form-label">Notes / Conditions générales</label>
+        <div class="client-form-input-wrap">
+            {{ form_widget(form.notes, {'attr': {'class': 'client-form-input', 'rows': 4, 'placeholder': 'Conditions de paiement, délais de réalisation, mentions légales...'}}) }}
+        </div>
+        {{ form_errors(form.notes) }}
+    </div>
+</div>
+
+<div class="client-form-submit">
+    <button type="submit" class="btn btn-primary">{{ button_label|default('Créer le devis') }}</button>
+</div>
+
+{% do form.lines.setRendered %}
+
+{{ form_end(form) }}
+
+<script>
+    (function() {
+        let initialized = false;
+        
+        function initQuoteForm() {
+            const lineList = document.getElementById('line-list');
+            const addBtn = document.getElementById('add-line');
+            
+            if (!lineList || !addBtn) return;
+            
+            // Éviter la double initialisation
+            if (addBtn.dataset.initialized === 'true') return;
+            addBtn.dataset.initialized = 'true';
+
+            // Fonction pour calculer le total d'une ligne
+            function calculateLineTotal(lineItem) {
+                const qtyInput = lineItem.querySelector('.quote-qty, input[id$="_quantity"]');
+                const priceInput = lineItem.querySelector('.quote-price, input[id$="_unitPrice"]');
+                const totalEl = lineItem.querySelector('.quote-line-total');
+                
+                if (qtyInput && priceInput && totalEl) {
+                    const qty = parseFloat(qtyInput.value) || 0;
+                    const price = parseFloat(priceInput.value) || 0;
+                    const total = qty * price;
+                    totalEl.textContent = total.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
+                }
+                
+                calculateGrandTotal();
+            }
+
+            // Fonction pour calculer le total général
+            function calculateGrandTotal() {
+                let grandTotal = 0;
+                document.querySelectorAll('.quote-line-item').forEach(function(item) {
+                    const qtyInput = item.querySelector('.quote-qty, input[id$="_quantity"]');
+                    const priceInput = item.querySelector('.quote-price, input[id$="_unitPrice"]');
+                    if (qtyInput && priceInput) {
+                        const qty = parseFloat(qtyInput.value) || 0;
+                        const price = parseFloat(priceInput.value) || 0;
+                        grandTotal += qty * price;
+                    }
+                });
+                
+                const grandTotalEl = document.getElementById('quote-grand-total');
+                if (grandTotalEl) {
+                    grandTotalEl.textContent = grandTotal.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
+                }
+            }
+
+            // Ajouter une nouvelle ligne
+            addBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const prototype = lineList.dataset.prototype;
+                const index = parseInt(lineList.dataset.index) || 0;
+                const newForm = prototype.replace(/__name__/g, index);
+                
+                // Parser le HTML du prototype pour extraire les inputs
+                const tmp = document.createElement('div');
+                tmp.innerHTML = newForm;
+                
+                const descInput = tmp.querySelector('input[id$="_description"]');
+                const qtyInput = tmp.querySelector('input[id$="_quantity"]');
+                const priceInput = tmp.querySelector('input[id$="_unitPrice"]');
+                
+                // Créer une nouvelle ligne de tableau
+                const tr = document.createElement('tr');
+                tr.className = 'quote-line-item';
+                tr.style.cssText = 'border-bottom: 1px solid #f3f4f6;';
+                
+                // Configurer les inputs
+                if (descInput) {
+                    descInput.className = 'client-form-input quote-input-full';
+                    descInput.placeholder = 'Description de la prestation';
+                }
+                if (qtyInput) {
+                    qtyInput.className = 'client-form-input quote-input-full quote-qty';
+                    qtyInput.style.textAlign = 'center';
+                    qtyInput.value = '1';
+                }
+                if (priceInput) {
+                    priceInput.className = 'client-form-input quote-input-full quote-price';
+                    priceInput.style.textAlign = 'right';
+                    priceInput.value = '0';
+                }
+                
+                tr.innerHTML = 
+                    '<td style="padding: 12px 8px;">' + (descInput ? descInput.outerHTML : '') + '</td>' +
+                    '<td style="padding: 12px 8px;">' + (qtyInput ? qtyInput.outerHTML : '') + '</td>' +
+                    '<td style="padding: 12px 8px;">' + (priceInput ? priceInput.outerHTML : '') + '</td>' +
+                    '<td style="padding: 12px 8px; text-align: right;"><span class="quote-line-total" style="font-weight: 600; color: #10b981;">0,00 €</span></td>' +
+                    '<td style="padding: 12px 8px; text-align: center;"><button type="button" class="quote-line-remove" style="background: #fef2f2; color: #ef4444; border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></td>';
+                
+                lineList.appendChild(tr);
+                lineList.dataset.index = index + 1;
+                
+                // Ajouter les écouteurs pour la nouvelle ligne
+                attachLineListeners(tr);
+                calculateLineTotal(tr);
+            });
+
+            // Attacher les écouteurs à une ligne
+            function attachLineListeners(lineItem) {
+                const qtyInput = lineItem.querySelector('.quote-qty, input[id$="_quantity"]');
+                const priceInput = lineItem.querySelector('.quote-price, input[id$="_unitPrice"]');
+                const removeBtn = lineItem.querySelector('.quote-line-remove');
+                
+                if (qtyInput) {
+                    qtyInput.addEventListener('input', function() {
+                        calculateLineTotal(lineItem);
+                    });
+                }
+                if (priceInput) {
+                    priceInput.addEventListener('input', function() {
+                        calculateLineTotal(lineItem);
+                    });
+                }
+                if (removeBtn) {
+                    removeBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        lineItem.remove();
+                        calculateGrandTotal();
+                    });
+                }
+            }
+
+            // Initialiser les lignes existantes
+            document.querySelectorAll('.quote-line-item').forEach(function(item) {
+                attachLineListeners(item);
+                calculateLineTotal(item);
+            });
+        }
+
+        // Support pour Symfony classique et Symfony avec Turbo
+        document.addEventListener('DOMContentLoaded', initQuoteForm);
+        document.addEventListener('turbo:load', initQuoteForm);
+        document.addEventListener('turbo:render', initQuoteForm);
+    })();
+</script>
