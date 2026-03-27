@@ -328,6 +328,89 @@
 
     </div>
 
+    {# ── RENDEZ-VOUS ── #}
+    <div class="detail-grid detail-grid--full">
+        <div class="detail-section">
+            <div class="inside-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 class="detail-section-title" style="margin: 0;">Rendez-vous</h2>
+                    <a href="{{ path('app_appointment_new', {'clientId': client.id}) }}" class="btn btn-primary">
+                        📅 Prendre un RDV
+                    </a>
+                </div>
+
+                {% if client.appointments is not empty %}
+                    <table class="detail-table">
+                        <thead>
+                        <tr>
+                            <th>Date & Heure</th>
+                            <th>Note</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for appointment in client.appointments %}
+                            <tr>
+                                <td>{{ appointment.scheduleAt|date('d/m/Y à H:i') }}</td>
+                                <td>{{ appointment.note ?: '—' }}</td>
+                                <td>
+                                    <form method="post" action="{{ path('app_appointment_delete', {'id': appointment.id}) }}"
+                                          onsubmit="return confirm('Supprimer ce rendez-vous ?');" style="display:inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete_appointment' ~ appointment.id) }}">
+                                        <button type="submit" class="clients-action-delete" title="Supprimer">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="detail-table-empty">Aucun rendez-vous planifié.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# ── MESSAGERIE ── #}
+    <div class="detail-grid detail-grid--full">
+        <div class="detail-section">
+            <div class="inside-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 class="detail-section-title" style="margin: 0;">Messagerie</h2>
+                    <a href="{{ path('app_messagrie_client', {'id': client.id}) }}" class="btn btn-primary">
+                        💬 Ouvrir la messagerie
+                    </a>
+                </div>
+
+                {# Aperçu des 3 derniers messages #}
+                {% set messages = client.messagries %}
+                {% if messages is not empty %}
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        {% for message in messages|slice(-3)|reverse %}
+                            <div style="background: #f3f4f6; border-radius: 10px; padding: 10px 14px;">
+                                <div style="font-size: 11px; color: #6b7280; margin-bottom: 4px;">
+                                    {{ message.user.firstname }} — {{ message.createdAt|date('d/m/Y à H:i') }}
+                                </div>
+                                <div style="color: #1f2937; font-size: 14px;">{{ message.content }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if messages|length > 3 %}
+                        <a href="{{ path('app_messagrie_client', {'id': client.id}) }}" style="display: block; margin-top: 12px; font-size: 13px; color: var(--color-primary);">
+                            Voir tous les messages ({{ messages|length }})
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <p class="detail-table-empty">Aucun message pour l'instant.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
     {% block javascripts %}
         {{ parent() }}
         <script>

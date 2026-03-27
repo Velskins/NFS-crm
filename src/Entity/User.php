@@ -108,6 +108,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $invoices;
 
     /**
+     * @var Collection<int, Appointment>
+     */
+    #[ORM\OneToMany(targetEntity: Appointment::class, mappedBy: 'user')]
+    private Collection $appointments;
+
+    /**
      * @var Collection<int, Invoice>
      */
 
@@ -117,6 +123,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->projects = new ArrayCollection();
         $this->messagries = new ArrayCollection();
         $this->invoices = new ArrayCollection();
+        $this->appointments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -507,6 +514,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setNotifPaymentReceived(bool $notifPaymentReceived): static
     {
         $this->notifPaymentReceived = $notifPaymentReceived;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Appointment>
+     */
+    public function getAppointments(): Collection
+    {
+        return $this->appointments;
+    }
+
+    public function addAppointment(Appointment $appointment): static
+    {
+        if (!$this->appointments->contains($appointment)) {
+            $this->appointments->add($appointment);
+            $appointment->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAppointment(Appointment $appointment): static
+    {
+        if ($this->appointments->removeElement($appointment)) {
+            // set the owning side to null (unless already changed)
+            if ($appointment->getUser() === $this) {
+                $appointment->setUser(null);
+            }
+        }
+
         return $this;
     }
 
