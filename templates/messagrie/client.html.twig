@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+{% block title %}Messagerie — {{ client.firstName }} {{ client.lastName }}{% endblock %}
+
+{% block body %}
+    <div class="detail-header">
+        <div class="detail-header-left">
+            <a href="{{ path('app_client_show', {'id': client.id}) }}" class="detail-back" title="Retour">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+            </a>
+            <div>
+                <h1 class="detail-title">Messagerie</h1>
+                <p class="detail-subtitle">{{ client.firstName }} {{ client.lastName }} — {{ client.companyName }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="inside-card" style="max-width: 800px; margin: 0 auto;">
+
+            {# Fil de messages #}
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; max-height: 500px; overflow-y: auto;">
+                {% for message in messages %}
+                    <div style="background: #f3f4f6; border-radius: 12px; padding: 12px 16px;">
+                        <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">
+                            {{ message.user.firstname }} — {{ message.createdAt|date('d/m/Y à H:i') }}
+                        </div>
+                        <div style="color: #1f2937;">{{ message.content }}</div>
+                    </div>
+                {% else %}
+                    <p style="color: #6b7280; text-align: center;">Aucun message pour l'instant.</p>
+                {% endfor %}
+            </div>
+
+            {# Formulaire d'envoi #}
+            <form method="POST" action="{{ path('app_messagrie_client', {'id': client.id}) }}" style="display: flex; gap: 12px;">
+                <input type="hidden" name="_token" value="{{ csrf_token('message' ~ client.id) }}">
+                <textarea name="content" rows="2" placeholder="Écrire un message..." required
+                          style="flex: 1; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 8px; resize: none; font-size: 14px;"></textarea>
+                <button type="submit" class="btn btn-primary" style="align-self: flex-end;">Envoyer</button>
+            </form>
+
+        </div>
+    </div>
+{% endblock %}

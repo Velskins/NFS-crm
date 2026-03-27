@@ -76,6 +76,12 @@ class Client
     private ?User $userAccount = null;
 
     /**
+     * @var Collection<int, Appointment>
+     */
+    #[ORM\OneToMany(targetEntity: Appointment::class, mappedBy: 'client')]
+    private Collection $appointments;
+
+    /**
      * @var Collection<int, Invoice>
      */
 
@@ -88,6 +94,7 @@ class Client
         $this->projects = new ArrayCollection();
         $this->messagries = new ArrayCollection();
         $this->invoices = new ArrayCollection();
+        $this->appointments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -358,5 +365,33 @@ class Client
         }
 
         return $totalRestant;
+    }
+
+    /**
+     * @return Collection<int, Appointment>
+     */
+
+    public function getAppointments(): Collection
+    {
+        return $this->appointments;
+    }
+
+    public function addAppointment(Appointment $appointment): static
+    {
+        if (!$this->appointments->contains($appointment)) {
+            $this->appointments->add($appointment);
+            $appointment->setClient($this);
+        }
+        return $this;
+    }
+
+    public function removeAppointment(Appointment $appointment): static
+    {
+        if ($this->appointments->removeElement($appointment)) {
+            if ($appointment->getClient() === $this) {
+                $appointment->setClient(null);
+            }
+        }
+        return $this;
     }
 }
