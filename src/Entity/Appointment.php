@@ -20,7 +20,7 @@ class Appointment
     #[ORM\Column(type: Types::TEXT)]
     private ?string $note = null;
 
-    #[ORM\ManyToOne(inversedBy: 'client')]
+    #[ORM\ManyToOne(inversedBy: 'appointments')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Client $client = null;
 

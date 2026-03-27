@@ -62,6 +62,12 @@ class Client
     #[ORM\OneToMany(targetEntity: Quote::class, mappedBy: 'client')]
     private Collection $quotes;
 
+    /**
+     * @var Collection<int, Appointment>
+     */
+    #[ORM\OneToMany(targetEntity: Appointment::class, mappedBy: 'client')]
+    private Collection $appointments;
+
     #[ORM\Column(length: 255)]
     private ?string $city = null;
 
@@ -95,6 +101,7 @@ class Client
         $this->messagries = new ArrayCollection();
         $this->invoices = new ArrayCollection();
         $this->quotes = new ArrayCollection();
+        $this->appointments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -389,6 +396,33 @@ class Client
         if ($this->quotes->removeElement($quote)) {
             if ($quote->getClient() === $this) {
                 $quote->setClient(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Appointment>
+     */
+    public function getAppointments(): Collection
+    {
+        return $this->appointments;
+    }
+
+    public function addAppointment(Appointment $appointment): static
+    {
+        if (!$this->appointments->contains($appointment)) {
+            $this->appointments->add($appointment);
+            $appointment->setClient($this);
+        }
+        return $this;
+    }
+
+    public function removeAppointment(Appointment $appointment): static
+    {
+        if ($this->appointments->removeElement($appointment)) {
+            if ($appointment->getClient() === $this) {
+                $appointment->setClient(null);
             }
         }
         return $this;

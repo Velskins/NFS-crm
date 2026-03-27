@@ -113,6 +113,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Quote::class, mappedBy: 'user')]
     private Collection $quotes;
 
+    /**
+     * @var Collection<int, Appointment>
+     */
+    #[ORM\OneToMany(targetEntity: Appointment::class, mappedBy: 'user')]
+    private Collection $appointments;
+
     public function __construct()
     {
         $this->clients = new ArrayCollection();
@@ -120,6 +126,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->messagries = new ArrayCollection();
         $this->invoices = new ArrayCollection();
         $this->quotes = new ArrayCollection();
+        $this->appointments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -535,6 +542,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->quotes->removeElement($quote)) {
             if ($quote->getUser() === $this) {
                 $quote->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Appointment>
+     */
+    public function getAppointments(): Collection
+    {
+        return $this->appointments;
+    }
+
+    public function addAppointment(Appointment $appointment): static
+    {
+        if (!$this->appointments->contains($appointment)) {
+            $this->appointments->add($appointment);
+            $appointment->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeAppointment(Appointment $appointment): static
+    {
+        if ($this->appointments->removeElement($appointment)) {
+            if ($appointment->getUser() === $this) {
+                $appointment->setUser(null);
             }
         }
         return $this;
