@@ -1,33 +1,187 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ client.companyName }}{% endblock %}
+{% block title %}{{ client.firstName }} {{ client.lastName }} — Sphera{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/detail.css') }}">
+{% endblock %}
 
 {% block body %}
 
-    <h1>{{ client.companyName }}</h1>
+    {# ── HEADER ── #}
+    <div class="detail-header">
+        <div class="detail-header-left">
+            <a href="{{ path('app_client_index') }}" class="detail-back" title="Retour">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+            </a>
+            <div>
+                <h1 class="detail-title">{{ client.firstName }} {{ client.lastName }}</h1>
+                <p class="detail-subtitle">{{ client.companyName }} — {{ client.businessSector ?? 'Secteur non renseigné' }}</p>
+            </div>
+        </div>
+        {% if is_granted('ROLE_ADMIN') %}
+            <div class="detail-header-actions">
+                <a href="{{ path('app_client_edit', {'id': client.id}) }}" class="btn btn-primary">Modifier</a>
+                <form method="post" action="{{ path('app_client_delete', {'id': client.id}) }}" onsubmit="return confirm('Supprimer ce client et toutes ses données ?');" style="display:inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ client.id) }}">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
 
-    {# Infos entreprise #}
-    <h2>Entreprise</h2>
-    <table class="table">
-        <tbody>
-        <tr>
-            <th>Secteur d'activité</th>
-            <td>{{ client.businessSector ?? '-' }}</td>
-        </tr>
-        <tr>
-            <th>Adresse</th>
-            <td>{{ client.address ?? '-' }}</td>
-        </tr>
-        <tr>
-            <th>Ville</th>
-            <td>{{ client.city ?? '-' }}</td>
-        </tr>
-        <tr>
-            <th>Code postal</th>
-            <td>{{ client.postalCode ?? '-' }}</td>
-        </tr>
-        </tbody>
-    </table>
+    {# ── Flash messages ── #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }}" style="margin-bottom: var(--space-4);">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    {# ── GRILLE : Infos entreprise + Contact ── #}
+    <div class="detail-grid">
+
+        {# Informations entreprise #}
+        <div class="detail-section">
+            <div class="inside-card">
+                <h2 class="detail-section-title">Informations entreprise</h2>
+                <div class="detail-fields">
+                    <div class="detail-field">
+                        <span class="detail-field-label">Entreprise</span>
+                        <span class="detail-field-value">{{ client.companyName }}</span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Secteur d'activité</span>
+                        <span class="detail-field-value">{{ client.businessSector ?? '—' }}</span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Adresse</span>
+                        <span class="detail-field-value detail-field-inline">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="10" r="3"/><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z"/>
+                            </svg>
+                            {% if client.address %}
+                                {{ client.address }}{% if client.postalCode or client.city %}, {{ client.postalCode }} {{ client.city }}{% endif %}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Contact #}
+        <div class="detail-section">
+            <div class="inside-card">
+                <h2 class="detail-section-title">Contact</h2>
+                <div class="detail-fields">
+                    <div class="detail-field">
+                        <span class="detail-field-label">Nom complet</span>
+                        <span class="detail-field-value">{{ client.firstName }} {{ client.lastName }}</span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Email</span>
+                        <span class="detail-field-value detail-field-inline">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                            <a href="mailto:{{ client.email }}">{{ client.email }}</a>
+                        </span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Téléphone</span>
+                        <span class="detail-field-value detail-field-inline">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                            {{ client.phone ?? '—' }}
+                        </span>
+                    </div>
+                    {% if client.userAccount %}
+                        <div class="detail-field">
+                            <span class="detail-field-label">Compte client</span>
+                            <span class="detail-field-value">
+                                <span class="detail-status detail-status--en-cours">Compte activé</span>
+                            </span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {# ── NOTES ── #}
+    <div class="detail-grid detail-grid--full">
+        <div class="detail-section">
+            <div class="inside-card">
+                <h2 class="detail-section-title">Notes</h2>
+                {% if client.notes %}
+                    <div class="detail-notes">{{ client.notes }}</div>
+                {% else %}
+                    <p class="detail-table-empty">Aucune note pour ce client.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# ── PROJETS DU CLIENT ── #}
+    <div class="detail-grid detail-grid--full">
+        <div class="detail-section">
+            <div class="inside-card">
+                <h2 class="detail-section-title">Projets</h2>
+                {% if client.projects is not empty %}
+                    <table class="detail-table">
+                        <thead>
+                            <tr>
+                                <th>Projet</th>
+                                <th>Budget</th>
+                                <th>Avancement</th>
+                                <th>Statut</th>
+                                <th>Date limite</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for project in client.projects %}
+                                <tr>
+                                    <td><a href="{{ path('app_project_show', {'id': project.id}) }}">{{ project.title }}</a></td>
+                                    <td>{{ project.budget|number_format(2, '.', ',') }} €</td>
+                                    <td>
+                                        <div style="display:flex; align-items:center; gap:8px;">
+                                            <div class="detail-progress-bar" style="width:80px; height:6px; margin:0;">
+                                                <div class="detail-progress-fill" style="width: {{ project.progress }}%"></div>
+                                            </div>
+                                            <span class="text-sm text-muted">{{ project.progress }}%</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% set s = project.status|lower %}
+                                        {% if s == 'en cours' or s == 'en_cours' %}
+                                            <span class="detail-status detail-status--en-cours">En cours</span>
+                                        {% elseif s == 'en attente' or s == 'en_attente' %}
+                                            <span class="detail-status detail-status--attente">En attente</span>
+                                        {% elseif s == 'fini' or s == 'terminé' or s == 'termine' or s == 'livre' %}
+                                            <span class="detail-status detail-status--fini">Terminé</span>
+                                        {% elseif s == 'annulé' or s == 'annule' %}
+                                            <span class="detail-status detail-status--annule">Annulé</span>
+                                        {% else %}
+                                            <span class="detail-status detail-status--attente">{{ project.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ project.deadline ? project.deadline|date('d/m/Y') : '—' }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="detail-table-empty">Aucun projet associé à ce client.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 
     {# Infos contact #}
     <h2>Contact</h2>
@@ -53,10 +207,246 @@
         <h2>Notes</h2>
         <p>{{ client.notes }}</p>
     {% endif %}
+    {# ── Argent en attente ── #}
+    {% set argentEnAttente = client.argentEnAttente %}
+    <div style="margin: 24px 0; padding: 16px 20px; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06);">
+        <strong>Argent en attente :</strong>
+        <span id="montant-en-attente" style="font-weight: 800; font-size: 1.3rem; color: {{ argentEnAttente > 0 ? '#ef4444' : '#10b981' }};">
+        {{ argentEnAttente|number_format(2, '.', ',') }} €
+    </span>
+    </div>
 
-    {# Actions #}
-    <a href="{{ path('app_client_index') }}">← Retour à la liste</a>
-    <a href="{{ path('app_client_edit', {'id': client.id}) }}">Modifier</a>
-    {{ include('client/_delete_form.html.twig') }}
+    {# ── Échéances par projet ── #}
+    {% for project in client.projects %}
+        {% if project.paymentSchedules is not empty %}
+            <h3>Projet : {{ project.title }}</h3>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Montant</th>
+                    <th>Échéance</th>
+                    <th>Statut</th>
+                    <th>Payé le</th>
+                    {% if is_granted('ROLE_ADMIN') %}<th>Action</th>{% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for payment in project.paymentSchedules %}
+                    <tr id="row-{{ payment.id }}">
+                        <td>{{ payment.amount|number_format(2, '.', ',') }} €</td>
+                        <td>{{ payment.dueDate|date('d/m/Y') }}</td>
+                        <td class="status-cell-{{ payment.id }}">
+                            {% if payment.status == 'paye' %}
+                                <span style="color:#10b981; font-weight:700;">✔ Payé</span>
+                            {% else %}
+                                <span style="color:#f59e0b; font-weight:700;">⏳ En attente</span>
+                            {% endif %}
+                        </td>
+                        <td class="date-cell-{{ payment.id }}">
+                            {{ payment.paidAt ? payment.paidAt|date('d/m/Y') : '—' }}
+                        </td>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <td>
+                                {% if payment.status != 'paye' %}
+                                    <button class="btn btn-primary btn-sm pay-button"
+                                            data-url="{{ path('app_payment_pay', {'id': payment.id}) }}"
+                                            data-id="{{ payment.id }}">
+                                        ✔ Valider le virement
+                                    </button>
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% endfor %}
+    {# ── RÉCAP FINANCIER ── #}
+    <div class="detail-grid">
+
+        {# Projets en chiffres #}
+        <div class="detail-section">
+            <div class="inside-card">
+                <h2 class="detail-section-title">Récapitulatif projets</h2>
+                {% set totalBudget = 0 %}
+                {% set activeProjects = 0 %}
+                {% for project in client.projects %}
+                    {% set totalBudget = totalBudget + project.budget %}
+                    {% set s = project.status|lower %}
+                    {% if s == 'en cours' or s == 'en_cours' %}
+                        {% set activeProjects = activeProjects + 1 %}
+                    {% endif %}
+                {% endfor %}
+                <div class="detail-fields">
+                    <div class="detail-field">
+                        <span class="detail-field-label">Nombre de projets</span>
+                        <span class="detail-field-value">{{ client.projects|length }}</span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Projets en cours</span>
+                        <span class="detail-field-value" style="color: var(--color-primary);">{{ activeProjects }}</span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Budget total</span>
+                        <span class="detail-field-value">{{ totalBudget|number_format(2, '.', ',') }} €</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Factures en chiffres #}
+        <div class="detail-section">
+            <div class="inside-card">
+                <h2 class="detail-section-title">Récapitulatif factures</h2>
+                {% set totalPaye = 0 %}
+                {% set totalEnAttente = 0 %}
+                {% for invoice in client.invoices %}
+                    {% set is = invoice.status|lower %}
+                    {% if is == 'payée' or is == 'paye' %}
+                        {% set totalPaye = totalPaye + 1 %}
+                    {% else %}
+                        {% set totalEnAttente = totalEnAttente + 1 %}
+                    {% endif %}
+                {% endfor %}
+                <div class="detail-fields">
+                    <div class="detail-field">
+                        <span class="detail-field-label">Total factures</span>
+                        <span class="detail-field-value">{{ client.invoices|length }}</span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Payées</span>
+                        <span class="detail-field-value" style="color: var(--color-success);">{{ totalPaye }}</span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">En attente</span>
+                        <span class="detail-field-value" style="color: var(--color-warning);">{{ totalEnAttente }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {# ── RENDEZ-VOUS ── #}
+    <div class="detail-grid detail-grid--full">
+        <div class="detail-section">
+            <div class="inside-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 class="detail-section-title" style="margin: 0;">Rendez-vous</h2>
+                    <a href="{{ path('app_appointment_new', {'clientId': client.id}) }}" class="btn btn-primary">
+                        📅 Prendre un RDV
+                    </a>
+                </div>
+
+                {% if client.appointments is not empty %}
+                    <table class="detail-table">
+                        <thead>
+                        <tr>
+                            <th>Date & Heure</th>
+                            <th>Note</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for appointment in client.appointments %}
+                            <tr>
+                                <td>{{ appointment.scheduleAt|date('d/m/Y à H:i') }}</td>
+                                <td>{{ appointment.note ?: '—' }}</td>
+                                <td>
+                                    <form method="post" action="{{ path('app_appointment_delete', {'id': appointment.id}) }}"
+                                          onsubmit="return confirm('Supprimer ce rendez-vous ?');" style="display:inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete_appointment' ~ appointment.id) }}">
+                                        <button type="submit" class="clients-action-delete" title="Supprimer">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="detail-table-empty">Aucun rendez-vous planifié.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# ── MESSAGERIE ── #}
+    <div class="detail-grid detail-grid--full">
+        <div class="detail-section">
+            <div class="inside-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 class="detail-section-title" style="margin: 0;">Messagerie</h2>
+                    <a href="{{ path('app_messagrie_client', {'id': client.id}) }}" class="btn btn-primary">
+                        Ouvrir la messagerie
+                    </a>
+                </div>
+
+                {# Aperçu des 3 derniers messages #}
+                {% set messages = client.messagries %}
+                {% if messages is not empty %}
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        {% for message in messages|slice(-3)|reverse %}
+                            <div style="background: #f3f4f6; border-radius: 10px; padding: 10px 14px;">
+                                <div style="font-size: 11px; color: #6b7280; margin-bottom: 4px;">
+                                    {{ message.user.firstname }} — {{ message.createdAt|date('d/m/Y à H:i') }}
+                                </div>
+                                <div style="color: #1f2937; font-size: 14px;">{{ message.content }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if messages|length > 3 %}
+                        <a href="{{ path('app_messagrie_client', {'id': client.id}) }}" style="display: block; margin-top: 12px; font-size: 13px; color: var(--color-primary);">
+                            Voir tous les messages ({{ messages|length }})
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <p class="detail-table-empty">Aucun message pour l'instant.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% block javascripts %}
+        {{ parent() }}
+        <script>
+            document.querySelectorAll('.pay-button').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    if (!confirm('Confirmer la réception de ce virement ?')) return;
+
+                    const url  = this.getAttribute('data-url');
+                    const id   = this.getAttribute('data-id');
+
+                    fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (!data.success) return;
+
+                            // Badge statut
+                            document.querySelector('.status-cell-' + id).innerHTML =
+                                '<span style="color:#10b981;font-weight:700;">✔ Payé</span>';
+
+                            // Date de paiement
+                            document.querySelector('.date-cell-' + id).textContent = data.paidAt;
+
+                            // Bouton disparu
+                            this.remove();
+
+                            // Montant en attente mis à jour
+                            const montantEl = document.getElementById('montant-en-attente');
+                            if (montantEl && data.newArgentEnAttente) {
+                                montantEl.textContent = data.newArgentEnAttente;
+                                montantEl.style.color = data.newArgentEnAttenteRaw > 0 ? '#ef4444' : '#10b981';
+                            }
+                        })
+                        .catch(err => console.error('Erreur paiement :', err));
+                });
+            });
+        </script>
+    {% endblock %}
 
 {% endblock %}

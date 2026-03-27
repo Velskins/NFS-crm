@@ -1,20 +1,23 @@
 <?php
+
 namespace App\Controller;
 
 use App\Entity\Project;
 use App\Entity\Document;
+use App\Entity\PaymentSchedule;
+use App\Entity\Task;
 use App\Form\ProjectType;
+use App\Form\PaymentScheduleType;
 use App\Repository\ProjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
-use App\Entity\PaymentSchedule;
-use App\Form\PaymentScheduleType;
-use App\Entity\Task;
 
 #[Route('/project')]
 final class ProjectController extends AbstractController
@@ -26,14 +29,12 @@ final class ProjectController extends AbstractController
         $search = $request->query->get('search', '');
         $status = $request->query->get('status', '');
 
-        // ROLE_CLIENT : ne voit que les projets liés à son profil client
         if (!$this->isGranted('ROLE_ADMIN') && $user->getClientProfile()) {
             $projects = $projectRepository->findBy(['client' => $user->getClientProfile()]);
         } else {
             $projects = $projectRepository->findBy(['user' => $user]);
         }
 
-        // Filtrer par recherche (titre ou nom de société du client)
         if ($search) {
             $searchLower = strtolower($search);
             $projects = array_filter($projects, function ($project) use ($searchLower) {
@@ -42,7 +43,6 @@ final class ProjectController extends AbstractController
             });
         }
 
-        // Filtrer par statut (valeurs : en_cours, livre, paye)
         if ($status) {
             $projects = array_filter($projects, function ($project) use ($status) {
                 return $project->getStatus() === $status;
@@ -85,7 +85,6 @@ final class ProjectController extends AbstractController
     {
         $user = $this->getUser();
 
-        // ROLE_CLIENT : ne peut voir que les projets liés à son profil client
         if (!$this->isGranted('ROLE_ADMIN')) {
             $clientProfile = $user->getClientProfile();
             if (!$clientProfile || $project->getClient()->getId() !== $clientProfile->getId()) {
@@ -249,16 +248,12 @@ final class ProjectController extends AbstractController
     #[Route('/task/{id}/toggle', name: 'app_task_toggle', methods: ['POST'])]
     public function toggleTask(Task $task, EntityManagerInterface $entityManager): Response
     {
-        // Bascule entre 'a_faire' et 'terminé'
         $newTaskStatus = ($task->getStatus() === 'terminé') ? 'à faire' : 'terminé';
         $task->setStatus($newTaskStatus);
 
         $project = $task->getProject();
-
-        // On enregistre d'abord pour que getProgress() soit à jour
         $entityManager->flush();
 
-        // Automatisation du statut projet selon l'avancement
         if ($project->getProgress() === 100 && strtolower($project->getStatus()) === 'en_cours') {
             $project->setStatus('livre');
             $entityManager->flush();
@@ -271,6 +266,40 @@ final class ProjectController extends AbstractController
             'newStatus'     => $newTaskStatus,
             'projectStatus' => $project->getStatus(),
             'progress'      => $project->getProgress(),
+        ]);
+    }
+
+    // --- NOUVELLE MÉTHODE DE PAIEMENT ---
+    #[Route('/payment/{id}/pay', name: 'app_payment_pay', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function markAsPaid(PaymentSchedule $payment, EntityManagerInterface $em): JsonResponse
+    {
+        $payment->setStatus('paye');
+        $payment->setPaidAt(new \DateTimeImmutable());
+        $em->flush();
+
+        $project = $payment->getProject();
+        $totalPaye = 0;
+        foreach ($project->getPaymentSchedules() as $schedule) {
+            if ($schedule->getStatus() === 'paye') {
+                $totalPaye += (float) $schedule->getAmount();
+            }
+        }
+
+        $budget = (float) $project->getBudget();
+        $restant = $budget - $totalPaye;
+        $client = $project->getClient();
+        $newArgentEnAttente = $client ? $client->getArgentEnAttente() : null;
+
+        return new JsonResponse([
+            'success' => true,
+            'paidAt' => $payment->getPaidAt()->format('d/m/Y'),
+            'newTotalPaye' => number_format($totalPaye, 2, '.', ',') . ' €',
+            'newRestant' => number_format($restant, 2, '.', ',') . ' €',
+            'newArgentEnAttenteRaw' => $newArgentEnAttente,
+            'newArgentEnAttente' => $newArgentEnAttente !== null
+                ? number_format($newArgentEnAttente, 2, '.', ',') . ' €'
+                : null,
         ]);
     }
 }
