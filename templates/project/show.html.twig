@@ -77,6 +77,18 @@
                             {{ project.deadline ? project.deadline|date('d/m/Y') : '—' }}
                         </span>
                     </div>
+                    {% if project.quote %}
+                    <div class="detail-field">
+                        <span class="detail-field-label">Devis source</span>
+                        <span class="detail-field-value detail-field-inline">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                            <a href="{{ path('app_quote_show', {'id': project.quote.id}) }}">{{ project.quote.quoteNumber }}</a>
+                            <span style="margin-left: 8px; font-size: var(--font-size-xs); color: var(--color-text-muted);">({{ project.quote.totalAmount|number_format(2, ',', ' ') }} €)</span>
+                        </span>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

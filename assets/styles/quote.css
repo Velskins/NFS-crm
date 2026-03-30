@@ -1,0 +1,167 @@
+/* ═══════════════════════════════════════════════════════════════
+   QUOTE STYLES — Sphera CRM
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Quote line list - pour les listes (ancien format) */
+.quote-line-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Quote line item - ne pas forcer display pour garder le comportement <tr> */
+tr.quote-line-item {
+    border-bottom: 1px solid #f3f4f6;
+}
+
+tr.quote-line-item:last-child {
+    border-bottom: none;
+}
+
+/* Inputs pleine largeur dans le tableau */
+.quote-lines-table input.quote-input-full {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.quote-line-total {
+    font-weight: 600;
+    color: #10b981;
+    min-width: 80px;
+    text-align: right;
+}
+
+.quote-line-remove {
+    background: #fef2f2;
+    color: #ef4444;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quote-line-remove:hover {
+    background: #fee2e2;
+}
+
+.quote-line-remove svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Quote stats on index page */
+.quote-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.quote-stat-card {
+    padding: 12px 20px;
+    border-radius: 8px;
+    flex: 1;
+    min-width: 120px;
+    transition: transform 0.2s ease;
+}
+
+.quote-stat-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Status badges */
+.quote-status {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.quote-status--brouillon {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.quote-status--envoye {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
+.quote-status--accepte {
+    background: #ecfdf5;
+    color: #10b981;
+}
+
+.quote-status--refuse {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+/* Quote total section */
+.quote-total-section {
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px 0;
+    border-top: 2px solid #e5e7eb;
+    margin-top: 12px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .quote-lines-table {
+        font-size: 14px;
+    }
+    
+    .quote-lines-table th,
+    .quote-lines-table td {
+        padding: 8px 4px;
+    }
+}
+
+/* Button secondary style */
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+    border-color: #d1d5db;
+}
+
+/* Detail status colors for quotes */
+.detail-status--attente {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.detail-status--en-cours {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
+.detail-status--fini {
+    background: #ecfdf5;
+    color: #10b981;
+}
+
+.detail-status--annule {
+    background: #fef2f2;
+    color: #ef4444;
+}

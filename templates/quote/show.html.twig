@@ -1,0 +1,237 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ quote.quoteNumber }} — Sphera{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/detail.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/quote.css') }}">
+{% endblock %}
+
+{% block body %}
+
+    {# ── HEADER ── #}
+    <div class="detail-header">
+        <div class="detail-header-left">
+            <a href="{{ path('app_quote_index') }}" class="detail-back" title="Retour">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+            </a>
+            <div>
+                <h1 class="detail-title">Devis {{ quote.quoteNumber }}</h1>
+                <p class="detail-subtitle">
+                    Client : {{ quote.client.companyName }} — Créé le {{ quote.createdAt|date('d/m/Y') }}
+                </p>
+            </div>
+        </div>
+        <div class="detail-header-actions">
+            {% if quote.isConverted %}
+                <a href="{{ path('app_project_show', {'id': quote.project.id}) }}" class="btn btn-secondary" style="background: #ecfdf5; color: #10b981; border: none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 6px;">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    Voir le projet
+                </a>
+            {% else %}
+                <form method="post" action="{{ path('app_quote_convert_to_project', {'id': quote.id}) }}" onsubmit="return confirm('Transformer ce devis en projet ?');" style="display:inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('convert' ~ quote.id) }}">
+                    <button type="submit" class="btn btn-secondary" style="background: #ecfdf5; color: #10b981; border: none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 6px;">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        Transformer en projet
+                    </button>
+                </form>
+            {% endif %}
+            <a href="{{ path('app_quote_pdf', {'id': quote.id}) }}" class="btn btn-secondary" target="_blank">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 6px;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                Voir PDF
+            </a>
+            <a href="{{ path('app_quote_edit', {'id': quote.id}) }}" class="btn btn-primary">Modifier</a>
+            <form method="post" action="{{ path('app_quote_duplicate', {'id': quote.id}) }}" style="display:inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('duplicate' ~ quote.id) }}">
+                <button type="submit" class="btn btn-secondary">Dupliquer</button>
+            </form>
+            <form method="post" action="{{ path('app_quote_delete', {'id': quote.id}) }}" onsubmit="return confirm('Supprimer ce devis ?');" style="display:inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ quote.id) }}">
+                <button type="submit" class="btn btn-danger">Supprimer</button>
+            </form>
+        </div>
+    </div>
+
+    {# ── GRILLE : Infos devis + Statut ── #}
+    <div class="detail-grid">
+
+        {# Informations devis #}
+        <div class="detail-section">
+            <div class="inside-card">
+                <h2 class="detail-section-title">Informations du devis</h2>
+                <div class="detail-fields">
+                    <div class="detail-field">
+                        <span class="detail-field-label">N° Devis</span>
+                        <span class="detail-field-value">{{ quote.quoteNumber }}</span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Objet</span>
+                        <span class="detail-field-value">{{ quote.subject ?? '—' }}</span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Client</span>
+                        <span class="detail-field-value">
+                            <a href="{{ path('app_client_show', {'id': quote.client.id}) }}">{{ quote.client.companyName }}</a>
+                        </span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Montant total</span>
+                        <span class="detail-field-value" style="font-size: 18px; font-weight: 700; color: #10b981;">
+                            {{ quote.totalAmount|number_format(2, ',', ' ') }} €
+                        </span>
+                    </div>
+                    {% if quote.isConverted %}
+                    <div class="detail-field">
+                        <span class="detail-field-label">Projet lié</span>
+                        <span class="detail-field-value detail-field-inline">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                            </svg>
+                            <a href="{{ path('app_project_show', {'id': quote.project.id}) }}">{{ quote.project.title }}</a>
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# Statut et validité #}
+        <div class="detail-section">
+            <div class="inside-card">
+                <h2 class="detail-section-title">Statut</h2>
+                
+                <div class="detail-fields">
+                    <div class="detail-field">
+                        <span class="detail-field-label">Statut actuel</span>
+                        <span class="detail-field-value">
+                            {% set s = quote.status %}
+                            {% if s == 'brouillon' %}
+                                <span class="detail-status detail-status--attente">Brouillon</span>
+                            {% elseif s == 'envoye' %}
+                                <span class="detail-status detail-status--en-cours">Envoyé</span>
+                            {% elseif s == 'accepte' %}
+                                <span class="detail-status detail-status--fini">Accepté</span>
+                            {% elseif s == 'refuse' %}
+                                <span class="detail-status detail-status--annule">Refusé</span>
+                            {% else %}
+                                <span class="detail-status detail-status--attente">{{ quote.status }}</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Valide jusqu'au</span>
+                        <span class="detail-field-value detail-field-inline">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                            {% if quote.isExpired %}
+                                <span style="color: #ef4444;">Expiré ({{ quote.validUntil|date('d/m/Y') }})</span>
+                            {% else %}
+                                {{ quote.validUntil|date('d/m/Y') }}
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                {# Boutons de changement de statut #}
+                <div style="margin-top: 24px; display: flex; gap: 8px; flex-wrap: wrap;">
+                    {% if quote.status != 'envoye' %}
+                        <form method="post" action="{{ path('app_quote_change_status', {'id': quote.id, 'newStatus': 'envoye'}) }}" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('change_status' ~ quote.id) }}">
+                            <button type="submit" class="btn btn-sm" style="background: #eff6ff; color: #3b82f6; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">
+                                Marquer comme Envoyé
+                            </button>
+                        </form>
+                    {% endif %}
+                    {% if quote.status != 'accepte' %}
+                        <form method="post" action="{{ path('app_quote_change_status', {'id': quote.id, 'newStatus': 'accepte'}) }}" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('change_status' ~ quote.id) }}">
+                            <button type="submit" class="btn btn-sm" style="background: #ecfdf5; color: #10b981; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">
+                                Marquer comme Accepté
+                            </button>
+                        </form>
+                    {% endif %}
+                    {% if quote.status != 'refuse' %}
+                        <form method="post" action="{{ path('app_quote_change_status', {'id': quote.id, 'newStatus': 'refuse'}) }}" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('change_status' ~ quote.id) }}">
+                            <button type="submit" class="btn btn-sm" style="background: #fef2f2; color: #ef4444; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">
+                                Marquer comme Refusé
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {# ── LIGNES DU DEVIS ── #}
+    <div class="detail-grid detail-grid--full">
+        <div class="detail-section">
+            <div class="inside-card">
+                <h2 class="detail-section-title">Détail des prestations</h2>
+                
+                {% if quote.lines is not empty %}
+                    <table class="detail-table">
+                        <thead>
+                        <tr>
+                            <th style="width: 50%;">Description</th>
+                            <th style="text-align: center;">Quantité</th>
+                            <th style="text-align: right;">Prix unitaire</th>
+                            <th style="text-align: right;">Total</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for line in quote.lines %}
+                            <tr>
+                                <td>{{ line.description }}</td>
+                                <td style="text-align: center;">{{ line.quantity|number_format(2, ',', ' ') }}</td>
+                                <td style="text-align: right;">{{ line.unitPrice|number_format(2, ',', ' ') }} €</td>
+                                <td style="text-align: right; font-weight: 600;">{{ line.totalPrice|number_format(2, ',', ' ') }} €</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr style="border-top: 2px solid #e5e7eb;">
+                                <td colspan="3" style="text-align: right; font-weight: 600; padding-top: 16px;">Total HT</td>
+                                <td style="text-align: right; font-weight: 700; font-size: 18px; color: #10b981; padding-top: 16px;">
+                                    {{ quote.totalAmount|number_format(2, ',', ' ') }} €
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="text-align: right; font-size: 12px; color: #9ca3af;">
+                                    TVA non applicable, art. 293 B du CGI
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                {% else %}
+                    <p class="detail-table-empty">Aucune ligne dans ce devis.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# ── NOTES ── #}
+    {% if quote.notes %}
+        <div class="detail-grid detail-grid--full">
+            <div class="detail-section">
+                <div class="inside-card">
+                    <h2 class="detail-section-title">Notes / Conditions</h2>
+                    <div style="white-space: pre-wrap; color: #4b5563; line-height: 1.6;">{{ quote.notes }}</div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}
