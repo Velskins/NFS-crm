@@ -1,6 +1,5 @@
 {{ form_start(form, {'attr': {'class': 'client-form', 'id': 'project-form', 'novalidate': 'novalidate'}}) }}
 
-    {# ── Ligne 1 : Titre / Statut ── #}
 <div class="client-form-row">
     <div class="client-form-field">
         <label class="client-form-label">Titre du projet</label>
@@ -13,7 +12,7 @@
         {{ form_errors(form.title) }}
     </div>
     <div class="client-form-field">
-        <label class="client-form-label">Statut</label>
+        <label class="client-form-label">Statut du Projet</label>
         <div class="client-form-input-wrap">
             <svg class="client-form-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
@@ -24,17 +23,15 @@
     </div>
 </div>
 
-{# ── Ligne 2 : Budget / Client ── #}
 <div class="client-form-row">
     <div class="client-form-field">
-        <label class="client-form-label">Budget (€)</label>
+        <label class="client-form-label">Budget Global (€)</label>
         <div class="client-form-input-wrap">
             <svg class="client-form-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
             </svg>
-            {{ form_widget(form.budget, {'attr': {'class': 'client-form-input client-form-money'}}) }}
+            {{ form_widget(form.budget, {'attr': {'class': 'client-form-input'}}) }}
         </div>
-        {{ form_errors(form.budget) }}
     </div>
     <div class="client-form-field">
         <label class="client-form-label">Client</label>
@@ -44,147 +41,197 @@
             </svg>
             {{ form_widget(form.client, {'attr': {'class': 'client-form-input client-form-select'}}) }}
         </div>
-        {{ form_errors(form.client) }}
     </div>
 </div>
 
-{# ── Ligne 3 : Deadline du Projet ── #}
-<div class="client-form-row client-form-row--full">
-    <div class="client-form-field">
-        <label class="client-form-label">Date limite du projet</label>
-        <div class="client-form-input-wrap">
-            <svg class="client-form-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-            </svg>
-            {{ form_widget(form.deadline, {'attr': {'class': 'client-form-input'}}) }}
-        </div>
-        {{ form_errors(form.deadline) }}
-    </div>
-</div>
-
-{# ── Section Tâches ── #}
 <div class="client-form-row client-form-row--full" style="margin-top: 40px;">
-    <div class="project-tasks-section">
-        <div class="project-tasks-header">
-            <h3 class="project-tasks-title">Tâches</h3>
-            <button type="button" id="add-task" class="btn btn-primary project-tasks-add">+ Ajouter une tâche</button>
+    <h3 class="project-tasks-title">Gestion des tâches</h3>
+
+    <div class="task-saisie-container" style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 15px; align-items: end;">
+            <div>
+                <label class="client-form-label">Nom de la tâche</label>
+                <input type="text" id="input-task-title" class="client-form-input">
+            </div>
+            <div>
+                <label class="client-form-label">Statut</label>
+                <select id="input-task-status" class="client-form-input client-form-select">
+                    <option value="A_Faire">À faire</option>
+                    <option value="En_Cours">En cours</option>
+                    <option value="Termine">Terminé</option>
+                </select>
+            </div>
+            <div>
+                <label class="client-form-label">Échéance</label>
+                <input type="date" id="input-task-deadline" class="client-form-input">
+            </div>
+            <button type="button" id="btn-add-task" class="btn btn-primary" style="height:42px;">Ajouter</button>
         </div>
-
-        <ul id="task-list"
-            data-prototype="{{ form_widget(form.tasks.vars.prototype)|e('html_attr') }}"
-            data-index="{{ form.tasks|length }}"
-            class="project-task-list">
-
-            {% for task in form.tasks %}
-                <li class="project-task-item">
-                    <div class="client-form-row">
-                        <div class="client-form-field">
-                            <label class="client-form-label">Nom de la tâche</label>
-                            {{ form_widget(task.title, {'attr': {'class': 'client-form-input'}}) }}
-                        </div>
-                        <div class="client-form-field">
-                            <label class="client-form-label">Statut</label>
-                            {{ form_widget(task.status, {'attr': {'class': 'client-form-input'}}) }}
-                        </div>
-                    </div>
-                    {# REPOSITIONNEMENT DE LA DATE DE LA TÂCHE #}
-                    <div class="client-form-row client-form-row--full" style="margin-top: 10px;">
-                        <div class="client-form-field">
-                            <label class="client-form-label">Date limite de la tâche</label>
-                            {{ form_widget(task.deadline, {'attr': {'class': 'client-form-input'}}) }}
-                        </div>
-                    </div>
-                    <button type="button" class="project-task-remove">Supprimer</button>
-                </li>
-            {% endfor %}
-        </ul>
     </div>
+
+    <table class="clients-table">
+        <thead><tr><th>Nom</th><th>Statut</th><th>Date</th><th style="width:50px;"></th></tr></thead>
+        <tbody id="table-tasks-body">
+        {% for task in form.tasks %}
+            <tr class="item-row" data-type="task" data-index="{{ loop.index0 }}">
+                <td style="display:none">{{ form_widget(task) }}</td>
+                <td><strong>{{ task.vars.data.title }}</strong></td>
+                <td><span class="clients-status">{{ task.vars.data.status|replace({'_': ' '}) }}</span></td>
+                <td>{{ task.vars.data.deadline ? task.vars.data.deadline|date('d/m/Y') : '—' }}</td>
+                <td><button type="button" class="btn-remove-item" style="color:#ef4444; background:none; border:none; cursor:pointer;">✕</button></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div id="hidden-tasks" style="display:none;" data-prototype="{{ form_widget(form.tasks.vars.prototype)|e('html_attr') }}" data-index="{{ form.tasks|length }}"></div>
 </div>
 
-{# ── Section Échéances de Paiement ── #}
-<div class="client-form-row client-form-row--full" style="margin-top: 40px;">
-    <div class="project-tasks-section" style="border-top: 1px solid #eee; padding-top: 20px;">
-        <div class="project-tasks-header">
-            <h3 class="project-tasks-title">Échéances de paiement</h3>
-            <button type="button" id="add-payment" class="btn btn-primary project-tasks-add">+ Ajouter une échéance</button>
+<div class="client-form-row client-form-row--full" style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 30px;">
+    <h3 class="project-tasks-title">Échéances de paiement</h3>
+
+    <div class="task-saisie-container" style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 15px; align-items: end;">
+            <div>
+                <label class="client-form-label">Montant (€)</label>
+                <input type="number" id="input-pay-amount" class="client-form-input" step="0.01">
+            </div>
+            <div>
+                <label class="client-form-label">Date limite de paiement</label>
+                <input type="date" id="input-pay-date" class="client-form-input">
+            </div>
+            <button type="button" id="btn-add-pay" class="btn btn-primary" style="height:42px;">Ajouter l'échéance</button>
         </div>
-
-        <ul id="payment-list"
-            data-prototype="{{ form_widget(form.paymentSchedules.vars.prototype)|e('html_attr') }}"
-            data-index="{{ form.paymentSchedules|length }}"
-            class="project-task-list">
-
-            {% for payment in form.paymentSchedules %}
-                <li class="project-task-item">
-                    <div class="client-form-row">
-                        <div class="client-form-field">
-                            <label class="client-form-label">Montant (€)</label>
-                            {{ form_widget(payment.amount, {'attr': {'class': 'client-form-input'}}) }}
-                        </div>
-                        <div class="client-form-field">
-                            <label class="client-form-label">Date d'échéance</label>
-                            {{ form_widget(payment.dueDate, {'attr': {'class': 'client-form-input'}}) }}
-                        </div>
-                    </div>
-                    <button type="button" class="project-task-remove">Supprimer</button>
-                </li>
-            {% endfor %}
-        </ul>
     </div>
+
+    <table class="clients-table">
+        <thead><tr><th>Montant</th><th>Date d'échéance</th><th>Statut</th><th style="width:50px;"></th></tr></thead>
+        <tbody id="table-pay-body">
+        {% for payment in form.paymentSchedules %}
+            <tr class="item-row" data-type="pay" data-index="{{ loop.index0 }}">
+                <td style="display:none">{{ form_widget(payment) }}</td>
+                <td><strong>{{ payment.vars.data.amount }} €</strong></td>
+                <td>{{ payment.vars.data.dueDate ? payment.vars.data.dueDate|date('d/m/Y') : '—' }}</td>
+                <td><span class="clients-status">{{ payment.vars.data.status }}</span></td>
+                <td><button type="button" class="btn-remove-item" style="color:#ef4444; background:none; border:none; cursor:pointer;">✕</button></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div id="hidden-pay" style="display:none;" data-prototype="{{ form_widget(form.paymentSchedules.vars.prototype)|e('html_attr') }}" data-index="{{ form.paymentSchedules|length }}"></div>
 </div>
 
-<div class="client-form-submit">
-    <button type="submit" class="btn btn-primary">{{ button_label|default('Créer le projet') }}</button>
+<div class="client-form-submit" style="margin-top: 40px;">
+    <button type="submit" class="btn btn-primary">
+        {{ button_label|default('Enregistrer le projet') }}
+    </button>
 </div>
 
-{# Sécurité pour éviter les labels automatiques de Symfony en fin de page #}
-    {% do form.tasks.setRendered %}
+{% do form.tasks.setRendered %}
     {% do form.paymentSchedules.setRendered %}
+    {% do form.deadline.setRendered %}
 
 {{ form_end(form) }}
 
 <script>
-    function setupCollection(buttonId, listId, itemClass) {
-        const btn = document.getElementById(buttonId);
-        const list = document.getElementById(listId);
-        if (!btn || !list) return;
+    document.addEventListener('DOMContentLoaded', function() {
 
-        btn.addEventListener('click', function () {
-            const prototype = list.dataset.prototype;
-            const index = list.dataset.index;
-            const newForm = prototype.replace(/__name__/g, index);
-            const li = document.createElement('li');
-            li.className = itemClass;
-            const tmp = document.createElement('div');
-            tmp.innerHTML = newForm;
+        function setupCollection(config) {
+            const btn = document.getElementById(config.btnId);
+            const tableBody = document.getElementById(config.tableId);
+            const hiddenContainer = document.getElementById(config.hiddenId);
 
-            // On applique le style Sphera à tous les champs générés
-            tmp.querySelectorAll('input, select').forEach(el => {
-                el.classList.add('client-form-input');
-                if (el.tagName === 'SELECT') el.classList.add('client-form-select');
+            if (!btn) return;
+
+            btn.addEventListener('click', function() {
+                const index = parseInt(hiddenContainer.dataset.index);
+                const prototype = hiddenContainer.dataset.prototype;
+
+                let data = {};
+                let isValid = true;
+                config.fields.forEach(f => {
+                    const inputEl = document.getElementById(f.inputId);
+                    const val = inputEl.value;
+                    if (!val && f.required) isValid = false;
+                    data[f.name] = val;
+                });
+
+                if (!isValid) {
+                    alert('Veuillez remplir les champs obligatoires');
+                    return;
+                }
+
+                const newFormHtml = prototype.replace(/__name__/g, index);
+                const divHidden = document.createElement('div');
+                divHidden.id = config.prefix + '-form-' + index;
+                divHidden.innerHTML = newFormHtml;
+
+                config.fields.forEach(f => {
+                    const input = divHidden.querySelector(`[name*="[${f.name}]"]`);
+                    if (input) input.value = data[f.name];
+                });
+                hiddenContainer.appendChild(divHidden);
+
+                const row = document.createElement('tr');
+                row.innerHTML = config.renderRow(data, index);
+                tableBody.appendChild(row);
+
+                hiddenContainer.dataset.index = index + 1;
+                config.fields.forEach(f => {
+                    const inputEl = document.getElementById(f.inputId);
+                    inputEl.value = '';
+                });
+
+                document.getElementById(config.fields[0].inputId).focus();
             });
-
-            li.innerHTML = tmp.innerHTML;
-
-            const removeBtn = document.createElement('button');
-            removeBtn.type = 'button';
-            removeBtn.className = 'project-task-remove';
-            removeBtn.innerHTML = 'Supprimer';
-            removeBtn.onclick = () => li.remove();
-            li.appendChild(removeBtn);
-
-            list.appendChild(li);
-            list.dataset.index = parseInt(index) + 1;
-        });
-    }
-
-    setupCollection('add-task', 'task-list', 'project-task-item');
-    setupCollection('add-payment', 'payment-list', 'project-task-item');
-
-    // Gestion de la suppression pour les éléments existants au chargement
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('project-task-remove')) {
-            e.target.closest('li').remove();
         }
+
+
+        setupCollection({
+            btnId: 'btn-add-task',
+            tableId: 'table-tasks-body',
+            hiddenId: 'hidden-tasks',
+            prefix: 'task',
+            fields: [
+                {name: 'title', inputId: 'input-task-title', required: true},
+                {name: 'status', inputId: 'input-task-status', required: true},
+                {name: 'deadline', inputId: 'input-task-deadline', required: false}
+            ],
+            renderRow: (d, idx) => `
+            <td><strong>${d.title}</strong></td>
+            <td><span class="clients-status">${d.status.replace('_', ' ')}</span></td>
+            <td>${d.deadline || '—'}</td>
+            <td><button type="button" class="btn-remove-item" data-id="task-form-${idx}" style="color:#ef4444; background:none; border:none; cursor:pointer;">✕</button></td>
+        `
+        });
+
+
+        setupCollection({
+            btnId: 'btn-add-pay',
+            tableId: 'table-pay-body',
+            hiddenId: 'hidden-pay',
+            prefix: 'pay',
+            fields: [
+                {name: 'amount', inputId: 'input-pay-amount', required: true},
+                {name: 'dueDate', inputId: 'input-pay-date', required: true}
+            ],
+            renderRow: (d, idx) => `
+            <td><strong>${d.amount} €</strong></td>
+            <td>${d.dueDate}</td>
+            <td><span class="clients-status">En attente</span></td>
+            <td><button type="button" class="btn-remove-item" data-id="pay-form-${idx}" style="color:#ef4444; background:none; border:none; cursor:pointer;">✕</button></td>
+        `
+        });
+
+
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-remove-item')) {
+                const hiddenId = e.target.dataset.id;
+                if (hiddenId) {
+                    const el = document.getElementById(hiddenId);
+                    if (el) el.remove();
+                }
+                e.target.closest('tr').remove();
+            }
+        });
     });
 </script>
