@@ -73,17 +73,6 @@
                     {% if is_granted('ROLE_ADMIN') %}Projets{% else %}Mes Projets{% endif %}
                 </a>
 
-                {# Messagerie — visible pour les clients, accessible aussi pour l'admin via la fiche client #}
-                {% if not is_granted('ROLE_ADMIN') %}
-                <a href="{{ path('app_messagrie_my') }}"
-                   class="sidebar-link {{ current_route starts with 'app_messagrie' ? 'active' : '' }}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                    </svg>
-                    Messagerie
-                </a>
-                {% endif %}
-
                 {% if is_granted('ROLE_ADMIN') %}
                 <a href="{{ path('app_quote_index') }}"
                    class="sidebar-link {{ current_route starts with 'app_quote' ? 'active' : '' }}">
