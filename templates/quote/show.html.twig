@@ -26,6 +26,24 @@
             </div>
         </div>
         <div class="detail-header-actions">
+            {% if quote.isConverted %}
+                <a href="{{ path('app_project_show', {'id': quote.project.id}) }}" class="btn btn-secondary" style="background: #ecfdf5; color: #10b981; border: none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 6px;">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    Voir le projet
+                </a>
+            {% else %}
+                <form method="post" action="{{ path('app_quote_convert_to_project', {'id': quote.id}) }}" onsubmit="return confirm('Transformer ce devis en projet ?');" style="display:inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('convert' ~ quote.id) }}">
+                    <button type="submit" class="btn btn-secondary" style="background: #ecfdf5; color: #10b981; border: none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 6px;">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        Transformer en projet
+                    </button>
+                </form>
+            {% endif %}
             <a href="{{ path('app_quote_pdf', {'id': quote.id}) }}" class="btn btn-secondary" target="_blank">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 6px;">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
@@ -72,6 +90,17 @@
                             {{ quote.totalAmount|number_format(2, ',', ' ') }} €
                         </span>
                     </div>
+                    {% if quote.isConverted %}
+                    <div class="detail-field">
+                        <span class="detail-field-label">Projet lié</span>
+                        <span class="detail-field-value detail-field-inline">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                            </svg>
+                            <a href="{{ path('app_project_show', {'id': quote.project.id}) }}">{{ quote.project.title }}</a>
+                        </span>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

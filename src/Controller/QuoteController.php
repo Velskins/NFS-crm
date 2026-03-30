@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Quote;
 use App\Entity\QuoteLine;
+use App\Entity\Project;
 use App\Form\QuoteType;
 use App\Repository\QuoteRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -199,6 +200,26 @@ final class QuoteController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Statut du devis mis à jour.');
+        }
+
+        return $this->redirectToRoute('app_quote_show', ['id' => $quote->getId()]);
+    }
+
+    #[Route('/{id}/convert-to-project', name: 'app_quote_convert_to_project', methods: ['POST'])]
+    public function convertToProject(Request $request, Quote $quote): Response
+    {
+        if ($quote->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException('Vous n\'avez pas accès à ce devis.');
+        }
+
+        if ($quote->isConverted()) {
+            $this->addFlash('warning', 'Ce devis a déjà été transformé en projet.');
+            return $this->redirectToRoute('app_quote_show', ['id' => $quote->getId()]);
+        }
+
+        if ($this->isCsrfTokenValid('convert' . $quote->getId(), $request->getPayload()->getString('_token'))) {
+            // Redirige vers le formulaire de création de projet pré-rempli
+            return $this->redirectToRoute('app_project_new', ['quote_id' => $quote->getId()]);
         }
 
         return $this->redirectToRoute('app_quote_show', ['id' => $quote->getId()]);

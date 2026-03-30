@@ -5,10 +5,12 @@ namespace App\Controller;
 use App\Entity\Project;
 use App\Entity\Document;
 use App\Entity\PaymentSchedule;
+use App\Entity\Quote;
 use App\Entity\Task;
 use App\Form\ProjectType;
 use App\Form\PaymentScheduleType;
 use App\Repository\ProjectRepository;
+use App\Repository\QuoteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -57,26 +59,56 @@ final class ProjectController extends AbstractController
     }
 
     #[Route('/new', name: 'app_project_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, QuoteRepository $quoteRepository): Response
     {
         $project = new Project();
-        $form    = $this->createForm(ProjectType::class, $project);
+        $quote = null;
+
+        // Si on vient d'une conversion de devis → pré-remplir le formulaire
+        $quoteId = $request->query->get('quote_id');
+        if ($quoteId) {
+            $quote = $quoteRepository->find($quoteId);
+            if ($quote && $quote->getUser() === $this->getUser() && !$quote->isConverted()) {
+                $project->setTitle($quote->getSubject() ?: 'Projet issu du devis ' . $quote->getQuoteNumber());
+                $project->setBudget((string) $quote->getTotalAmount());
+                $project->setClient($quote->getClient());
+                $project->setStatus('en_cours');
+            } else {
+                $quote = null; // invalide, on ignore
+            }
+        }
+
+        $form = $this->createForm(ProjectType::class, $project);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $project->setUser($this->getUser());
             $project->setCreatedAt(new \DateTimeImmutable());
+
+            // Lier le devis au projet si conversion
+            if ($quote) {
+                $project->setQuote($quote);
+                if ($quote->getStatus() !== Quote::STATUS_ACCEPTED) {
+                    $quote->setStatus(Quote::STATUS_ACCEPTED);
+                }
+            }
+
             $entityManager->persist($project);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Projet "' . $project->getTitle() . '" créé avec succès.');
+            if ($quote) {
+                $this->addFlash('success', 'Le devis "' . $quote->getQuoteNumber() . '" a été transformé en projet "' . $project->getTitle() . '".');
+            } else {
+                $this->addFlash('success', 'Projet "' . $project->getTitle() . '" créé avec succès.');
+            }
 
-            return $this->redirectToRoute('app_project_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_project_show', ['id' => $project->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('project/new.html.twig', [
             'project' => $project,
             'form'    => $form,
+            'quote'   => $quote,
         ]);
     }
 

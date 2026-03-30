@@ -57,6 +57,10 @@ class Project
     #[ORM\OneToMany(targetEntity: Document::class, mappedBy: 'project')]
     private Collection $documents;
 
+    #[ORM\OneToOne(targetEntity: Quote::class, inversedBy: 'project')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Quote $quote = null;
+
     public function __construct()
     {
         $this->tasks = new ArrayCollection();
@@ -258,5 +262,16 @@ class Project
         }
 
         return (int) round(($done / $tasks->count()) * 100);
+    }
+
+    public function getQuote(): ?Quote
+    {
+        return $this->quote;
+    }
+
+    public function setQuote(?Quote $quote): static
+    {
+        $this->quote = $quote;
+        return $this;
     }
 }

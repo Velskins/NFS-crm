@@ -13,9 +13,22 @@
         <div class="inside-card">
 
             <div class="client-form-header">
-                <h2 class="client-form-title">Nouveau projet</h2>
+                <h2 class="client-form-title">
+                    {% if quote is defined and quote %}
+                        Transformer le devis {{ quote.quoteNumber }} en projet
+                    {% else %}
+                        Nouveau projet
+                    {% endif %}
+                </h2>
                 <a href="{{ path('app_project_index') }}" class="dash-card-link">Retour à la liste</a>
             </div>
+
+            {% if quote is defined and quote %}
+                <div class="alert alert-success" style="margin-bottom: var(--space-4);">
+                    Formulaire pré-rempli depuis le devis <strong>{{ quote.quoteNumber }}</strong> ({{ quote.totalAmount|number_format(2, ',', ' ') }} €).
+                    Vous pouvez ajouter les tâches, échéances et modifier les infos avant de valider.
+                </div>
+            {% endif %}
 
             {% for label, messages in app.flashes %}
                 {% for message in messages %}

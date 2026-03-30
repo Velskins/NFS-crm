@@ -11,7 +11,6 @@
 
     <div class="clients-header">
         <a href="{{ path('app_quote_new') }}" class="btn btn-primary">Nouveau devis</a>
-        <a href="{{ path('app_project_new') }}" class="btn btn-primary">Nouveau projet</a>
     </div>
 
     <div class="card">
@@ -113,6 +112,24 @@
                                         <a href="{{ path('app_quote_pdf', {'id': quote.id}) }}" title="PDF" target="_blank">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                                         </a>
+                                        {% if not quote.isConverted %}
+                                            <form method="post" action="{{ path('app_quote_convert_to_project', {'id': quote.id}) }}" onsubmit="return confirm('Transformer ce devis en projet ?');" style="display:inline">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('convert' ~ quote.id) }}">
+                                                <button type="submit" title="Transformer en projet" style="background:none;border:none;cursor:pointer;color:#10b981;">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <a href="{{ path('app_project_show', {'id': quote.project.id}) }}" title="Voir le projet" style="color:#10b981;">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                                            </a>
+                                        {% endif %}
+                                        <form method="post" action="{{ path('app_quote_delete', {'id': quote.id}) }}" onsubmit="return confirm('Supprimer ce devis ?');" style="display:inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ quote.id) }}">
+                                            <button type="submit" class="clients-action-delete" title="Supprimer">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>

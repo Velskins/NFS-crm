@@ -53,6 +53,9 @@ class Quote
     #[ORM\OneToMany(targetEntity: QuoteLine::class, mappedBy: 'quote', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $lines;
 
+    #[ORM\OneToOne(targetEntity: Project::class, mappedBy: 'quote')]
+    private ?Project $project = null;
+
     public function __construct()
     {
         $this->lines = new ArrayCollection();
@@ -225,5 +228,24 @@ class Quote
             'Accepté' => self::STATUS_ACCEPTED,
             'Refusé' => self::STATUS_REFUSED,
         ];
+    }
+
+    public function getProject(): ?Project
+    {
+        return $this->project;
+    }
+
+    public function setProject(?Project $project): static
+    {
+        if ($project !== null && $project->getQuote() !== $this) {
+            $project->setQuote($this);
+        }
+        $this->project = $project;
+        return $this;
+    }
+
+    public function isConverted(): bool
+    {
+        return $this->project !== null;
     }
 }
