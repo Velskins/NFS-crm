@@ -88,7 +88,7 @@
 {% block body %}
     <div class="detail-header">
         <div class="detail-header-left">
-{% if isFreelance %}
+            {% if isFreelance %}
                 <a href="{{ path('app_client_show', {'id': client.id}) }}" class="detail-back" title="Retour">
             {% else %}
                 <a href="{{ path('app_dashboard') }}" class="detail-back" title="Retour">
@@ -116,15 +116,12 @@
             {# Fil de messages #}
             <div class="chat-container" id="chat-container">
                 {% for message in messages %}
-                    {# Si message.user == client.user (le freelance propriétaire) → message du freelance #}
-                    {% set isFreelanceMsg = (message.user.id == client.user.id) %}
-
-                    <div class="chat-msg {{ isFreelanceMsg ? 'chat-msg--freelance' : 'chat-msg--client' }}">
+                    <div class="chat-msg {{ message.isFromClient ? 'chat-msg--client' : 'chat-msg--freelance' }}">
                         <div class="chat-msg-meta">
-                            {% if isFreelanceMsg %}
-                                {{ message.user.firstname }} (freelance) — {{ message.createdAt|date('d/m/Y à H:i') }}
+                            {% if message.isFromClient %}
+                                {{ client.firstName }} (client) — {{ message.createdAt|date('d/m/Y à H:i') }}
                             {% else %}
-                                {{ client.firstName }} — {{ message.createdAt|date('d/m/Y à H:i') }}
+                                {{ message.user.firstname }} (freelance) — {{ message.createdAt|date('d/m/Y à H:i') }}
                             {% endif %}
                         </div>
                         <div>{{ message.content }}</div>
