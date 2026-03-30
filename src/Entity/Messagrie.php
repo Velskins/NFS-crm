@@ -28,6 +28,9 @@ class Messagrie
     #[ORM\JoinColumn(nullable: false)]
     private ?Client $client = null;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isFromClient = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -78,6 +81,17 @@ class Messagrie
     {
         $this->client = $client;
 
+        return $this;
+    }
+
+    public function isFromClient(): bool
+    {
+        return $this->isFromClient;
+    }
+
+    public function setIsFromClient(bool $isFromClient): static
+    {
+        $this->isFromClient = $isFromClient;
         return $this;
     }
 }
