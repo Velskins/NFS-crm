@@ -1,0 +1,155 @@
+{% extends 'base.html.twig' %}
+{% block title %}Messagerie — {{ client.firstName }} {{ client.lastName }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/detail.css') }}">
+    <style>
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 8px 4px;
+        }
+
+        .chat-msg {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .chat-msg-meta {
+            font-size: 11px;
+            margin-bottom: 4px;
+            opacity: 0.7;
+        }
+
+        /* Messages du freelance — à gauche, gris */
+        .chat-msg--freelance {
+            align-self: flex-start;
+            background: #f3f4f6;
+            color: #1f2937;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-msg--freelance .chat-msg-meta {
+            color: #6b7280;
+        }
+
+        /* Messages du client — à droite, violet */
+        .chat-msg--client {
+            align-self: flex-end;
+            background: #4342CA;
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-msg--client .chat-msg-meta {
+            color: rgba(255, 255, 255, 0.7);
+            text-align: right;
+        }
+
+        .chat-form {
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-textarea {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1.5px solid rgba(194, 192, 191, 0.45);
+            border-radius: 12px;
+            resize: none;
+            font-family: var(--font-family);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-textarea:focus {
+            border-color: #4342CA;
+            box-shadow: 0 0 0 3px rgba(67, 66, 202, 0.1);
+        }
+
+        .chat-empty {
+            color: #6b7280;
+            text-align: center;
+            padding: 40px 0;
+            font-style: italic;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="detail-header">
+        <div class="detail-header-left">
+{% if isFreelance %}
+                <a href="{{ path('app_client_show', {'id': client.id}) }}" class="detail-back" title="Retour">
+            {% else %}
+                <a href="{{ path('app_dashboard') }}" class="detail-back" title="Retour">
+            {% endif %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+            </a>
+            <div>
+                <h1 class="detail-title">Messagerie</h1>
+                <p class="detail-subtitle">
+                    {% if isFreelance %}
+                        {{ client.firstName }} {{ client.lastName }} — {{ client.companyName }}
+                    {% else %}
+                        Conversation avec votre freelance
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="inside-card" style="max-width: 800px; margin: 0 auto;">
+
+            {# Fil de messages #}
+            <div class="chat-container" id="chat-container">
+                {% for message in messages %}
+                    {# Si message.user == client.user (le freelance propriétaire) → message du freelance #}
+                    {% set isFreelanceMsg = (message.user.id == client.user.id) %}
+
+                    <div class="chat-msg {{ isFreelanceMsg ? 'chat-msg--freelance' : 'chat-msg--client' }}">
+                        <div class="chat-msg-meta">
+                            {% if isFreelanceMsg %}
+                                {{ message.user.firstname }} (freelance) — {{ message.createdAt|date('d/m/Y à H:i') }}
+                            {% else %}
+                                {{ client.firstName }} — {{ message.createdAt|date('d/m/Y à H:i') }}
+                            {% endif %}
+                        </div>
+                        <div>{{ message.content }}</div>
+                    </div>
+                {% else %}
+                    <p class="chat-empty">Aucun message pour l'instant. Commencez la conversation !</p>
+                {% endfor %}
+            </div>
+
+            {# Formulaire d'envoi #}
+            <form method="POST"
+                  action="{{ isFreelance ? path('app_messagrie_client', {'id': client.id}) : path('app_messagrie_my') }}"
+                  class="chat-form">
+                <textarea name="content" rows="2" placeholder="Écrire un message..." required class="chat-textarea"></textarea>
+                <button type="submit" class="btn btn-primary" style="align-self: flex-end;">Envoyer</button>
+            </form>
+
+        </div>
+    </div>
+
+    {# Auto-scroll vers le dernier message #}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('chat-container');
+            if (container) container.scrollTop = container.scrollHeight;
+        });
+    </script>
+{% endblock %}
