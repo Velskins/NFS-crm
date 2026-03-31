@@ -34,7 +34,7 @@ class ProjectType extends AbstractType
             ])
             ->add('budget', MoneyType::class, [
                 'label'    => 'Budget',
-                'currency' => 'EUR',
+                'currency' => false,
             ])
             ->add('deadline', DateType::class, [
                 'label'    => 'Date limite',

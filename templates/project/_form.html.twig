@@ -33,15 +33,17 @@
 </div>
 
 <div class="client-form-row">
-    <div class="client-form-field">
-        <label class="client-form-label">Budget Global (€)</label>
-        <div class="client-form-input-wrap">
-            <svg class="client-form-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-            </svg>
-            {{ form_widget(form.budget, {'attr': {'class': 'client-form-input'}}) }}
-        </div>
+<div class="client-form-field">
+    <label class="client-form-label">Budget Global</label>
+    <div class="client-form-input-wrap">
+        <svg class="client-form-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6C16.5 4.5 14.9 4 13 4C8.9 4 6 7.6 6 12C6 16.4 8.9 20 13 20C14.9 20 16.5 19.5 18 18"/>
+            <line x1="3" y1="10" x2="15" y2="10"/>
+            <line x1="3" y1="14" x2="15" y2="14"/>
+        </svg>
+        {{ form_widget(form.budget, {'attr': {'class': 'client-form-input'}}) }}
     </div>
+</div>
     <div class="client-form-field">
         <label class="client-form-label">Client</label>
         <div class="client-form-input-wrap">
