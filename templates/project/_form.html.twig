@@ -1,5 +1,14 @@
 {{ form_start(form, {'attr': {'class': 'client-form', 'id': 'project-form', 'novalidate': 'novalidate'}}) }}
 
+    {# Erreurs globales du formulaire #}
+    {% if form.vars.submitted and not form.vars.valid %}
+        <div class="form-errors-global">
+            Veuillez corriger les erreurs ci-dessous.
+        </div>
+    {% endif %}
+    {{ form_errors(form) }}
+
+    {# ── Ligne 1 : Titre / Statut ── #}
 <div class="client-form-row">
     <div class="client-form-field">
         <label class="client-form-label">Titre du projet</label>

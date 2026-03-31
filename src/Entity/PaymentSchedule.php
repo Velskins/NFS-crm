@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\PaymentScheduleRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PaymentScheduleRepository::class)]
 class PaymentSchedule
@@ -15,9 +16,12 @@ class PaymentSchedule
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    #[Assert\NotBlank(message: 'Le montant est obligatoire.')]
+    #[Assert\Positive(message: 'Le montant doit être supérieur à 0.')]
     private ?string $amount = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'La date d\'échéance est obligatoire.')]
     private ?\DateTimeImmutable $dueDate = null;
 
     #[ORM\Column(nullable: true)]

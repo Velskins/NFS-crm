@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\QuoteLineRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: QuoteLineRepository::class)]
 class QuoteLine
@@ -15,12 +16,15 @@ class QuoteLine
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'La description est obligatoire.')]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    #[Assert\Positive(message: 'La quantité doit être supérieure à 0.')]
     private ?string $quantity = '1';
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    #[Assert\PositiveOrZero(message: 'Le prix unitaire ne peut pas être négatif.')]
     private ?string $unitPrice = '0';
 
     #[ORM\ManyToOne(inversedBy: 'lines')]

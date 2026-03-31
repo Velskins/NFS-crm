@@ -6,6 +6,7 @@ use App\Entity\Client;
 use App\Entity\User;
 use App\Form\ClientType;
 use App\Repository\ClientRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -51,15 +52,25 @@ final class ClientController extends AbstractController
     }
 
     #[Route('/new', name: 'app_client_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, MailerInterface $mailer): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, MailerInterface $mailer, UserRepository $userRepository): Response
     {
         $client = new Client();
         $form = $this->createForm(ClientType::class, $client);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Vérifier que l'email n'est pas déjà utilisé
+            $existingUser = $userRepository->findOneBy(['email' => $client->getEmail()]);
+            if ($existingUser) {
+                $this->addFlash('danger', 'L\'adresse email "' . $client->getEmail() . '" est déjà utilisée par un autre compte.');
+                return $this->render('client/new.html.twig', [
+                    'client' => $client,
+                    'form' => $form,
+                ]);
+            }
+
             $client->setUser($this->getUser());
-            $client->setPwd('pending'); // sera défini par le client via l'email
+            $client->setPwd('pending');
 
             // Créer un compte User (ROLE_CLIENT) lié à ce client
             $userAccount = new User();
@@ -67,7 +78,7 @@ final class ClientController extends AbstractController
             $userAccount->setFirstname($client->getFirstName());
             $userAccount->setLastname($client->getLastName());
             $userAccount->setRoles(['ROLE_CLIENT']);
-            $userAccount->setPassword(''); // pas de mot de passe encore
+            $userAccount->setPassword('');
 
             // Générer un token d'invitation (valable 48h)
             $token = bin2hex(random_bytes(32));
@@ -77,9 +88,17 @@ final class ClientController extends AbstractController
             // Lier User ↔ Client
             $client->setUserAccount($userAccount);
 
-            $entityManager->persist($userAccount);
-            $entityManager->persist($client);
-            $entityManager->flush();
+            try {
+                $entityManager->persist($userAccount);
+                $entityManager->persist($client);
+                $entityManager->flush();
+            } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
+                $this->addFlash('danger', 'L\'adresse email "' . $client->getEmail() . '" est déjà utilisée.');
+                return $this->render('client/new.html.twig', [
+                    'client' => $client,
+                    'form' => $form,
+                ]);
+            }
 
             // Envoyer l'email d'invitation
             $setupUrl = $this->generateUrl('app_setup_password', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);

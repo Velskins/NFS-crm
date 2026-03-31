@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\AppointmentRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AppointmentRepository::class)]
 class Appointment
@@ -15,6 +16,7 @@ class Appointment
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'La date et l\'heure du rendez-vous sont obligatoires.')]
     private ?\DateTimeImmutable $scheduleAt = null;
 
     #[ORM\Column(type: Types::TEXT)]
