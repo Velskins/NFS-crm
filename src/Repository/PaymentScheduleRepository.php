@@ -16,28 +16,54 @@ class PaymentScheduleRepository extends ServiceEntityRepository
         parent::__construct($registry, PaymentSchedule::class);
     }
 
-    //    /**
-    //     * @return PaymentSchedule[] Returns an array of PaymentSchedule objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * Somme des échéances PAYÉES dans l'année en cours pour un user.
+     */
+    public function getAnnualRevenue(\App\Entity\User $user): float
+    {
+        $year = (int) date('Y');
+        $start = new \DateTimeImmutable($year . '-01-01');
+        $end = new \DateTimeImmutable(($year + 1) . '-01-01');
 
-    //    public function findOneBySomeField($value): ?PaymentSchedule
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        $result = $this->createQueryBuilder('ps')
+            ->select('SUM(ps.amount)')
+            ->join('ps.project', 'p')
+            ->where('p.user = :user')
+            ->andWhere('ps.status = :status')
+            ->andWhere('ps.paidAt >= :start')
+            ->andWhere('ps.paidAt < :end')
+            ->setParameter('user', $user)
+            ->setParameter('status', 'paye')
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (float) ($result ?? 0);
+    }
+
+    /**
+     * Somme de TOUTES les échéances prévues dans l'année en cours pour un user
+     * (payées ou non — c'est l'objectif annuel).
+     */
+    public function getAnnualTarget(\App\Entity\User $user): float
+    {
+        $year = (int) date('Y');
+        $start = new \DateTimeImmutable($year . '-01-01');
+        $end = new \DateTimeImmutable(($year + 1) . '-01-01');
+
+        $result = $this->createQueryBuilder('ps')
+            ->select('SUM(ps.amount)')
+            ->join('ps.project', 'p')
+            ->where('p.user = :user')
+            ->andWhere('ps.dueDate >= :start')
+            ->andWhere('ps.dueDate < :end')
+            ->setParameter('user', $user)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (float) ($result ?? 0);
+    }
 }
