@@ -60,37 +60,13 @@
             text-overflow: ellipsis;
         }
 
-        /* ── Légende ── */
-        .calendar-legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 20px;
-            padding: 16px 20px;
-            background: white;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-card);
-        }
-        .calendar-legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: var(--font-size-sm);
-            color: var(--color-text);
-        }
-        .calendar-legend-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
         /* ── Filtres ── */
         .calendar-filters {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
             margin-bottom: 20px;
+            margin-top: 10px;
         }
         .calendar-filter-btn {
             display: flex;
@@ -181,28 +157,6 @@
             <span class="calendar-filter-dot" style="background: #EF4444;"></span>
             Paiements
         </button>
-    </div>
-
-    {# ── LÉGENDE ── #}
-    <div class="calendar-legend">
-        <div class="calendar-legend-item">
-            <span class="calendar-legend-dot" style="background: #7C3AED;"></span> Rendez-vous
-        </div>
-        <div class="calendar-legend-item">
-            <span class="calendar-legend-dot" style="background: #3B82F6;"></span> Tâche (deadline)
-        </div>
-        <div class="calendar-legend-item">
-            <span class="calendar-legend-dot" style="background: #10B981;"></span> Deadline projet
-        </div>
-        <div class="calendar-legend-item">
-            <span class="calendar-legend-dot" style="background: #F59E0B;"></span> Expiration devis
-        </div>
-        <div class="calendar-legend-item">
-            <span class="calendar-legend-dot" style="background: #EF4444;"></span> Échéance paiement
-        </div>
-        <div class="calendar-legend-item">
-            <span class="calendar-legend-dot" style="background: #9CA3AF;"></span> Terminé / Payé
-        </div>
     </div>
 
     {# ── CALENDRIER ── #}
