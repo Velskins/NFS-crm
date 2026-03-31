@@ -219,10 +219,10 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('turbo:load', function () {
             const calendarEl = document.getElementById('calendar');
-            const tooltip = document.getElementById('calendar-tooltip');
-            if (!calendarEl) return;
+            if (!calendarEl || calendarEl.dataset.initialized) return;
+            calendarEl.dataset.initialized = 'true';
 
             let allEvents = [];
             let activeFilters = new Set(['appointment', 'task', 'project_deadline', 'quote_expiry', 'payment']);
