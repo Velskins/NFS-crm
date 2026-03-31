@@ -18,19 +18,21 @@
         <div class="dash-kpi">
             <div class="dash-kpi-inner">
                 <div class="dash-kpi-ring">
-                    {# Cercle SVG — circumference = 2π × 34 ≈ 213.6, 51% = 108.9 #}
+                    {# Cercle SVG — circumference = 2π × 34 ≈ 213.6 #}
+                    {% set circumference = 213.6 %}
+                    {% set offset = circumference * (1 - revenue_percent / 100) %}
                     <svg viewBox="0 0 80 80">
                         <circle class="dash-kpi-ring-bg" cx="40" cy="40" r="34"/>
                         <circle class="dash-kpi-ring-fill" cx="40" cy="40" r="34"
-                                stroke-dasharray="213.6"
-                                stroke-dashoffset="104.7"/>
+                                stroke-dasharray="{{ circumference }}"
+                                stroke-dashoffset="{{ offset }}"/>
                     </svg>
-                    <span class="dash-kpi-ring-label">51%</span>
+                    <span class="dash-kpi-ring-label">{{ revenue_percent }}%</span>
                 </div>
                 <div class="dash-kpi-value">
-                    37,500<span>/73,000</span>
+                    {{ annual_revenue|number_format(0, ',', ' ') }}<span>/{{ annual_target|number_format(0, ',', ' ') }} €</span>
                 </div>
-                <div class="dash-kpi-label">Revenu annuel Max</br>(STATIQUE A CHANGER)</div>
+                <div class="dash-kpi-label">Revenu annuel {{ "now"|date("Y") }}</div>
             </div>
         </div>
 

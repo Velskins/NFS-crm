@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\ClientRepository;
+use App\Repository\PaymentScheduleRepository;
 use App\Repository\ProjectRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,7 +14,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class DashboardController extends AbstractController
 {
     #[Route('/dashboard', name: 'app_dashboard')]
-    public function index(ClientRepository $clientRepository, ProjectRepository $projectRepository): Response
+    public function index(ClientRepository $clientRepository, ProjectRepository $projectRepository, PaymentScheduleRepository $paymentRepository): Response
     {
         $user = $this->getUser();
 
@@ -51,11 +52,18 @@ class DashboardController extends AbstractController
             'status' => 'en_cours'
         ]);
 
+        $annualRevenue = $paymentRepository->getAnnualRevenue($user);
+        $annualTarget = 73000;
+        $revenuePercent = $annualTarget > 0 ? (int) round(($annualRevenue / $annualTarget) * 100) : 0;
+
         return $this->render('dashboard/index.html.twig', [
-            'clients'        => $latestClients,
-            'total_clients'  => $totalClients,
-            'projects'       => $latestProjects,
-            'total_projects' => $totalProjects, 
+            'clients'         => $latestClients,
+            'total_clients'   => $totalClients,
+            'projects'        => $latestProjects,
+            'total_projects'  => $totalProjects,
+            'annual_revenue'  => $annualRevenue,
+            'annual_target'   => $annualTarget,
+            'revenue_percent' => $revenuePercent,
         ]);
             }
         }
