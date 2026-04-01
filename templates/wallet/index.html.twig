@@ -1,0 +1,330 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Porte-monnaie — Sphera{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/wallet.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="wallet-page">
+
+    {# ── TITRE ── #}
+    <div class="wallet-header">
+        <div>
+            <h1 class="wallet-title">Porte-monnaie</h1>
+            <p class="wallet-subtitle">Vue financière complète de votre activité</p>
+        </div>
+        <div class="wallet-year-badge">{{ "now"|date("Y") }}</div>
+    </div>
+
+    {# ── KPI CARDS ── #}
+    <div class="wallet-kpis">
+
+        <div class="wkpi wkpi--green">
+            <div class="wkpi-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+            </div>
+            <div class="wkpi-body">
+                <span class="wkpi-label">Encaissé</span>
+                <span class="wkpi-value">{{ totalCollected|number_format(2, ',', ' ') }} €</span>
+                <span class="wkpi-sub">Taux de recouvrement : {{ recoveryRate }}%</span>
+            </div>
+            <div class="wkpi-bar">
+                <div class="wkpi-bar-fill" style="width: {{ recoveryRate }}%"></div>
+            </div>
+        </div>
+
+        <div class="wkpi wkpi--blue">
+            <div class="wkpi-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+            </div>
+            <div class="wkpi-body">
+                <span class="wkpi-label">En attente</span>
+                <span class="wkpi-value">{{ totalPending|number_format(2, ',', ' ') }} €</span>
+                <span class="wkpi-sub">Échéances à venir</span>
+            </div>
+        </div>
+
+        <div class="wkpi wkpi--red">
+            <div class="wkpi-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </div>
+            <div class="wkpi-body">
+                <span class="wkpi-label">En retard</span>
+                <span class="wkpi-value">{{ totalOverdue|number_format(2, ',', ' ') }} €</span>
+                <span class="wkpi-sub">Échéances dépassées</span>
+            </div>
+        </div>
+
+        <div class="wkpi wkpi--purple">
+            <div class="wkpi-icon">
+            </div>
+            <div class="wkpi-body">
+                <span class="wkpi-label">CA Total contractualisé</span>
+                <span class="wkpi-value">{{ totalContracted|number_format(2, ',', ' ') }} €</span>
+                <span class="wkpi-sub">Tous projets confondus</span>
+            </div>
+        </div>
+
+    </div>
+
+    {# ── GRAPHIQUES ── #}
+    <div class="wallet-charts">
+
+        {# Graphique barres — revenus mensuels #}
+        <div class="wchart-card wchart-card--large">
+            <div class="wchart-header">
+                <h2 class="wchart-title">Revenus encaissés par mois</h2>
+                <span class="wchart-badge">12 derniers mois</span>
+            </div>
+            <div class="wchart-body">
+                <canvas id="chartMonthly" height="260"></canvas>
+            </div>
+        </div>
+
+        {# Camembert — répartition par statut projet #}
+        <div class="wchart-card">
+            <div class="wchart-header">
+                <h2 class="wchart-title">Répartition par statut</h2>
+                <span class="wchart-badge">CA encaissé</span>
+            </div>
+            <div class="wchart-body wchart-body--pie">
+                <canvas id="chartStatus" height="220"></canvas>
+            </div>
+            <div class="wchart-legend" id="legendStatus"></div>
+        </div>
+
+    </div>
+
+    {# ── LIGNE 3 : Top clients + prochaines échéances ── #}
+    <div class="wallet-bottom">
+
+        {# Top clients #}
+        <div class="wchart-card">
+            <div class="wchart-header">
+                <h2 class="wchart-title">Top clients</h2>
+                <span class="wchart-badge">CA encaissé</span>
+            </div>
+            <div class="wchart-body">
+                {% if topClients is empty %}
+                    <p class="wallet-empty">Aucune donnée disponible</p>
+                {% else %}
+                    {% set maxClient = topClients[0].total %}
+                    <ul class="wrank-list">
+                        {% for client in topClients %}
+                        <li class="wrank-item">
+                            <span class="wrank-pos">{{ loop.index }}</span>
+                            <div class="wrank-info">
+                                <span class="wrank-name">{{ client.name }}</span>
+                                <div class="wrank-bar-wrap">
+                                    <div class="wrank-bar-fill" style="width: {{ maxClient > 0 ? (client.total / maxClient * 100)|round : 0 }}%"></div>
+                                </div>
+                            </div>
+                            <span class="wrank-amount">{{ client.total|number_format(0, ',', ' ') }} €</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Prochaines échéances #}
+        <div class="wchart-card">
+            <div class="wchart-header">
+                <h2 class="wchart-title">Prochaines échéances</h2>
+                <span class="wchart-badge">30 jours</span>
+            </div>
+            <div class="wchart-body">
+                {% if upcomingPayments is empty %}
+                    <p class="wallet-empty">Aucune échéance dans les 30 prochains jours 🎉</p>
+                {% else %}
+                    <ul class="wdue-list">
+                        {% for ps in upcomingPayments %}
+                        {% set daysLeft = (ps.dueDate.timestamp - date().timestamp) / 86400 %}
+                        <li class="wdue-item">
+                            <div class="wdue-left">
+                                <span class="wdue-project">{{ ps.project.title }}</span>
+                                <span class="wdue-client">{{ ps.project.client.companyName }}</span>
+                            </div>
+                            <div class="wdue-right">
+                                <span class="wdue-amount">{{ ps.amount|number_format(2, ',', ' ') }} €</span>
+                                <span class="wdue-date {{ daysLeft <= 7 ? 'wdue-date--urgent' : '' }}">
+                                    {{ ps.dueDate|date('d/m/Y') }}
+                                    {% if daysLeft <= 7 %}
+                                        <span class="wdue-pill">{{ daysLeft|round }}j</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    {# ── ACTIVITÉ RÉCENTE ── #}
+    <div class="wchart-card wallet-activity">
+        <div class="wchart-header">
+            <h2 class="wchart-title">Activité récente — Encaissements</h2>
+            <span class="wchart-badge">8 derniers</span>
+        </div>
+        <div class="wchart-body">
+            {% if recentPayments is empty %}
+                <p class="wallet-empty">Aucun encaissement enregistré pour l'instant.</p>
+            {% else %}
+                <table class="wactivity-table">
+                    <thead>
+                        <tr>
+                            <th>Projet</th>
+                            <th>Client</th>
+                            <th>Montant</th>
+                            <th>Date d'encaissement</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ps in recentPayments %}
+                        <tr>
+                            <td>
+                                <a href="{{ path('app_project_show', {id: ps.project.id}) }}" class="wactivity-link">
+                                    {{ ps.project.title }}
+                                </a>
+                            </td>
+                            <td>{{ ps.project.client.companyName }}</td>
+                            <td class="wactivity-amount">{{ ps.amount|number_format(2, ',', ' ') }} €</td>
+                            <td>{{ ps.paidAt|date('d/m/Y') }}</td>
+                            <td><span class="badge badge--success">Payé</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+{# ── DONNÉES JSON pour Chart.js ── #}
+<script>
+    const monthlyData = {{ monthlyRevenue|json_encode|raw }};
+    const statusData  = {{ projectsByStatus|json_encode|raw }};
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+
+    const palette = ['#6026DA','#4342CA','#27AE60','#F39C12','#E74C3C','#2980B9','#9A55FF'];
+
+    // ── Graphique barres — Revenus mensuels ─────────────────────────────────
+    const ctxBar = document.getElementById('chartMonthly');
+    if (ctxBar && monthlyData.length) {
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels:   monthlyData.map(d => d.month),
+                datasets: [{
+                    label:           'Encaissé (€)',
+                    data:            monthlyData.map(d => d.total),
+                    backgroundColor: 'rgba(96, 38, 218, 0.18)',
+                    borderColor:     '#6026DA',
+                    borderWidth:     2,
+                    borderRadius:    8,
+                    borderSkipped:   false,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ' ' + ctx.parsed.y.toLocaleString('fr-FR', {minimumFractionDigits:2}) + ' €'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.05)' },
+                        ticks: {
+                            callback: v => v.toLocaleString('fr-FR') + ' €',
+                            font: { family: 'Outfit', size: 12 }
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Outfit', size: 12 } }
+                    }
+                }
+            }
+        });
+    }
+
+    // ── Camembert — Répartition par statut ──────────────────────────────────
+    const ctxPie = document.getElementById('chartStatus');
+    const legendEl = document.getElementById('legendStatus');
+
+    const statusLabels = {
+        'en_cours': 'En cours',
+        'termine':  'Terminé',
+        'livre':    'Livré',
+        'en_attente': 'En attente',
+    };
+
+    if (ctxPie && statusData.length) {
+        const labels = statusData.map(d => statusLabels[d.status] ?? d.status);
+        const values = statusData.map(d => d.total);
+
+        new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels,
+                datasets: [{
+                    data:            values,
+                    backgroundColor: palette.slice(0, values.length),
+                    borderWidth:     3,
+                    borderColor:     '#F2F0EF',
+                    hoverOffset:     6,
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '62%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ' ' + ctx.parsed.toLocaleString('fr-FR', {minimumFractionDigits:2}) + ' €'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Légende custom
+        labels.forEach((lbl, i) => {
+            const item = document.createElement('div');
+            item.className = 'wlegend-item';
+            item.innerHTML = `<span class="wlegend-dot" style="background:${palette[i]}"></span><span>${lbl}</span><strong>${values[i].toLocaleString('fr-FR', {minimumFractionDigits:2})} €</strong>`;
+            legendEl.appendChild(item);
+        });
+    } else if (ctxPie) {
+        ctxPie.parentElement.innerHTML = '<p class="wallet-empty">Aucune donnée disponible</p>';
+    }
+
+})();
+</script>
+{% endblock %}
