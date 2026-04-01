@@ -56,15 +56,15 @@
                         <span class="detail-field-value">
                             {% set s = project.status|lower %}
                             {% if s == 'en cours' or s == 'en_cours' %}
-                                <span class="detail-status detail-status--en-cours">En cours</span>
-                            {% elseif s == 'en attente' or s == 'en_attente' %}
-                                <span class="detail-status detail-status--attente">En attente</span>
-                            {% elseif s == 'fini' or s == 'terminé' or s == 'termine' %}
-                                <span class="detail-status detail-status--fini">Fini</span>
-                            {% elseif s == 'annulé' or s == 'annule' %}
-                                <span class="detail-status detail-status--annule">Annulé</span>
-                            {% else %}
-                                <span class="detail-status detail-status--attente">{{ project.status }}</span>
+                                <span id="project-status-badge" class="detail-status detail-status--en-cours">En cours</span>
+{% elseif s == 'en attente' or s == 'en_attente' %}
+                                <span id="project-status-badge" class="detail-status detail-status--attente">En attente</span>
+{% elseif s == 'fini' or s == 'terminé' or s == 'termine' %}
+                                <span id="project-status-badge" class="detail-status detail-status--fini">Terminé</span>
+{% elseif s == 'annulé' or s == 'annule' %}
+                                <span id="project-status-badge" class="detail-status detail-status--annule">Annulé</span>
+{% else %}
+                                <span id="project-status-badge" class="detail-status detail-status--attente">{{ project.status }}</span>
                             {% endif %}
                         </span>
                     </div>
@@ -335,7 +335,22 @@
                     if (bar) bar.style.width = progress + '%';
                     if (count) count.textContent = doneTasks + '/' + totalTasks + ' tâches';
 
-                    fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                    fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(response => response.json())
+                        .then(data => {
+                            // Mise à jour du badge statut du PROJET
+                            const projectBadge = document.getElementById('project-status-badge');
+                            if (projectBadge && data.projectStatus) {
+                                const s = data.projectStatus.toLowerCase();
+                                if (s === 'terminé' || s === 'termine') {
+                                    projectBadge.textContent = 'Terminé';
+                                    projectBadge.className = 'detail-status detail-status--fini';
+                                } else if (s === 'en_cours' || s === 'en cours') {
+                                    projectBadge.textContent = 'En cours';
+                                    projectBadge.className = 'detail-status detail-status--en-cours';
+                                }
+                            }
+                        });
                 });
             });
 

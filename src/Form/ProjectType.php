@@ -28,6 +28,7 @@ class ProjectType extends AbstractType
                 'label'   => 'Statut',
                 'choices' => [
                     'En cours' => 'en_cours',
+                    'Terminé'  => 'terminé',
                     'Livré'    => 'livre',
                     'Payé'     => 'paye',
                 ]
