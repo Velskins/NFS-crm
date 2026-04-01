@@ -286,12 +286,19 @@ final class ProjectController extends AbstractController
         $project = $task->getProject();
         $entityManager->flush();
 
-        if ($project->getProgress() === 100 && strtolower($project->getStatus()) === 'en_cours') {
-            $project->setStatus('livre');
-            $entityManager->flush();
-        } elseif ($project->getProgress() < 100 && $project->getStatus() === 'livre') {
-            $project->setStatus('en_cours');
-            $entityManager->flush();
+        $progress = $project->getProgress();
+        $currentStatus = strtolower($project->getStatus());
+
+        if ($progress === 100) {
+            if (!in_array($currentStatus, ['livre', 'paye'])) {
+                $project->setStatus('terminé');
+                $entityManager->flush();
+            }
+        } else {
+            if (in_array($currentStatus, ['terminé', 'termine'])) {
+                $project->setStatus('en_cours');
+                $entityManager->flush();
+            }
         }
 
         return $this->json([
