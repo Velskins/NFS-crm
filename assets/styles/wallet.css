@@ -1,0 +1,424 @@
+/* ============================================================
+   SPHERA — Wallet (Porte-monnaie)
+   Dépend de app.css
+   ============================================================ */
+
+/* ── PAGE ── */
+.wallet-page {
+    display:        flex;
+    flex-direction: column;
+    gap:            var(--space-6);
+    padding:        var(--space-2) 0 var(--space-10);
+    max-width:      var(--content-max-width);
+}
+
+/* ── HEADER ── */
+.wallet-header {
+    display:     flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.wallet-title {
+    font-size:   var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color:       var(--color-text);
+    line-height: var(--line-height-tight);
+}
+
+.wallet-subtitle {
+    font-size: var(--font-size-sm);
+    color:     var(--color-text-muted);
+    margin-top: var(--space-1);
+}
+
+.wallet-year-badge {
+    background:    linear-gradient(135deg, var(--color-sidebar-top), var(--color-sidebar-bot));
+    color:         #fff;
+    font-size:     var(--font-size-md);
+    font-weight:   var(--font-weight-bold);
+    padding:       var(--space-2) var(--space-5);
+    border-radius: var(--radius-full);
+}
+
+/* ── KPI GRID ── */
+.wallet-kpis {
+    display:               grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap:                   var(--space-5);
+}
+
+@media (max-width: 1100px) {
+    .wallet-kpis { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+    .wallet-kpis { grid-template-columns: 1fr; }
+}
+
+/* ── KPI CARD ── */
+.wkpi {
+    background:    var(--color-surface);
+    border-radius: var(--radius-xl);
+    box-shadow:    var(--shadow-card);
+    padding:       var(--space-5);
+    display:       flex;
+    flex-direction: column;
+    gap:            var(--space-3);
+    position:       relative;
+    overflow:       hidden;
+}
+
+.wkpi-icon {
+    width:         44px;
+    height:        44px;
+    border-radius: var(--radius-md);
+    display:       flex;
+    align-items:   center;
+    justify-content: center;
+    flex-shrink:   0;
+}
+
+.wkpi-icon svg {
+    width:  22px;
+    height: 22px;
+    stroke: #fff;
+}
+
+.wkpi--green .wkpi-icon  { background: var(--color-success); }
+.wkpi--blue .wkpi-icon   { background: var(--color-info); }
+.wkpi--red .wkpi-icon    { background: var(--color-danger); }
+.wkpi--purple .wkpi-icon { background: var(--color-sidebar-top); }
+
+.wkpi-body {
+    display:        flex;
+    flex-direction: column;
+    gap:            var(--space-1);
+}
+
+.wkpi-label {
+    font-size:   var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    color:       var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.wkpi-value {
+    font-size:   var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color:       var(--color-text);
+    line-height: var(--line-height-tight);
+}
+
+.wkpi-sub {
+    font-size: var(--font-size-xs);
+    color:     var(--color-text-muted);
+}
+
+/* Barre de progression (KPI encaissé) */
+.wkpi-bar {
+    height:        6px;
+    background:    rgba(0,0,0,0.07);
+    border-radius: var(--radius-full);
+    overflow:      hidden;
+    margin-top:    var(--space-1);
+}
+
+.wkpi-bar-fill {
+    height:        100%;
+    background:    var(--color-success);
+    border-radius: var(--radius-full);
+    transition:    width 0.8s ease;
+    max-width:     100%;
+}
+
+/* ── CHARTS GRID ── */
+.wallet-charts {
+    display:               grid;
+    grid-template-columns: 2fr 1fr;
+    gap:                   var(--space-5);
+}
+
+@media (max-width: 900px) {
+    .wallet-charts { grid-template-columns: 1fr; }
+}
+
+/* ── BOTTOM GRID ── */
+.wallet-bottom {
+    display:               grid;
+    grid-template-columns: 1fr 1fr;
+    gap:                   var(--space-5);
+}
+
+@media (max-width: 900px) {
+    .wallet-bottom { grid-template-columns: 1fr; }
+}
+
+/* ── CHART CARD (conteneur générique) ── */
+.wchart-card {
+    background:    var(--color-surface);
+    border-radius: var(--radius-xl);
+    box-shadow:    var(--shadow-card);
+    padding:       var(--space-6);
+    display:       flex;
+    flex-direction: column;
+    gap:            var(--space-4);
+}
+
+.wchart-card--large { /* déjà géré par grid-column 2fr */ }
+
+.wchart-header {
+    display:     flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap:   wrap;
+    gap:         var(--space-2);
+}
+
+.wchart-title {
+    font-size:   var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    color:       var(--color-text);
+}
+
+.wchart-badge {
+    font-size:     var(--font-size-xs);
+    font-weight:   var(--font-weight-medium);
+    color:         var(--color-primary);
+    background:    var(--color-primary-light);
+    padding:       2px var(--space-3);
+    border-radius: var(--radius-full);
+}
+
+.wchart-body { flex: 1; }
+
+.wchart-body--pie {
+    display:         flex;
+    justify-content: center;
+    max-height:      240px;
+}
+
+/* Légende camembert custom */
+.wchart-legend {
+    display:        flex;
+    flex-direction: column;
+    gap:            var(--space-2);
+    padding-top:    var(--space-2);
+    border-top:     1px solid rgba(0,0,0,0.06);
+}
+
+.wlegend-item {
+    display:     flex;
+    align-items: center;
+    gap:         var(--space-2);
+    font-size:   var(--font-size-sm);
+    color:       var(--color-text);
+}
+
+.wlegend-item strong {
+    margin-left: auto;
+    font-weight: var(--font-weight-bold);
+    color:       var(--color-text);
+}
+
+.wlegend-dot {
+    width:         10px;
+    height:        10px;
+    border-radius: 50%;
+    flex-shrink:   0;
+}
+
+/* ── TOP CLIENTS ── */
+.wrank-list {
+    list-style: none;
+    display:    flex;
+    flex-direction: column;
+    gap:        var(--space-3);
+}
+
+.wrank-item {
+    display:     flex;
+    align-items: center;
+    gap:         var(--space-3);
+}
+
+.wrank-pos {
+    width:           26px;
+    height:          26px;
+    border-radius:   50%;
+    background:      var(--color-primary-light);
+    color:           var(--color-primary);
+    font-size:       var(--font-size-xs);
+    font-weight:     var(--font-weight-bold);
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    flex-shrink:     0;
+}
+
+.wrank-info {
+    flex:    1;
+    display: flex;
+    flex-direction: column;
+    gap:     var(--space-1);
+    min-width: 0;
+}
+
+.wrank-name {
+    font-size:     var(--font-size-sm);
+    font-weight:   var(--font-weight-medium);
+    color:         var(--color-text);
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
+
+.wrank-bar-wrap {
+    height:        4px;
+    background:    rgba(0,0,0,0.07);
+    border-radius: var(--radius-full);
+    overflow:      hidden;
+}
+
+.wrank-bar-fill {
+    height:        100%;
+    background:    linear-gradient(90deg, var(--color-sidebar-top), var(--color-sidebar-bot));
+    border-radius: var(--radius-full);
+    transition:    width 0.6s ease;
+}
+
+.wrank-amount {
+    font-size:   var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    color:       var(--color-text);
+    white-space: nowrap;
+}
+
+/* ── PROCHAINES ÉCHÉANCES ── */
+.wdue-list {
+    list-style:     none;
+    display:        flex;
+    flex-direction: column;
+    gap:            var(--space-3);
+}
+
+.wdue-item {
+    display:     flex;
+    align-items: center;
+    justify-content: space-between;
+    gap:         var(--space-3);
+    padding:     var(--space-3) var(--space-4);
+    background:  rgba(67,66,202,0.04);
+    border-radius: var(--radius-md);
+    border-left:  3px solid var(--color-primary);
+}
+
+.wdue-left {
+    display:        flex;
+    flex-direction: column;
+    gap:            2px;
+    min-width:      0;
+}
+
+.wdue-project {
+    font-size:     var(--font-size-sm);
+    font-weight:   var(--font-weight-medium);
+    color:         var(--color-text);
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
+
+.wdue-client {
+    font-size: var(--font-size-xs);
+    color:     var(--color-text-muted);
+}
+
+.wdue-right {
+    display:        flex;
+    flex-direction: column;
+    align-items:    flex-end;
+    gap:            2px;
+    flex-shrink:    0;
+}
+
+.wdue-amount {
+    font-size:   var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    color:       var(--color-text);
+}
+
+.wdue-date {
+    font-size: var(--font-size-xs);
+    color:     var(--color-text-muted);
+    display:   flex;
+    align-items: center;
+    gap:       var(--space-1);
+}
+
+.wdue-date--urgent { color: var(--color-danger); font-weight: var(--font-weight-medium); }
+
+.wdue-pill {
+    background:    var(--color-danger);
+    color:         #fff;
+    font-size:     10px;
+    font-weight:   var(--font-weight-bold);
+    padding:       1px 6px;
+    border-radius: var(--radius-full);
+}
+
+/* ── ACTIVITÉ RÉCENTE ── */
+.wallet-activity { width: 100%; }
+
+.wactivity-table {
+    width:           100%;
+    border-collapse: collapse;
+    font-size:       var(--font-size-sm);
+}
+
+.wactivity-table thead th {
+    text-align:    left;
+    padding:       var(--space-3) var(--space-4);
+    font-size:     var(--font-size-xs);
+    font-weight:   var(--font-weight-medium);
+    color:         var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+}
+
+.wactivity-table tbody tr {
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    transition:    background var(--transition-fast);
+}
+
+.wactivity-table tbody tr:last-child { border-bottom: none; }
+.wactivity-table tbody tr:hover { background: rgba(67,66,202,0.03); }
+
+.wactivity-table tbody td {
+    padding:    var(--space-3) var(--space-4);
+    color:      var(--color-text);
+    vertical-align: middle;
+}
+
+.wactivity-link {
+    color:           var(--color-primary);
+    text-decoration: none;
+    font-weight:     var(--font-weight-medium);
+}
+
+.wactivity-link:hover { text-decoration: underline; }
+
+.wactivity-amount {
+    font-weight: var(--font-weight-bold);
+    color:       var(--color-success);
+}
+
+/* ── EMPTY STATE ── */
+.wallet-empty {
+    font-size:  var(--font-size-sm);
+    color:      var(--color-text-muted);
+    text-align: center;
+    padding:    var(--space-6) 0;
+    font-style: italic;
+}
