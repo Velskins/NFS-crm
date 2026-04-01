@@ -6,7 +6,7 @@
     <h1>Nouvelle échéance</h1>
     <h2>Projet : {{ project.title }}</h2>
 
-    {{ form_start(form) }}
+    {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
     {{ form_row(form.amount) }}
     {{ form_row(form.dueDate) }}
     {{ form_row(form.paidAt) }}

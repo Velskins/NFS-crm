@@ -152,6 +152,12 @@ final class ClientController extends AbstractController
             return $this->redirectToRoute('app_client_index', [], Response::HTTP_SEE_OTHER);
         }
 
+        if ($form->isSubmitted() && !$form->isValid()) {
+            foreach ($form->getErrors(true) as $error) {
+                $this->addFlash('danger', $error->getMessage());
+            }
+        }
+
         return $this->render('client/edit.html.twig', [
             'client' => $client,
             'form' => $form,

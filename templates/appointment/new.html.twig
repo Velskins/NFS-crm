@@ -18,7 +18,7 @@
 
     <div class="card">
         <div class="inside-card">
-            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'data-turbo': 'false'}}) }}
 
             {% if form.vars.submitted and not form.vars.valid %}
                 <div class="form-errors-global">
