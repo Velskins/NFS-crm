@@ -505,3 +505,305 @@
     gap:            var(--space-2);
   }
 }
+
+
+/* ============================================================
+   TABS CLIENT
+   ============================================================ */
+
+.client-tabs-wrapper {
+  margin-bottom: var(--space-8);
+}
+
+.client-tabs-nav {
+  display:         flex;
+  align-items:     center;
+  gap:             var(--space-2);
+  margin-bottom:   var(--space-5);
+  background:      var(--color-surface);
+  border-radius:   var(--radius-xl);
+  padding:         var(--space-2);
+  box-shadow:      var(--shadow-card);
+}
+
+.client-tab-btn {
+  display:         flex;
+  align-items:     center;
+  gap:             var(--space-2);
+  padding:         var(--space-3) var(--space-5);
+  border:          none;
+  border-radius:   var(--radius-lg);
+  background:      transparent;
+  color:           var(--color-text-muted);
+  font-family:     var(--font-family);
+  font-size:       var(--font-size-sm);
+  font-weight:     var(--font-weight-semi);
+  cursor:          pointer;
+  transition:      all var(--transition-fast);
+  white-space:     nowrap;
+}
+
+.client-tab-btn svg {
+  width:  18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.client-tab-btn:hover {
+  color:      var(--color-text);
+  background: rgba(67,66,202,0.06);
+}
+
+.client-tab-btn.active {
+  background:  var(--color-primary);
+  color:       #fff;
+  box-shadow:  var(--shadow-btn);
+}
+
+.client-tab-badge {
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  min-width:       20px;
+  height:          20px;
+  padding:         0 6px;
+  border-radius:   var(--radius-full);
+  font-size:       11px;
+  font-weight:     var(--font-weight-bold);
+  background:      rgba(255,255,255,0.25);
+  color:           inherit;
+  line-height:     1;
+}
+
+.client-tab-btn:not(.active) .client-tab-badge {
+  background: rgba(67,66,202,0.12);
+  color:      var(--color-primary);
+}
+
+.client-tab-badge--warning {
+  background: var(--color-warning-bg) !important;
+  color:      var(--color-warning) !important;
+}
+
+.client-tab-btn.active .client-tab-badge--warning {
+  background: rgba(255,255,255,0.3) !important;
+  color:      #fff !important;
+}
+
+.client-tab-panel {
+  display: none;
+}
+
+.client-tab-panel.active {
+  display: block;
+}
+
+
+/* ── RÉCAP STRIP (dans le tab Projets) ── */
+.client-recap-strip {
+  display:         flex;
+  align-items:     center;
+  gap:             var(--space-6);
+  padding:         var(--space-4) var(--space-5);
+  background:      var(--color-bg);
+  border-radius:   var(--radius-lg);
+  margin-bottom:   var(--space-5);
+  box-shadow:      var(--shadow-card);
+}
+
+.client-recap-item {
+  display:        flex;
+  flex-direction: column;
+  gap:            var(--space-1);
+}
+
+.client-recap-value {
+  font-size:   var(--font-size-lg);
+  font-weight: var(--font-weight-black);
+  color:       var(--color-text);
+}
+
+.client-recap-label {
+  font-size:   var(--font-size-xs);
+  font-weight: var(--font-weight-semi);
+  color:       var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.client-recap-divider {
+  width:      1px;
+  height:     36px;
+  background: rgba(194,192,191,0.4);
+  flex-shrink: 0;
+}
+
+
+/* ── BANNER ARGENT EN ATTENTE ── */
+.client-attente-banner {
+  display:         flex;
+  align-items:     center;
+  gap:             var(--space-3);
+  padding:         var(--space-4) var(--space-5);
+  border-radius:   var(--radius-lg);
+  font-size:       var(--font-size-sm);
+  font-weight:     var(--font-weight-semi);
+  margin-bottom:   var(--space-5);
+}
+
+.client-attente-banner svg {
+  width:       20px;
+  height:      20px;
+  flex-shrink: 0;
+}
+
+.client-attente-banner strong {
+  font-size:   var(--font-size-lg);
+  font-weight: var(--font-weight-black);
+  margin-left: auto;
+}
+
+.client-attente-banner--danger {
+  background: var(--color-danger-bg);
+  color:      var(--color-danger);
+  border:     1.5px solid rgba(231,76,60,0.2);
+}
+
+.client-attente-banner--ok {
+  background: var(--color-success-bg);
+  color:      var(--color-success);
+  border:     1.5px solid rgba(39,174,96,0.2);
+}
+
+
+/* ── ACCORDION PAIEMENTS ── */
+.payment-accordion {
+  border:        1.5px solid rgba(194,192,191,0.3);
+  border-radius: var(--radius-lg);
+  overflow:      hidden;
+  margin-bottom: var(--space-3);
+}
+
+.payment-accordion-header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  width:           100%;
+  padding:         var(--space-4) var(--space-5);
+  background:      var(--color-bg);
+  border:          none;
+  cursor:          pointer;
+  font-family:     var(--font-family);
+  text-align:      left;
+  transition:      background var(--transition-fast);
+}
+
+.payment-accordion-header:hover {
+  background: rgba(67,66,202,0.04);
+}
+
+.payment-accordion-left {
+  display:     flex;
+  align-items: center;
+  gap:         var(--space-3);
+}
+
+.payment-accordion-chevron {
+  width:      18px;
+  height:     18px;
+  color:      var(--color-text-muted);
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+}
+
+.payment-accordion.open .payment-accordion-chevron {
+  transform: rotate(90deg);
+}
+
+.payment-accordion-title {
+  font-size:   var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color:       var(--color-text);
+}
+
+.payment-accordion-right {
+  display:     flex;
+  align-items: center;
+  gap:         var(--space-4);
+}
+
+.payment-accordion-meta {
+  font-size:   var(--font-size-xs);
+  color:       var(--color-text-muted);
+}
+
+.payment-accordion-pending {
+  font-size:   var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color:       var(--color-warning);
+  background:  var(--color-warning-bg);
+  padding:     3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.payment-accordion-done {
+  font-size:   var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color:       var(--color-success);
+  background:  var(--color-success-bg);
+  padding:     3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.payment-accordion-body {
+  display:    none;
+  border-top: 1.5px solid rgba(194,192,191,0.3);
+  background: #fff;
+  padding:    var(--space-2) 0;
+}
+
+.payment-accordion.open .payment-accordion-body {
+  display: block;
+}
+
+
+/* ── FORMULAIRE RDV ── */
+.rdv-form-grid {
+  display:        flex;
+  flex-direction: column;
+  gap:            var(--space-5);
+  margin-bottom:  var(--space-6);
+}
+
+.rdv-form-actions {
+  display:         flex;
+  align-items:     center;
+  justify-content: flex-end;
+  gap:             var(--space-3);
+  padding-top:     var(--space-5);
+  border-top:      1px solid rgba(194,192,191,0.3);
+}
+
+
+/* ── RESPONSIVE TABS ── */
+@media (max-width: 768px) {
+  .client-tabs-nav {
+    flex-wrap: wrap;
+    gap:       var(--space-1);
+  }
+  .client-tab-btn {
+    flex:    1 1 auto;
+    justify-content: center;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-xs);
+  }
+  .client-recap-strip {
+    flex-wrap: wrap;
+    gap:       var(--space-4);
+  }
+  .payment-accordion-right {
+    flex-direction: column;
+    align-items:    flex-end;
+    gap:            var(--space-1);
+  }
+}
