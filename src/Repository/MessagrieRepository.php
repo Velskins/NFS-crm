@@ -16,28 +16,16 @@ class MessagrieRepository extends ServiceEntityRepository
         parent::__construct($registry, Messagrie::class);
     }
 
-    //    /**
-    //     * @return Messagrie[] Returns an array of Messagrie objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('m')
-    //            ->andWhere('m.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('m.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function findNewMessages(Client $client, int $lastId): array
+    {
+        return $this->createQueryBuilder('m')
+            ->where('m.client = :client')
+            ->andWhere('m.id > :lastId')
+            ->setParameter('client', $client)
+            ->setParameter('lastId', $lastId)
+            ->orderBy('m.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 
-    //    public function findOneBySomeField($value): ?Messagrie
-    //    {
-    //        return $this->createQueryBuilder('m')
-    //            ->andWhere('m.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
 }
