@@ -144,7 +144,7 @@
 {{ form_end(form) }}
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    (function() {
 
         function setupCollection(config) {
             const btn = document.getElementById(config.btnId);
@@ -180,6 +180,9 @@
                     const input = divHidden.querySelector(`[name*="[${f.name}]"]`);
                     if (input) input.value = data[f.name];
                 });
+                const statusInput = divHidden.querySelector(`[name*="[status]"]`);
+                if (statusInput && !statusInput.value) statusInput.value = 'en_attente';
+
                 hiddenContainer.appendChild(divHidden);
 
                 const row = document.createElement('tr');
@@ -204,7 +207,7 @@
             prefix: 'task',
             fields: [
                 {name: 'title', inputId: 'input-task-title', required: true},
-                {name: 'status', inputId: 'input-task-status', required: true},
+                {name: 'status', inputId: 'input-task-status', required: false},
                 {name: 'deadline', inputId: 'input-task-deadline', required: false}
             ],
             renderRow: (d, idx) => `
@@ -244,5 +247,5 @@
                 e.target.closest('tr').remove();
             }
         });
-    });
+})();
 </script>
