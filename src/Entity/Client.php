@@ -77,16 +77,16 @@ class Client
     #[ORM\OneToMany(targetEntity: Appointment::class, mappedBy: 'client')]
     private Collection $appointments;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $city = null;
 
-    #[ORM\Column(length: 10)]
+    #[ORM\Column(length: 10, nullable: true)]
     private ?string $postalCode = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $businessSector = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $address = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -297,10 +297,9 @@ class Client
         return $this->city;
     }
 
-    public function setCity(string $city): static
+    public function setCity(?string $city): static
     {
         $this->city = $city;
-
         return $this;
     }
 
@@ -309,10 +308,9 @@ class Client
         return $this->postalCode;
     }
 
-    public function setPostalCode(string $postalCode): static
+    public function setPostalCode(?string $postalCode): static
     {
         $this->postalCode = $postalCode;
-
         return $this;
     }
 
@@ -321,10 +319,9 @@ class Client
         return $this->businessSector;
     }
 
-    public function setBusinessSector(string $businessSector): static
+    public function setBusinessSector(?string $businessSector): static
     {
         $this->businessSector = $businessSector;
-
         return $this;
     }
 
@@ -333,10 +330,9 @@ class Client
         return $this->address;
     }
 
-    public function setAddress(string $address): static
+    public function setAddress(?string $address): static
     {
         $this->address = $address;
-
         return $this;
     }
 
