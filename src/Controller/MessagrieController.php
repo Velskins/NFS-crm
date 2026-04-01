@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[Route('/messagrie')]
 #[IsGranted('ROLE_USER')]
@@ -103,6 +104,139 @@ class MessagrieController extends AbstractController
             'client'      => $clientProfile,
             'messages'    => $messages,
             'isFreelance' => false,
+        ]);
+    }
+
+    #[Route('/client/{id}/poll', name: 'app_messagrie_poll', methods: ['GET'])]
+    public function poll(
+        int $id,
+        Request $request,
+        ClientRepository $clientRepository,
+        MessagrieRepository $messagrieRepository
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $client = $clientRepository->find($id);
+        if (!$client || $client->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $lastId = (int) $request->query->get('last_id', 0);
+
+        $messages = $messagrieRepository->findNewMessages($client, $lastId);
+
+        return new JsonResponse(array_map(fn($m) => [
+            'id'           => $m->getId(),
+            'content'      => $m->getContent(),
+            'isFromClient' => $m->isFromClient(),
+            'author'       => $m->isFromClient()
+                ? $client->getFirstName() . ' (client)'
+                : $m->getUser()->getFirstname() . ' (freelance)',
+            'date'         => $m->getCreatedAt()->format('d/m/Y à H:i'),
+        ], $messages));
+    }
+
+    #[Route('/my/poll', name: 'app_messagrie_my_poll', methods: ['GET'])]
+    public function myPoll(
+        Request $request,
+        MessagrieRepository $messagrieRepository
+    ): JsonResponse {
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $clientProfile = $user->getClientProfile();
+
+        if (!$clientProfile) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $lastId = (int) $request->query->get('last_id', 0);
+        $messages = $messagrieRepository->findNewMessages($clientProfile, $lastId);
+
+        return new JsonResponse(array_map(fn($m) => [
+            'id'           => $m->getId(),
+            'content'      => $m->getContent(),
+            'isFromClient' => $m->isFromClient(),
+            'author'       => $m->isFromClient()
+                ? $clientProfile->getFirstName() . ' (client)'
+                : $m->getUser()->getFirstname() . ' (freelance)',
+            'date'         => $m->getCreatedAt()->format('d/m/Y à H:i'),
+        ], $messages));
+    }
+    #[Route('/client/{id}/send', name: 'app_messagrie_send', methods: ['POST'])]
+    public function send(
+        int $id,
+        Request $request,
+        ClientRepository $clientRepository,
+        EntityManagerInterface $entityManager
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $client = $clientRepository->find($id);
+
+        if (!$client || $client->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $content = trim($request->request->get('content', ''));
+        if ($content === '') {
+            return new JsonResponse(['success' => false]);
+        }
+
+        $message = new Messagrie();
+        $message->setContent($content);
+        $message->setClient($client);
+        $message->setUser($this->getUser());
+        $message->setIsFromClient(false);
+        $message->setCreatedAt(new \DateTimeImmutable());
+        $entityManager->persist($message);
+        $entityManager->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => [
+                'id'           => $message->getId(),
+                'content'      => $message->getContent(),
+                'isFromClient' => false,
+                'author'       => $this->getUser()->getFirstname() . ' (freelance)',
+                'date'         => $message->getCreatedAt()->format('d/m/Y à H:i'),
+            ]
+        ]);
+    }
+
+    #[Route('/my/send', name: 'app_messagrie_my_send', methods: ['POST'])]
+    public function mySend(
+        Request $request,
+        EntityManagerInterface $entityManager
+    ): JsonResponse {
+        $user = $this->getUser();
+        $clientProfile = $user->getClientProfile();
+
+        if (!$clientProfile) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $content = trim($request->request->get('content', ''));
+        if ($content === '') {
+            return new JsonResponse(['success' => false]);
+        }
+
+        $message = new Messagrie();
+        $message->setContent($content);
+        $message->setClient($clientProfile);
+        $message->setUser($clientProfile->getUser());
+        $message->setIsFromClient(true);
+        $message->setCreatedAt(new \DateTimeImmutable());
+        $entityManager->persist($message);
+        $entityManager->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => [
+                'id'           => $message->getId(),
+                'content'      => $message->getContent(),
+                'isFromClient' => true,
+                'author'       => $clientProfile->getFirstName() . ' (client)',
+                'date'         => $message->getCreatedAt()->format('d/m/Y à H:i'),
+            ]
         ]);
     }
 }
