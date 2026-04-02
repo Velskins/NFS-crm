@@ -23,7 +23,7 @@ class Project
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le statut est obligatoire.')]
-    private ?string $status = null;
+    private ?string $status = 'en_cours';
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     #[Assert\NotBlank(message: 'Le budget est obligatoire.')]

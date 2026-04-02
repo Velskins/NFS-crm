@@ -19,11 +19,13 @@ class TaskType extends AbstractType
                 'label' => 'Nom de la tâche'
             ])
             ->add('status', ChoiceType::class, [
-                'label' => 'Statut',
-                'choices' => [
-                    'À faire' => 'a_faire',
+                'label'    => 'Statut',
+                'required' => false,
+                'data'     => 'a_faire',
+                'choices'  => [
+                    'À faire'  => 'a_faire',
                     'En cours' => 'en_cours',
-                    'Terminé' => 'terminé',
+                    'Terminé'  => 'terminé',
                 ],
             ])
             ->add('deadline', DateType::class, [

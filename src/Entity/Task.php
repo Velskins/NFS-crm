@@ -20,7 +20,7 @@ class Task
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le statut est obligatoire.')]
-    private ?string $status = null;
+    private ?string $status = 'a_faire';
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $deadline = null;
@@ -51,10 +51,9 @@ class Task
         return $this->status;
     }
 
-    public function setStatus(string $status): static
+    public function setStatus(?string $status): static
     {
-        $this->status = $status;
-
+        $this->status = $status ?? 'a_faire';
         return $this;
     }
 
