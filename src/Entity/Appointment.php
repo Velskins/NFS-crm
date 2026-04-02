@@ -30,6 +30,9 @@ class Appointment
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $subject = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -80,6 +83,17 @@ class Appointment
     {
         $this->user = $user;
 
+        return $this;
+    }
+
+    public function getSubject(): ?string
+    {
+        return $this->subject;
+    }
+
+    public function setSubject(?string $subject): static
+    {
+        $this->subject = $subject;
         return $this;
     }
 }
