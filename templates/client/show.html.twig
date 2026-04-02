@@ -297,11 +297,12 @@
                     </div>
                     {% if client.appointments is not empty %}
                         <table class="detail-table">
-                            <thead><tr><th>Date &amp; Heure</th><th>Note</th><th>Action</th></tr></thead>
+                            <thead><tr><th>Date &amp; Heure</th><th>Objet</th> <th>Note</th><th>Action</th></tr></thead>
                             <tbody>
                                 {% for appointment in client.appointments %}
                                     <tr>
                                         <td>{{ appointment.scheduleAt|date('d/m/Y à H:i') }}</td>
+                                        <td>{{ appointment.subject ?: '—' }}</td>
                                         <td>{{ appointment.note ?: '—' }}</td>
                                         <td>
                                             <form method="post" action="{{ path('app_appointment_delete', {'id': appointment.id}) }}" onsubmit="return confirm('Supprimer ce rendez-vous ?');" style="display:inline">
