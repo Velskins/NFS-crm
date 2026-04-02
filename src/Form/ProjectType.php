@@ -25,8 +25,9 @@ class ProjectType extends AbstractType
                 'attr'  => ['placeholder' => 'Ex: Refonte site web']
             ])
             ->add('status', ChoiceType::class, [
-                'label'   => 'Statut',
-                'choices' => [
+                'label'       => 'Statut',
+                'placeholder' => 'Sélectionner un statut',
+                'choices'     => [
                     'En cours' => 'en_cours',
                     'Terminé'  => 'terminé',
                     'Livré'    => 'livre',
